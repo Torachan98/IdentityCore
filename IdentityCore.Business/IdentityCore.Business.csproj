@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MailKit" Version="4.7.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IdentityCore.AutoMapper\IdentityCore.AutoMapper.csproj" />
+    <ProjectReference Include="..\IdentityCore.EFs\IdentityCore.EFs.csproj" />
+    <ProjectReference Include="..\IdentityCore.Repository\IdentityCore.Repository.csproj" />
+  </ItemGroup>
+
+</Project>
