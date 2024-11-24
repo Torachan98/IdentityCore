@@ -11,19 +11,19 @@ namespace IdentityCore.EFs.DTOs
         public string Description { get; set; }
 
         [IgnoreDataMember]
-        public UserRolePermissionEntity UserRolePermissions { get; set; }
+        public UserRolePermissionDTO UserRolePermissions { get; set; }
 
-        
+
     }
 
     public class PermissionEnum
     {
         public PermissionType PermissionType { get; set; }
         public Permission Permission { get; set; }
-        public string Description { get;set; }
+        public string Description { get; set; }
     }
 
-    public class PermissionItems 
+    public class PermissionItems
     {
         public Permission Permission { get; set; }
         public string Description { get; set; }
@@ -33,5 +33,13 @@ namespace IdentityCore.EFs.DTOs
     {
         public PermissionType PermissionType { get; set; }
         List<PermissionItems> permissionEnums { get; set; }
+    }
+
+    public class UserRolePermissionDTO
+    {
+        public int UserRolePermissionId { get; set; }
+        public int PermissionId { get; set; }
+        public int RoleId { get; set; }
+        public int UserId { get; set; }
     }
 }

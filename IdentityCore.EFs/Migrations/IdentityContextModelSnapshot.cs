@@ -92,6 +92,42 @@ namespace IdentityCore.EFs.Migrations
                     b.ToTable("Roles");
                 });
 
+            modelBuilder.Entity("IdentityCore.EFs.Entities.ServiceEntity", b =>
+                {
+                    b.Property<int>("ServiceId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ServiceId"));
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("GUID")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SignatureKey")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ServiceId");
+
+                    b.ToTable("Services");
+                });
+
             modelBuilder.Entity("IdentityCore.EFs.Entities.UserEntity", b =>
                 {
                     b.Property<int>("UserId")
@@ -230,32 +266,89 @@ namespace IdentityCore.EFs.Migrations
                     b.ToTable("UserRolePermissions");
                 });
 
+            modelBuilder.Entity("IdentityCore.EFs.Entities.UserServiceEntity", b =>
+                {
+                    b.Property<int>("UserServiceId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserServiceId"));
+
+                    b.Property<DateTime?>("DateActive")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateExpired")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("GUID")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("ServiceId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserServiceId");
+
+                    b.HasIndex("ServiceId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserServices");
+                });
+
             modelBuilder.Entity("IdentityCore.EFs.Entities.UserRolePermissionEntity", b =>
                 {
                     b.HasOne("IdentityCore.EFs.Entities.PermissionEntity", "Permissions")
                         .WithOne("UserRolePermissions")
                         .HasForeignKey("IdentityCore.EFs.Entities.UserRolePermissionEntity", "PermissionId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("PermissionId");
+                        .IsRequired();
 
                     b.HasOne("IdentityCore.EFs.Entities.RoleEntity", "Roles")
                         .WithMany("UserRolePermissions")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("RoleId");
+                        .IsRequired();
 
                     b.HasOne("IdentityCore.EFs.Entities.UserEntity", "Users")
                         .WithMany("UserRolePermissions")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("UserId");
+                        .IsRequired();
 
                     b.Navigation("Permissions");
 
                     b.Navigation("Roles");
+
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("IdentityCore.EFs.Entities.UserServiceEntity", b =>
+                {
+                    b.HasOne("IdentityCore.EFs.Entities.ServiceEntity", "Services")
+                        .WithMany("UserServices")
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IdentityCore.EFs.Entities.UserEntity", "Users")
+                        .WithMany("UserServices")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Services");
 
                     b.Navigation("Users");
                 });
@@ -270,9 +363,16 @@ namespace IdentityCore.EFs.Migrations
                     b.Navigation("UserRolePermissions");
                 });
 
+            modelBuilder.Entity("IdentityCore.EFs.Entities.ServiceEntity", b =>
+                {
+                    b.Navigation("UserServices");
+                });
+
             modelBuilder.Entity("IdentityCore.EFs.Entities.UserEntity", b =>
                 {
                     b.Navigation("UserRolePermissions");
+
+                    b.Navigation("UserServices");
                 });
 #pragma warning restore 612, 618
         }

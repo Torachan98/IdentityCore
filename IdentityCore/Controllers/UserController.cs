@@ -18,7 +18,7 @@ namespace IdentityCore.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetUsers([FromHeader] UserFetchRequest userFetchRequest)
+        public async Task<IActionResult> GetUsers([FromQuery] UserFetchRequest userFetchRequest)
         {
             var result = await _userService.GetUsersAsync(userFetchRequest);
             return Ok(result);
