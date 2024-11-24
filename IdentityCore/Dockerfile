@@ -16,7 +16,7 @@ COPY ["./IdentityCore.Services/IdentityCore.Services.csproj", "IdentityCore.Serv
 COPY ["./IdentityCore.Business/IdentityCore.Business.csproj", "IdentityCore.Business/"]
 RUN dotnet restore "./IdentityCore/IdentityCore.csproj"
 COPY . .
-WORKDIR "/src/IdentityCore"
+# WORKDIR "/src/IdentityCore"
 RUN dotnet build "./IdentityCore.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
