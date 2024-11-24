@@ -50,6 +50,25 @@ namespace IdentityCore.EFs.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Services",
+                columns: table => new
+                {
+                    ServiceId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SignatureKey = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    GUID = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DateModified = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Services", x => x.ServiceId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -103,7 +122,83 @@ namespace IdentityCore.EFs.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_UserRolePermissions", x => x.UserRolePermissionId);
+                    table.ForeignKey(
+                        name: "FK_UserRolePermissions_Permissions_PermissionId",
+                        column: x => x.PermissionId,
+                        principalTable: "Permissions",
+                        principalColumn: "PermissionId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserRolePermissions_Roles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Roles",
+                        principalColumn: "RoleId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserRolePermissions_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "UserServices",
+                columns: table => new
+                {
+                    UserServiceId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    ServiceId = table.Column<int>(type: "int", nullable: false),
+                    DateActive = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DateExpired = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    GUID = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DateModified = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserServices", x => x.UserServiceId);
+                    table.ForeignKey(
+                        name: "FK_UserServices_Services_ServiceId",
+                        column: x => x.ServiceId,
+                        principalTable: "Services",
+                        principalColumn: "ServiceId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserServices_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRolePermissions_PermissionId",
+                table: "UserRolePermissions",
+                column: "PermissionId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRolePermissions_RoleId",
+                table: "UserRolePermissions",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRolePermissions_UserId",
+                table: "UserRolePermissions",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserServices_ServiceId",
+                table: "UserServices",
+                column: "ServiceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserServices_UserId",
+                table: "UserServices",
+                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -113,10 +208,16 @@ namespace IdentityCore.EFs.Migrations
                 name: "UserRolePermissions");
 
             migrationBuilder.DropTable(
+                name: "UserServices");
+
+            migrationBuilder.DropTable(
                 name: "Permissions");
 
             migrationBuilder.DropTable(
                 name: "Roles");
+
+            migrationBuilder.DropTable(
+                name: "Services");
 
             migrationBuilder.DropTable(
                 name: "Users");

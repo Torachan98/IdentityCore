@@ -57,5 +57,6 @@ namespace IdentityCore.EFs.Entities
         public string RefreshToken { get; set; } 
 
         public virtual ICollection<UserRolePermissionEntity> UserRolePermissions { get; set; }
+        public virtual ICollection<UserServiceEntity> UserServices { get; set; }
     }
 }
