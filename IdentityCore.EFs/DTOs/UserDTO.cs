@@ -57,6 +57,7 @@ namespace IdentityCore.EFs.DTOs
 
         public List<PermissionEnum> GroupPermissions { get; set; }
         public List<RoleEnum> GroupRoles { get; set; }
+        public List<string> Services { get; set; }
 
         public List<UserRolePermissionEntity> UserRolePermissions { get; set; }
     }

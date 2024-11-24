@@ -22,8 +22,17 @@ namespace IdentityCore.Business
         private readonly IUserRepository _userRepository;
         private readonly IPermissionRepository _permissionRepository;
         private readonly IRoleRepository _roleRepository;
+        private readonly IServiceRepository _serviceRepository;
+        private readonly IUserServiceRepository _userServiceRepository;
 
-        public UserBusiness(IUnitOfWork unitOfWork, IMapper mapper, IEmailBusiness emailBusiness, IUserRepository userRepository, IPermissionRepository permissionRepository, IRoleRepository roleRepository) 
+        public UserBusiness(IUnitOfWork unitOfWork, 
+            IMapper mapper, 
+            IEmailBusiness emailBusiness, 
+            IUserRepository userRepository, 
+            IPermissionRepository permissionRepository,
+            IRoleRepository roleRepository,
+            IServiceRepository serviceRepository,
+            IUserServiceRepository userServiceRepository)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -33,6 +42,8 @@ namespace IdentityCore.Business
             _userRepository = userRepository;
             _permissionRepository = permissionRepository;
             _roleRepository = roleRepository;
+            _serviceRepository = serviceRepository;
+            _userServiceRepository = userServiceRepository;
         }
 
         public async Task<UserDTO> GetSingleUserWithPermissionAndRoleAsync(string userName, string guid = "",string refreshToken = "")
@@ -52,6 +63,8 @@ namespace IdentityCore.Business
                 userQuery = userQuery.Where(s => s.RefreshToken == refreshToken && s.IsLogin &&!s.IsDeleted);
             }
 
+            userQuery = userQuery.Where(s => !s.Locked.HasValue);
+
             userQuery = userQuery.Include(s => s.UserRolePermissions);
 
             var userEntity = await userQuery.FirstOrDefaultAsync();
@@ -64,6 +77,11 @@ namespace IdentityCore.Business
 
                 var permissionEntity = await _permissionRepository.Get(s => permissionIds.Contains(s.PermissionId)).ToListAsync();
                 var roleEntity = await _roleRepository.Get(s => roleIds.Contains(s.RoleId)).ToListAsync();
+                userDto.Services = await _userServiceRepository
+                                                .Get(s=> s.UserId == userEntity.UserId)
+                                                .Include(s=> s.Services)
+                                                .Select(s=> s.Services.SignatureKey)
+                                                .ToListAsync();
 
                 var permissions = EnumHelper.ConvertPermissionToList<Permission, PermissionEnum>();
                 var roles = EnumHelper.ConvertRoleToList<Role, RoleEnum>();

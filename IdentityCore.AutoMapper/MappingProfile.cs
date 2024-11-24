@@ -19,8 +19,9 @@ namespace IdentityCore.AutoMapper
 
             CreateMap<RoleEntity, RoleDTO>().ReverseMap();
 
-            CreateMap<PermissionEntity, PermissionDTO>()
-                .ReverseMap();
+            CreateMap<PermissionEntity, PermissionDTO>().ReverseMap();
+
+            CreateMap<ServiceEntity, ServciceDTO>().ReverseMap();
 
             CreateMap<UserRequest, UserDTO>(MemberList.Source)
                 .ForMember(s => s.IsRequiredChangePassword, opt => opt.MapFrom(src => src.ChangedPasswordFirstTime))

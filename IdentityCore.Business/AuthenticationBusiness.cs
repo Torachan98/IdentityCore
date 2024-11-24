@@ -73,7 +73,7 @@ namespace IdentityCore.Business
                 };
             }
 
-            if (user.IsActive != null && !(bool)user.IsActive)
+            if (user.IsActive.HasValue && !(bool)user.IsActive)
             {
                 user.OTPCode = _emailBusiness.GenerateOTP(GlobalConfiguration.OTP.SizeCode);
                 user.OTPLifeTime = DateTime.UtcNow.AddMinutes(GlobalConfiguration.OTP.LifeTimeMinute);
@@ -155,12 +155,12 @@ namespace IdentityCore.Business
             }).ToList();
 
             var claims = new[] {
-                new Claim(nameof(user.FullName),user.FullName),
-                new Claim(nameof(user.Email),user.Email),
-                new Claim(nameof(user.Phone),user.Phone),
-                new Claim(nameof(user.PhoneCode),user.PhoneCode),
+                new Claim("name",user.FullName),
+                new Claim("email",user.Email),
+                new Claim("phone",$"{user.PhoneCode} {user.Phone}"),
                 new Claim("userId",user.GUID),
                 new Claim("permissions",JsonSerializer.Serialize(permissionItem)),
+                new Claim("services",JsonSerializer.Serialize(user.Services)),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 

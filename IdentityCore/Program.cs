@@ -66,6 +66,9 @@ builder.Services.AddScoped<IAuthenticationBusiness, AuthenticationBusiness>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
+builder.Services.AddScoped<IUserServiceRepository, UserServiceRepository>();
+builder.Services.AddScoped<IUserRolePermissionRepository, UserRolePermissionRepository>();
 #endregion
 
 #region UnitOfWork
