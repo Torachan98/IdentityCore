@@ -1,0 +1,37 @@
+name: Github Runner
+
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build_and_deploy_job:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: self-hosted  # This is where your VM runner is used
+    name: Build and Deploy Job
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          lfs: false
+
+      - name: Set up Docker (Ensure Docker is installed on your VM)
+        run: |
+          docker --version  # Check if Docker is installed, and display the version
+          docker info  # Check Docker system information (optional)
+
+      - name: Build Docker Image
+        run: |
+          # Build the Docker image locally using the Dockerfile in your repo
+          docker build -t identitycore:latest -f ./IdentityCore/Dockerfile .
+
+      - name: Deploy Docker container (optional)
+        run: |
+          # Run the Docker container on your VM
+          docker run -d -p 80:8080 - identitycore:latest  # Modify ports as necessary
+
+      - name: Clean up Docker images (optional)
+        run: |
+          # Clean up the Docker images after deployment to free up space
+          docker system prune -f
