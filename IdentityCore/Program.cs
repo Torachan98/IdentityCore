@@ -17,6 +17,7 @@ using Microsoft.OpenApi.Models;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
+var config = builder.Configuration;
 
 
 var build = new ConfigurationBuilder().AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: false);
@@ -28,7 +29,7 @@ builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 builder.Services.Configure<Configuration>(configuration);
 builder.Services.AddDbContext<IdentityContext>(options
-             => options.UseSqlServer(configuration.GetConnectionString("DbContext"),b => b.MigrationsAssembly("IdentityCore.EFs")));
+             => options.UseSqlServer(config.GetConnectionString("DbContext"),b => b.MigrationsAssembly("IdentityCore.EFs")));
 
 
 builder.Services.AddCors(options => options.AddPolicy("IdentityCore_Policy", p => p

@@ -25,12 +25,13 @@ jobs:
         run: |
           # Build the Docker image locally using the Dockerfile in your repo
           docker build -t identitycore:latest -f ./IdentityCore/Dockerfile .
-
+          
       - name: Deploy Docker container (optional)
         run: |
           # Run the Docker container on your VM
-          docker run -d -p 80:8080 identitycore:latest  # Modify ports as necessary
-
+          docker rm -f $(docker ps -aq) > /dev/null 2>&1 || echo "Not have any containers"          
+          docker run -d -p 80:8080 --env ConnectionStrings__DbContext="${{ secrets.CONNECTSTRING }}" identitycore:latest  # Modify ports as necessary 
+      
       - name: Clean up Docker images (optional)
         run: |
           # Clean up the Docker images after deployment to free up space
