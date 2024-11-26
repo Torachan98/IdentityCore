@@ -136,6 +136,21 @@ namespace IdentityCore.Controllers
             return Ok(new { Status = result });
         }
 
+        [HttpPost]
+        [Route(ResetEmailUserRoute)]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResetEmail()
+        {
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route(ResetPasswordUserRoute)]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResetPassword()
+        {
+            return Ok();
+        }
 
         [HttpPost]
         [Route(SignOutRoute)]

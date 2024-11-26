@@ -12,18 +12,21 @@ using System.Text.Json;
 using IdentityCore.Repository.Interfaces;
 using IdentityCore.EFs.Helpers;
 using Microsoft.EntityFrameworkCore;
+using IdentityCore.Repository.UnitOfWork;
 
 namespace IdentityCore.Business
 {
     public class AuthenticationBusiness : BaseBusiness, IAuthenticationBusiness
     {
         private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IUserBusiness _userBusiness;
         private readonly IEmailBusiness _emailBusiness;
         private readonly IUserRepository _userRepository;
-        public AuthenticationBusiness(IMapper mapper, IUserBusiness userBusiness, IEmailBusiness emailBusiness, IUserRepository userRepository)
+        public AuthenticationBusiness(IMapper mapper, IUnitOfWork unitOfWork, IUserBusiness userBusiness, IEmailBusiness emailBusiness, IUserRepository userRepository)
         {
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
             _userBusiness = userBusiness;
             _emailBusiness = emailBusiness;
             _userRepository = userRepository;
@@ -214,6 +217,45 @@ namespace IdentityCore.Business
             }
 
             return false;
+        }
+
+        public async Task<bool> ResetEmail(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                return false;
+            }
+
+            var userEntity = await _userRepository.Get().FirstOrDefaultAsync(s => s.Email == email && s.IsActive);
+            if (userEntity == null) 
+            {
+                return false;
+            }
+
+            userEntity.OTPCode = _emailBusiness.GenerateOTP(5);
+            userEntity.OTPLifeTime = DateTime.UtcNow.AddMinutes(15);
+            _userRepository.Add(userEntity);
+
+            var userDto = _mapper.Map<UserDTO>(userEntity);            
+            await _emailBusiness.SendMailAsync(userDto, TemplateEmailType.OTP);
+            await _unitOfWork.CommitAsync();
+
+            return true;
+        }
+
+        public Task<string> ResetEmailConfirm(string email, string otpCode)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> ResetPassword(string email)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ResetPasswordConfirm(string password, string otpCode)
+        {
+            throw new NotImplementedException();
         }
     }
 }
