@@ -55,5 +55,25 @@ namespace IdentityCore.Services
         {
             return await _authenticationBusiness.ConfirmOTPAsync(otpCode);
         }
+
+        public async Task<bool> ResetEmail(string email)
+        {
+            return await _authenticationBusiness.ResetEmailAsync(email);
+        }
+
+        public async Task<bool> ResetEmailConfirm(string email, string otpCode)
+        {
+            return await _authenticationBusiness.ResetEmailConfirmAsync(email, otpCode);
+        }
+
+        public Task<bool> ResetPassword(string email)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> ResetPasswordConfirm(string password, string otpCode)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

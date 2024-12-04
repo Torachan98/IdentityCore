@@ -219,7 +219,7 @@ namespace IdentityCore.Business
             return false;
         }
 
-        public async Task<bool> ResetEmail(string email)
+        public async Task<bool> ResetEmailAsync(string email)
         {
             if (string.IsNullOrEmpty(email))
             {
@@ -243,17 +243,36 @@ namespace IdentityCore.Business
             return true;
         }
 
-        public Task<string> ResetEmailConfirm(string email, string otpCode)
+        public async Task<bool> ResetEmailConfirmAsync(string email, string otpCode)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                return false;
+            }
+
+            var userEntity = await _userRepository.Get().FirstOrDefaultAsync(s => s.Email == email && 
+                                                                            s.OTPCode == otpCode &&
+                                                                            s.OTPLifeTime.HasValue && s.OTPLifeTime >= DateTime.UtcNow && 
+                                                                            s.IsActive);
+            if (userEntity == null)
+            {
+                return false;
+            }
+
+            userEntity.Email = email;
+            userEntity.OTPLifeTime = DateTime.UtcNow;
+            _userRepository.Update(userEntity, s => s.Email);
+
+            await _unitOfWork.CommitAsync();
+            return true;
+        }
+
+        public Task<bool> ResetPasswordAsync(string email)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> ResetPassword(string email)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ResetPasswordConfirm(string password, string otpCode)
+        public Task<bool> ResetPasswordConfirmAsync(string password, string otpCode)
         {
             throw new NotImplementedException();
         }

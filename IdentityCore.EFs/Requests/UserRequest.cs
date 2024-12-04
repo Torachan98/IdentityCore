@@ -26,7 +26,7 @@ namespace IdentityCore.EFs.Requests
         public bool? IsLogin { get; set; }
     }
 
-    public class CreateUserRequest
+    public class CreateOrUpdateUserRequest
     {
         public string Password { get; set; }
         public string Email { get; set; }
@@ -46,12 +46,8 @@ namespace IdentityCore.EFs.Requests
 
     public class UserFetchRequest
     {
-        public string GUID { get; set; }
-        public string UserName { get; set; } 
-        public string Email { get; set; } 
-        public string Phone { get; set; } 
-        public string PhoneCode { get; set; } 
-        public string Region { get; set; } 
+        public string Keyword { get; set; }
+        public List<string> Regions { get; set; }
         public string PageSize { get; set; } 
         public string PageNum { get; set; } 
     }

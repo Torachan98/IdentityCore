@@ -11,13 +11,9 @@ namespace IdentityCore.Business.Interfaces
         Task<AuthenticationToken?> RenewTokenAsync(string refreshToken);
         Task<bool> ValidateToken();
         Task<bool> ConfirmOTPAsync(string otpCode);
-
-        Task<bool> ResetEmail(string email);
-
-        Task<string> ResetEmailConfirm(string email, string otpCode);
-
-        Task<bool> ResetPassword(string email);
-
-        Task<string> ResetPasswordConfirm(string password, string otpCode);
+        Task<bool> ResetEmailAsync(string email);
+        Task<bool> ResetEmailConfirmAsync(string email, string otpCode);
+        Task<bool> ResetPasswordAsync(string email);
+        Task<bool> ResetPasswordConfirmAsync(string password, string otpCode);
     }
 }

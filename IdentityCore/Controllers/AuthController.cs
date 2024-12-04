@@ -16,6 +16,7 @@ namespace IdentityCore.Controllers
         private const string ConfirmOTPRoute = UrlRoot + "/confirm-otp";
         private const string ResetPasswordUserRoute = UrlRoot + "/reset-password";
         private const string ResetEmailUserRoute = UrlRoot + "/reset-email";
+        private const string ResetEmaiConfirmlUserRoute = UrlRoot + "/confirm-reset-email";
         private const string RenewTokenRoute = UrlRoot + "/renew-token";
         private const string SignOutRoute = UrlRoot + "/signout";
 
@@ -30,12 +31,11 @@ namespace IdentityCore.Controllers
         [HttpPost]
         [Route(RegistrationRoute)]
         [AllowAnonymous]
-        public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest createUserRequest)
+        public async Task<IActionResult> CreateUser([FromBody] CreateOrUpdateUserRequest createUserRequest)
         {
-            var result = await _userService.CreateUserAsync(createUserRequest);
+            var result = await _userService.CreateAsync(createUserRequest);
             return Ok(result);
         }    
-        
         
         [HttpPost]
         [Route(ConfirmOTPRoute)]
@@ -139,9 +139,17 @@ namespace IdentityCore.Controllers
         [HttpPost]
         [Route(ResetEmailUserRoute)]
         [AllowAnonymous]
-        public async Task<IActionResult> ResetEmail()
+        public async Task<IActionResult> ResetEmail([FromQuery] string emailAddress)
         {
-            return Ok();
+            return Ok(await _authenticationService.ResetEmail(emailAddress));
+        }
+
+        [HttpPost]
+        [Route(ResetEmaiConfirmlUserRoute)]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResetEmailConfirm([FromQuery] string emailAddress,string otpCode)
+        {
+            return Ok(await _authenticationService.ResetEmailConfirm(emailAddress, otpCode));
         }
 
         [HttpPost]
@@ -150,15 +158,14 @@ namespace IdentityCore.Controllers
         public async Task<IActionResult> ResetPassword()
         {
             return Ok();
-        }
+        } 
 
         [HttpPost]
         [Route(SignOutRoute)]
         [Attributes.Authorize]
         public async Task<IActionResult> Signout()
         {
-            var result = await _authenticationService.SignOut();
-            return Ok(result);
+            return Ok(await _authenticationService.SignOut());
         }
     }
 }

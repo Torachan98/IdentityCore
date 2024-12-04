@@ -7,4 +7,14 @@
         public string Description { get; set; }
         public string SignatureKey { get; set; }
     }
+
+    public class CreateOrUpdateServiceRequest
+    {
+
+    }
+
+    public class ServiceFetchRequest
+    {
+
+    }
 }

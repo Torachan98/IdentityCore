@@ -1,4 +1,6 @@
-﻿using IdentityCore.Services.Interfaces;
+﻿using IdentityCore.EFs.DTOs;
+using IdentityCore.EFs.Requests;
+using IdentityCore.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,17 +11,27 @@ namespace IdentityCore.Services
 {
     public class PermissionService : IPermissionService
     {
-        public Task<string> CreatePermissionAsync()
+        public Task<ObjectResult<PermissionDTO>> CreateAsync(CreateOrUpdatePermissionRequest request)
         {
             throw new NotImplementedException();
         }
 
-        public Task<string> DeletePermissionAsync()
+        public Task<bool> DeleteAsync(string guid)
         {
             throw new NotImplementedException();
         }
 
-        public Task<string> UpdatePermissionAsync()
+        public Task<PaginationItems<PermissionDTO>> GetAllAsync(PermissionFetchRequest request)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PermissionDTO> GetByIdAsync(string guid)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ObjectResult<PermissionDTO>> UpdateAsync(CreateOrUpdatePermissionRequest request)
         {
             throw new NotImplementedException();
         }

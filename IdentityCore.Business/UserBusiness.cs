@@ -93,24 +93,34 @@ namespace IdentityCore.Business
             return userDto;
         }
 
-        public async Task<PaginationItems<UserDTO>> GetUsersAsync(UserFetchRequest userFetchRequest)
+        public async Task<PaginationItems<UserDTO>> GetUsersAsync(UserFetchRequest request)
         {
             var userQuery = _userRepository.Get();
             int pageNumInt = 1;
             int pageSizeInt = 30;
             int totalCount = userQuery.Count(s => !s.IsDeleted);
 
-            if (!string.IsNullOrEmpty(userFetchRequest.PageNum) && !string.IsNullOrEmpty(userFetchRequest.PageSize))
+            if (!string.IsNullOrEmpty(request.PageNum) && !string.IsNullOrEmpty(request.PageSize))
             {
-                pageNumInt = int.Parse(userFetchRequest.PageNum);
-                pageSizeInt = int.Parse(userFetchRequest.PageSize);
+                pageNumInt = int.Parse(request.PageNum);
+                pageSizeInt = int.Parse(request.PageSize);
             }
 
-            userQuery = userQuery.Skip(pageNumInt * pageSizeInt);
+            userQuery = userQuery.Skip(pageNumInt * (pageSizeInt - 1));
 
-            if (!string.IsNullOrEmpty(userFetchRequest.Region))
+            if (request.Regions.Any())
             {
-                userQuery = userQuery.Where(s => s.Region == userFetchRequest.Region);
+                userQuery = userQuery.Where(s => request.Regions.Contains(s.Region));
+            }
+
+            if (!string.IsNullOrEmpty(request.Keyword))
+            {
+                userQuery = userQuery.Where(s => s.Phone.Contains(request.Keyword) ||
+                                                s.Email.Contains(request.Keyword) ||
+                                                s.UserName.Contains(request.Keyword) ||
+                                                s.FirstName.Contains(request.Keyword) ||
+                                                s.LastName.Contains(request.Keyword) ||
+                                                s.MiddleName.Contains(request.Keyword));
             }
 
             var userEntities = await userQuery.ToListAsync();
@@ -124,7 +134,7 @@ namespace IdentityCore.Business
             };
         }
 
-        public async Task<UserDTO?> CreateUserAsync(CreateUserRequest createUserRequest)
+        public async Task<UserDTO?> CreateUserAsync(CreateOrUpdateUserRequest createUserRequest)
         {
             var isExistedUser = await _userRepository.Get(s => s.Email == createUserRequest.Email
                                                     || s.UserName == createUserRequest.UserName).AnyAsync();

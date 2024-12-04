@@ -22,43 +22,19 @@ namespace IdentityCore.Services
             _emailBusiness = emailBusiness;
         }
 
-        public async Task<PaginationItems<UserDTO>> GetUsersAsync(UserFetchRequest userFetchRequest)
+        public async Task<PaginationItems<UserDTO>> GetAllAsync(UserFetchRequest request)
         {
-            return await _userBusiness.GetUsersAsync(userFetchRequest);
+            return await _userBusiness.GetUsersAsync(request);
         }
 
-        public async Task<ObjectResult<UserDTO>> CreateUserAsync(CreateUserRequest createUserRequest)
+        public Task<UserDTO> GetByIdAsync(string guid)
         {
-            var errors = Validator.ValidateRequiredProperties(createUserRequest);
-            if (errors.Any()) 
-            {
-                return new ObjectResult<UserDTO>()
-                {
-                    Message = JsonConvert.SerializeObject(errors)
-                };
-            }
-
-            var result = await _userBusiness.CreateUserAsync(createUserRequest);
-
-            if(result == null)
-            {
-                return new ObjectResult<UserDTO>()
-                {
-                    Message = "User has been existed or has been inactive"
-                };
-            }
-
-            await _emailBusiness.SendMailAsync(result,TemplateEmailType.OTP);
-
-            return new ObjectResult<UserDTO>()
-            {
-                Item = result,
-            };
+            throw new NotImplementedException();
         }
 
-        public async Task<ObjectResult<UserDTO>> UpdateUserAsync(UserRequest userRequest)
+        public async Task<ObjectResult<UserDTO>> CreateAsync(CreateOrUpdateUserRequest request)
         {
-            var errors = Validator.ValidateRequiredProperties(userRequest);
+            var errors = Validator.ValidateRequiredProperties(request);
             if (errors.Any())
             {
                 return new ObjectResult<UserDTO>()
@@ -67,7 +43,36 @@ namespace IdentityCore.Services
                 };
             }
 
-            var userDto = _mapper.Map<UserDTO>(userRequest);
+            var result = await _userBusiness.CreateUserAsync(request);
+
+            if (result == null)
+            {
+                return new ObjectResult<UserDTO>()
+                {
+                    Message = "User has been existed or has been inactive"
+                };
+            }
+
+            await _emailBusiness.SendMailAsync(result, TemplateEmailType.OTP);
+
+            return new ObjectResult<UserDTO>()
+            {
+                Item = result,
+            };
+        }
+
+        public async Task<ObjectResult<UserDTO>> UpdateAsync(CreateOrUpdateUserRequest request)
+        {
+            var errors = Validator.ValidateRequiredProperties(request);
+            if (errors.Any())
+            {
+                return new ObjectResult<UserDTO>()
+                {
+                    Message = JsonConvert.SerializeObject(errors)
+                };
+            }
+
+            var userDto = _mapper.Map<UserDTO>(request);
 
             var result = await _userBusiness.UpdateUserAsync(userDto);
 
@@ -77,7 +82,7 @@ namespace IdentityCore.Services
             };
         }
 
-        public async Task<bool> DeleteUserAsync(string guid)
+        public async Task<bool> DeleteAsync(string guid)
         {
             if (string.IsNullOrEmpty(guid))
             {
