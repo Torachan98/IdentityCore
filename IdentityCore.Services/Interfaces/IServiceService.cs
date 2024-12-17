@@ -2,7 +2,7 @@
 
 namespace IdentityCore.Services.Interfaces
 {
-    public interface IServiceService: IBaseService<ServciceDTO, CreateOrUpdateServiceRequest, ServiceFetchRequest>
+    public interface IServiceService: IBaseService<ServiceDTO, CreateOrUpdateServiceRequest, ServiceFetchRequest>
     {
     }
 }

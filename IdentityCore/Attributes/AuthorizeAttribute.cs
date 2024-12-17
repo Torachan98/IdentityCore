@@ -11,7 +11,7 @@ namespace IdentityCore.Attributes
         {
             var account = context.HttpContext.Items["User"] as UserDTO;
 
-            if (account == null || (bool)!account.IsLogin)
+            if (account == null || (account.IsLogin.HasValue && !account.IsLogin.Value))
             {
                 context.Result = new UnauthorizedResult();
             }

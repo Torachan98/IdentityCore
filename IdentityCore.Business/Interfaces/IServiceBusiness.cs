@@ -1,0 +1,13 @@
+﻿using IdentityCore.EFs.DTOs;
+using IdentityCore.EFs.Requests;
+
+namespace IdentityCore.Business.Interfaces
+{
+    public interface IServiceBusiness
+    {
+        Task<PaginationItems<ServiceDTO>> GetServices(ServiceFetchRequest request);
+        Task<ServiceDTO> CreateServicesAsync(CreateOrUpdateServiceRequest request);
+        Task<ServiceDTO> UpdateServicesAsync(CreateOrUpdateServiceRequest request);
+        Task<bool> DeleteServicesAsync(string guid);
+    }
+}

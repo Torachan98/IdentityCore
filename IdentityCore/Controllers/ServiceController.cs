@@ -1,5 +1,4 @@
-﻿using IdentityCore.EFs.Requests;
-using IdentityCore.Attributes;
+﻿using IdentityCore.Attributes;
 using IdentityCore.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using IdentityCore.EFs.DTOs;

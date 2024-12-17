@@ -7,34 +7,34 @@ namespace IdentityCore.EFs.Entities
     {
         [Key]
         public int UserId { get; set; }
-        public string AvatarUrl { get; set; } 
+        public string? AvatarUrl { get; set; } 
 
         [Required]
-        public string UserName { get; set; } 
+        public string? UserName { get; set; } 
 
         [Required]
-        public string FirstName { get; set; } 
+        public string? FirstName { get; set; } 
 
         [Required]
-        public string LastName { get; set; } 
+        public string? LastName { get; set; } 
 
         [Required]
-        public string MiddleName { get; set; } 
+        public string? MiddleName { get; set; } 
 
         [Required]
-        public string Email { get; set; } 
+        public string? Email { get; set; } 
 
         [Required]
-        public string Password { get; set; } 
+        public string? Password { get; set; } 
 
         [Required]
-        public string Phone { get; set; } 
+        public string? Phone { get; set; } 
 
         [Required]
-        public string PhoneCode { get; set; } 
+        public string? PhoneCode { get; set; } 
 
         [Required]
-        public string Region { get; set; } 
+        public string? Region { get; set; } 
 
         [DefaultValue(false)]
         public bool IsRequiredChangePassword { get; set; }
@@ -53,8 +53,8 @@ namespace IdentityCore.EFs.Entities
         public DateTime? LastLogin { get; set; }
         public DateTime? ExpirationDate { get; set; }
         public DateTime? OTPLifeTime { get; set; }
-        public string OTPCode { get; set; } 
-        public string RefreshToken { get; set; } 
+        public string? OTPCode { get; set; } 
+        public string? RefreshToken { get; set; } 
 
         public virtual ICollection<UserRolePermissionEntity> UserRolePermissions { get; set; }
         public virtual ICollection<UserServiceEntity> UserServices { get; set; }

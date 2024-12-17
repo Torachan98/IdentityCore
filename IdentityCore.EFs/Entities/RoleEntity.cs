@@ -9,8 +9,8 @@ namespace IdentityCore.EFs.Entities
         public int RoleId { get; set; }
 
         [Required]
-        public string RoleName { get; set; } 
-        public string Description { get; set; } 
+        public string? RoleName { get; set; } 
+        public string? Description { get; set; } 
 
         [DefaultValue(false)]
         public bool IsLock { get; set; }

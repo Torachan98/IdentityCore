@@ -8,11 +8,12 @@ using System.Security.Cryptography;
 using System.Text;
 using IdentityCore.EFs.Requests;
 using AutoMapper;
-using System.Text.Json;
 using IdentityCore.Repository.Interfaces;
 using IdentityCore.EFs.Helpers;
 using Microsoft.EntityFrameworkCore;
 using IdentityCore.Repository.UnitOfWork;
+using Microsoft.Extensions.Caching.Distributed;
+using System.Text.Json;
 
 namespace IdentityCore.Business
 {
@@ -20,13 +21,17 @@ namespace IdentityCore.Business
     {
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IDistributedCache _distributedCache;
+
         private readonly IUserBusiness _userBusiness;
         private readonly IEmailBusiness _emailBusiness;
         private readonly IUserRepository _userRepository;
-        public AuthenticationBusiness(IMapper mapper, IUnitOfWork unitOfWork, IUserBusiness userBusiness, IEmailBusiness emailBusiness, IUserRepository userRepository)
+        
+        public AuthenticationBusiness(IMapper mapper, IUnitOfWork unitOfWork, IDistributedCache distributedCache, IUserBusiness userBusiness, IEmailBusiness emailBusiness, IUserRepository userRepository)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+            _distributedCache = distributedCache;
             _userBusiness = userBusiness;
             _emailBusiness = emailBusiness;
             _userRepository = userRepository;
@@ -108,6 +113,7 @@ namespace IdentityCore.Business
             user.RefreshToken = result.RefreshToken;
 
             await _userBusiness.UpdateUserAsync(user);
+            await _distributedCache.SetStringAsync($"User-{user.GUID}", JsonSerializer.Serialize(user));
 
             return new ObjectResponse<AuthenticationToken>()
             {
@@ -129,7 +135,7 @@ namespace IdentityCore.Business
             return true;
         }
 
-        public async Task<AuthenticationToken?> RenewTokenAsync(string refreshToken)
+        public async Task<AuthenticationToken> RenewTokenAsync(string refreshToken)
         {
             var userDto = await _userBusiness.GetSingleUserWithPermissionAndRoleAsync("","",refreshToken);
             if (userDto == null) 

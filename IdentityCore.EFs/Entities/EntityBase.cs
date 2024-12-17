@@ -2,7 +2,7 @@
 {
     public class EntityBase : IBaseEntity
     {
-        private string _guid;
+        private string? _guid;
 
         public string GUID {
             get 

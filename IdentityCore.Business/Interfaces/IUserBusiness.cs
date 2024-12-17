@@ -16,8 +16,8 @@ namespace IdentityCore.Business.Interfaces
         /// <returns></returns>
         Task<UserDTO> GetSingleUserWithPermissionAndRoleAsync(string userName,string guid = "",string refreshToken = "");
         Task<PaginationItems<UserDTO>> GetUsersAsync(UserFetchRequest userFetchRequest);
-        Task<UserDTO?> CreateUserAsync(CreateOrUpdateUserRequest createUserRequest);
-        Task<UserDTO?> ForgotPasswordAsync(ForgotPasswordRequest forgotPasswordRequest);
+        Task<UserDTO> CreateUserAsync(CreateOrUpdateUserRequest createUserRequest);
+        Task<UserDTO> ForgotPasswordAsync(ForgotPasswordRequest forgotPasswordRequest);
         Task<UserDTO> UpdateUserAsync(UserDTO userDTO);
         Task<bool> DeleteUserAsync(string guid);
     }

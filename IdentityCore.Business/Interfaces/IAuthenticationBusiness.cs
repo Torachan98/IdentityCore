@@ -8,7 +8,7 @@ namespace IdentityCore.Business.Interfaces
     {
         Task<ObjectResponse<AuthenticationToken>> SignInAsync(SignInRequest signInRequest);
         Task<bool> SignOutAsync(UserDTO userDto);
-        Task<AuthenticationToken?> RenewTokenAsync(string refreshToken);
+        Task<AuthenticationToken> RenewTokenAsync(string refreshToken);
         Task<bool> ValidateToken();
         Task<bool> ConfirmOTPAsync(string otpCode);
         Task<bool> ResetEmailAsync(string email);

@@ -11,22 +11,22 @@ namespace IdentityCore.Services
 
         }
 
-        public async Task<PaginationItems<ServciceDTO>> GetAllAsync(ServiceFetchRequest request)
+        public async Task<PaginationItems<ServiceDTO>> GetAllAsync(ServiceFetchRequest request)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<ServciceDTO> GetByIdAsync(string guid)
+        public async Task<ServiceDTO> GetByIdAsync(string guid)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<ObjectResult<ServciceDTO>> CreateAsync(CreateOrUpdateService request)
+        public async Task<ObjectResult<ServiceDTO>> CreateAsync(CreateOrUpdateServiceRequest request)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<ObjectResult<ServciceDTO>> UpdateAsync(CreateOrUpdateService request)
+        public async Task<ObjectResult<ServiceDTO>> UpdateAsync(CreateOrUpdateServiceRequest request)
         {
             throw new NotImplementedException();
         }

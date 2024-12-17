@@ -46,7 +46,7 @@ namespace IdentityCore.Services
             return await _authenticationBusiness.SignOutAsync(userDto);
         }
 
-        public async Task<AuthenticationToken?> RenewToken(string refreshToken)
+        public async Task<AuthenticationToken> RenewToken(string refreshToken)
         {
             return await _authenticationBusiness.RenewTokenAsync(refreshToken);
         }

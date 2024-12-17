@@ -4,6 +4,9 @@ namespace IdentityCore.Business
 {
     public class BaseBusiness : IBusiness
     {
+        public BaseBusiness()
+        {
 
+        }
     }
 }

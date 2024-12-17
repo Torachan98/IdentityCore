@@ -1,10 +1,13 @@
 ﻿using IdentityCore.Business.Interfaces;
 using IdentityCore.EFs;
+using IdentityCore.EFs.DTOs;
 using IdentityCore.EFs.Requests;
 using IdentityCore.Services.Interfaces;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using System.Text.Json;
 
 namespace IdentityCore.Middlewares
 {
@@ -13,11 +16,13 @@ namespace IdentityCore.Middlewares
         private readonly ILogger _logger;
         private readonly RequestDelegate _next;
         private readonly IConfiguration _configuration;
-        public AuthenticationMiddleware(RequestDelegate next, IConfiguration configuration, ILogger<GlobalHandlerMiddleware> logger)
+        private readonly IDistributedCache _distributedCache;
+        public AuthenticationMiddleware(RequestDelegate next, IConfiguration configuration, ILogger<GlobalHandlerMiddleware> logger, IDistributedCache distributedCache)
         {
             _next = next;
             _logger = logger;
             _configuration = configuration;
+            _distributedCache = distributedCache;
         }
 
         public async Task Invoke(HttpContext context)
@@ -46,11 +51,12 @@ namespace IdentityCore.Middlewares
 
                 if (dateExpired > DateTime.UtcNow)
                 {
-                    var services = context.RequestServices;
-                    var _userBusiness = (IUserBusiness)services.GetService(typeof(IUserBusiness));
-
-                    var user = await _userBusiness.GetSingleUserWithPermissionAndRoleAsync("",guid);
-                    context.Items["User"] = user;
+                    var user = await _distributedCache.GetStringAsync($"User-{guid}");
+                    if (user != null)
+                    {
+                        var userDto = JsonSerializer.Deserialize<UserDTO>(user);
+                        context.Items["User"] = userDto;
+                    }
                 }
                 else
                 {

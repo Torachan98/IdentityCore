@@ -8,14 +8,14 @@ namespace IdentityCore.EFs.DTOs
 {
     public class TemplateDTO
     {
-        public string Title { get; set; }
-        public string Content { get; set; }
+        public string? Title { get; set; }
+        public string? Content { get; set; }
     }
 
     public class TemplateOTPDTO
     {
-        public string Name { get; set; }   
-        public string OTP { get; set; }
+        public string? Name { get; set; }   
+        public string? OTP { get; set; }
     }
 
     public class TemplateForgotPasswordDTO
