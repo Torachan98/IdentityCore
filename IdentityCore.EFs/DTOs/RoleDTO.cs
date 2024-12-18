@@ -18,7 +18,7 @@ namespace IdentityCore.EFs.DTOs
     public class CreateOrUpdateRoleRequest
     {
         public string? GUID { get; set; }
-        public string? RoleName { get; set; }
+        public required string RoleName { get; set; }
         public string? Description { get; set; }
         public bool IsLock { get; set; }
     }

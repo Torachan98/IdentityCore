@@ -15,7 +15,6 @@ namespace IdentityCore.AutoMapper
                 .ForMember(s => s.FullName, opt => opt.MapFrom(src => src.FirstName + src.MiddleName + src.LastName))
                 .ForMember(s => s.GroupPermissions, opt => opt.Ignore())
                 .ForMember(s => s.GroupRoles, opt => opt.Ignore())
-                .ForMember(s => s.Password, otp => otp.Ignore())
                 .ReverseMap();
 
             CreateMap<RoleEntity, RoleDTO>().ReverseMap();

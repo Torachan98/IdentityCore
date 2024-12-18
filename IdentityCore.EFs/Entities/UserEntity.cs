@@ -8,33 +8,15 @@ namespace IdentityCore.EFs.Entities
         [Key]
         public int UserId { get; set; }
         public string? AvatarUrl { get; set; } 
-
-        [Required]
-        public string? UserName { get; set; } 
-
-        [Required]
-        public string? FirstName { get; set; } 
-
-        [Required]
-        public string? LastName { get; set; } 
-
-        [Required]
-        public string? MiddleName { get; set; } 
-
-        [Required]
-        public string? Email { get; set; } 
-
-        [Required]
-        public string? Password { get; set; } 
-
-        [Required]
-        public string? Phone { get; set; } 
-
-        [Required]
-        public string? PhoneCode { get; set; } 
-
-        [Required]
-        public string? Region { get; set; } 
+        public required string UserName { get; set; } 
+        public required string FirstName { get; set; } 
+        public required string LastName { get; set; } 
+        public required string MiddleName { get; set; } 
+        public required string Email { get; set; } 
+        public required string Password { get; set; } 
+        public required string Phone { get; set; } 
+        public required string PhoneCode { get; set; } 
+        public required string Region { get; set; } 
 
         [DefaultValue(false)]
         public bool IsRequiredChangePassword { get; set; }

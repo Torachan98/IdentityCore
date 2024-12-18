@@ -1,8 +1,6 @@
-﻿using IdentityCore.Business.Interfaces;
-using IdentityCore.EFs;
+﻿using IdentityCore.EFs;
 using IdentityCore.EFs.DTOs;
-using IdentityCore.EFs.Requests;
-using IdentityCore.Services.Interfaces;
+using IdentityCore.EFs.Enums;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -28,7 +26,9 @@ namespace IdentityCore.Middlewares
         public async Task Invoke(HttpContext context)
         {
             var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-            if (token != null)
+            var blackListString = await _distributedCache.GetStringAsync(KeyCache.BlackList);
+            var blackList = !string.IsNullOrEmpty(blackListString) ? JsonSerializer.Deserialize<List<string>>(blackListString) : new List<string>();
+            if (token != null || !blackList.Any(s => s.Equals(token)))
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
                 tokenHandler.ValidateToken(token, new TokenValidationParameters
@@ -51,7 +51,7 @@ namespace IdentityCore.Middlewares
 
                 if (dateExpired > DateTime.UtcNow)
                 {
-                    var user = await _distributedCache.GetStringAsync($"User-{guid}");
+                    var user = await _distributedCache.GetStringAsync($"{KeyCache.User}-{guid}");
                     if (user != null)
                     {
                         var userDto = JsonSerializer.Deserialize<UserDTO>(user);
@@ -62,6 +62,10 @@ namespace IdentityCore.Middlewares
                 {
                     context.Items["User"] = null;
                 }
+            }
+            else
+            {
+                context.Items["User"] = null;
             }
 
             await _next(context);

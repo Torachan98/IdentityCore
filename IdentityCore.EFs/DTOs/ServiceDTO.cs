@@ -13,8 +13,8 @@ namespace IdentityCore.EFs.DTOs
     public class CreateOrUpdateServiceRequest
     {
         public string? GUID { get; set; }
-        public string? Name { get; set; }
         public string? Description { get; set; }
+        public required string Name { get; set; }
         public string? SignatureKey { get; set; }
     }
 

@@ -1,19 +1,24 @@
-﻿using IdentityCore.EFs.DTOs;
+﻿using IdentityCore.Business;
+using IdentityCore.Business.Interfaces;
+using IdentityCore.EFs.DTOs;
 using IdentityCore.EFs.Requests;
 using IdentityCore.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
 
 namespace IdentityCore.Services
 {
     public class ServiceService : IServiceService
     {
-        public ServiceService ()
-        {
+        private readonly IServiceBusiness _serviceBusiness;
 
+        public ServiceService (IServiceBusiness serviceBusiness)
+        {
+            _serviceBusiness = serviceBusiness;
         }
 
         public async Task<PaginationItems<ServiceDTO>> GetAllAsync(ServiceFetchRequest request)
         {
-            throw new NotImplementedException();
+            return await _serviceBusiness.GetServices(request);
         }
 
         public async Task<ServiceDTO> GetByIdAsync(string guid)
@@ -23,17 +28,53 @@ namespace IdentityCore.Services
 
         public async Task<ObjectResult<ServiceDTO>> CreateAsync(CreateOrUpdateServiceRequest request)
         {
-            throw new NotImplementedException();
+            if (!string.IsNullOrEmpty(request.Name))
+            {
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "Name service do not allow empty");
+            }
+
+            if (!string.IsNullOrEmpty(request.SignatureKey))
+            {
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "Key service do not allow empty");
+            }
+
+            return new ObjectResult<ServiceDTO>
+            {
+                Item = await _serviceBusiness.CreateServicesAsync(request)
+            };
         }
 
         public async Task<ObjectResult<ServiceDTO>> UpdateAsync(CreateOrUpdateServiceRequest request)
         {
-            throw new NotImplementedException();
+            if (!string.IsNullOrEmpty(request.GUID))
+            {
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "Id service do not allow empty");
+            }
+
+            if (!string.IsNullOrEmpty(request.Name))
+            {
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "Name service do not allow empty");
+            }
+
+            if (!string.IsNullOrEmpty(request.SignatureKey))
+            {
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "Key service do not allow empty");
+            }
+
+            return new ObjectResult<ServiceDTO>
+            {
+                Item = await _serviceBusiness.UpdateServicesAsync(request)
+            };
         }
 
         public async Task<bool> DeleteAsync(string guid)
         {
-            throw new NotImplementedException();
+            if (!string.IsNullOrEmpty(guid))
+            {
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "Id do not allow empty");
+            }
+
+            return await _serviceBusiness.DeleteServicesAsync(guid);
         }
     }
 }

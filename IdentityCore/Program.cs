@@ -43,6 +43,7 @@ builder.Services.AddLogging();
 builder.Services.AddTransient<GlobalHandlerMiddleware>();
 builder.Services.AddControllers(options =>
 {
+    options.Filters.Add(typeof(ExceptionFilter));
     options.Filters.Add(typeof(GlobalEndPointFilter));
 })
     .AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);

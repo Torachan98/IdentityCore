@@ -8,6 +8,7 @@ using IdentityCore.EFs.Helpers;
 using IdentityCore.EFs.Requests;
 using IdentityCore.Repository.Interfaces;
 using IdentityCore.Repository.UnitOfWork;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace IdentityCore.Business
@@ -62,8 +63,6 @@ namespace IdentityCore.Business
             {
                 userQuery = userQuery.Where(s => s.RefreshToken == refreshToken && s.IsLogin &&!s.IsDeleted);
             }
-
-            userQuery = userQuery.Where(s => !s.Locked.HasValue);
 
             userQuery = userQuery.Include(s => s.UserRolePermissions);
 
@@ -140,10 +139,9 @@ namespace IdentityCore.Business
         {
             var isExistedUser = await _userRepository.Get(s => s.Email == createUserRequest.Email
                                                     || s.UserName == createUserRequest.UserName).AnyAsync();
-
             if (isExistedUser) 
             {
-                return null;
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "User already existed");
             }
 
             var userEntity = _mapper.Map<UserEntity>(createUserRequest);
@@ -186,7 +184,7 @@ namespace IdentityCore.Business
 
             if (userEntity == null) 
             {
-                return null;
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "Not found user");
             }
 
             if (!string.IsNullOrEmpty(userDto.AvatarUrl))
@@ -226,9 +224,9 @@ namespace IdentityCore.Business
 
             if (userDto.IsRequiredChangePassword != null)
             {
-                if(userDto.GroupRoles.Any(s => s.Role <= Role.Administrator))
+                if(userDto.GroupRoles != null && userDto.GroupRoles.Any(s => s.Role <= Role.Administrator))
                 {
-                    throw new Exception("User is not have permission");
+                    throw new FriendlyException(StatusCodes.Status400BadRequest, "User is not have permission");
                 }
 
                 userEntity.IsRequiredChangePassword = (bool)userDto.IsRequiredChangePassword;
@@ -254,8 +252,6 @@ namespace IdentityCore.Business
                 userEntity.OTPCode = userDto.OTPCode;
                 userEntity.OTPLifeTime = userDto.OTPLifeTime;
             }
-
-            userEntity.DateModified = DateTime.UtcNow;
 
             _userRepository.Update(userEntity);
             await _unitOfWork.CommitAsync();

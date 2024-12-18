@@ -6,6 +6,7 @@ using IdentityCore.EFs.Requests;
 using IdentityCore.Repository;
 using IdentityCore.Repository.Interfaces;
 using IdentityCore.Repository.UnitOfWork;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace IdentityCore.Business
@@ -50,6 +51,11 @@ namespace IdentityCore.Business
 
         public async Task<ServiceDTO> CreateServicesAsync(CreateOrUpdateServiceRequest request)
         {
+            if (request == null || (string.IsNullOrEmpty(request.Name) && string.IsNullOrEmpty(request.SignatureKey)))
+            {
+                return new ServiceDTO();
+            }
+
             var isExistedService = await _serviceRepository.Get().FirstOrDefaultAsync(s => s.Name.Contains(request.Name));
             if (isExistedService != null)
             {
@@ -68,10 +74,6 @@ namespace IdentityCore.Business
                 Name = request.Name,
                 SignatureKey = request.SignatureKey,
                 Description = request.Description,
-                GUID = Guid.NewGuid().ToString().ToUpper(),
-                DateCreated = DateTime.UtcNow,
-                DateModified = DateTime.UtcNow,
-                IsDeleted = false
             };
 
             var result = _serviceRepository.Add(serviceEntities);
@@ -84,13 +86,13 @@ namespace IdentityCore.Business
             var isExistedService = await _serviceRepository.Get().FirstOrDefaultAsync(s => s.GUID == request.GUID);
             if (isExistedService == null)
             {
-                throw new Exception("Not found service");
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "Not found service");
             }
 
             var isExistedServiceName = await _serviceRepository.Get().FirstOrDefaultAsync(s => s.Name == request.Name);
             if (isExistedServiceName != null)
             {
-                throw new Exception("Name is already existed");
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "Name is already existed");
             }
 
             isExistedService.Description = request.Description;

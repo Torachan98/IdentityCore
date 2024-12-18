@@ -6,6 +6,7 @@ using IdentityCore.EFs.Entities;
 using IdentityCore.EFs.Requests;
 using IdentityCore.Repository.Interfaces;
 using IdentityCore.Repository.UnitOfWork;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace IdentityCore.Business
@@ -60,7 +61,6 @@ namespace IdentityCore.Business
                 if (!isExistedRole.IsDeleted)
                 {
                     isExistedRole.IsDeleted = false;
-                    isExistedRole.DateModified = DateTime.UtcNow;
                     _roleRepository.Update(isExistedRole, s => s.IsDeleted);
                     await _unitOfWork.CommitAsync();
                     return _mapper.Map<RoleDTO>(isExistedRole);
@@ -71,11 +71,7 @@ namespace IdentityCore.Business
             {
                 RoleName = request.RoleName,
                 Description = request.Description,
-                GUID = Guid.NewGuid().ToString().ToUpper(),
                 IsLock = request.IsLock,
-                DateCreated = DateTime.UtcNow,
-                DateModified = DateTime.UtcNow,
-                IsDeleted = false
             };
 
             var result = _roleRepository.Add(roleEntities);
@@ -88,13 +84,13 @@ namespace IdentityCore.Business
             var isExistedRole = await _roleRepository.Get().FirstOrDefaultAsync(s => s.GUID == request.GUID);
             if (isExistedRole == null) 
             {
-                throw new Exception("Not found role");
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "Not found role");
             }
 
             var isExistedRoleName = await _roleRepository.Get().FirstOrDefaultAsync(s => s.RoleName == request.RoleName);
             if(isExistedRoleName != null)
             {
-               throw new Exception("Name is already existed");
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "Name is already existed");
             }
 
             isExistedRole.Description = request.Description;

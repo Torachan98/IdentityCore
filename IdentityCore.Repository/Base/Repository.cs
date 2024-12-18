@@ -50,6 +50,11 @@ namespace IdentityCore.Repository.Base
 
         public T Add(T entity)
         {
+            entity.DateCreated = DateTime.UtcNow;
+            entity.DateModified = DateTime.UtcNow;
+            entity.GUID = Guid.NewGuid().ToString().ToUpper();
+            entity.IsDeleted = false;
+
             entity = _unitOfWork.identityContext.Add(entity).Entity;
             return entity;
         }
@@ -69,9 +74,14 @@ namespace IdentityCore.Repository.Base
                 {
                     _unitOfWork.identityContext.Entry(entity).Property(property).IsModified = true;
                 }
+
+                entity.DateModified = DateTime.UtcNow;
             }
             else
+            {
                 _unitOfWork.identityContext.Entry(entity).State = EntityState.Modified;
+                entity.DateModified = DateTime.UtcNow;
+            }
         }
 
         public void Delete(T entity, bool isPhysical = false)

@@ -38,12 +38,14 @@ namespace IdentityCore.Services
         public async Task<bool> SignOut()
         {
             var userDto = _httpContextAccessor.HttpContext.Items["User"] as UserDTO;
+            var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString();
+
             if(userDto == null)
             {
                 return false;
             }
 
-            return await _authenticationBusiness.SignOutAsync(userDto);
+            return await _authenticationBusiness.SignOutAsync(userDto, accessToken);
         }
 
         public async Task<AuthenticationToken> RenewToken(string refreshToken)

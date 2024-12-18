@@ -14,6 +14,10 @@ using Microsoft.EntityFrameworkCore;
 using IdentityCore.Repository.UnitOfWork;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
+using IdentityCore.EFs.Enums;
 
 namespace IdentityCore.Business
 {
@@ -113,7 +117,7 @@ namespace IdentityCore.Business
             user.RefreshToken = result.RefreshToken;
 
             await _userBusiness.UpdateUserAsync(user);
-            await _distributedCache.SetStringAsync($"User-{user.GUID}", JsonSerializer.Serialize(user));
+            await _distributedCache.SetStringAsync($"{KeyCache.User}-{user.GUID}", JsonSerializer.Serialize(user));
 
             return new ObjectResponse<AuthenticationToken>()
             {
@@ -121,7 +125,7 @@ namespace IdentityCore.Business
             };
         }
 
-        public async Task<bool> SignOutAsync(UserDTO user)
+        public async Task<bool> SignOutAsync(UserDTO user, string accessToken)
         {
             user.IsLogin = false;
             user.RefreshToken = "";
@@ -132,12 +136,23 @@ namespace IdentityCore.Business
                 return false;
             }
 
+            var tokenBlacklist = await _distributedCache.GetStringAsync(KeyCache.BlackList) ?? "";
+            var blacklist = !string.IsNullOrEmpty(tokenBlacklist) ? JsonSerializer.Deserialize<List<string>>(tokenBlacklist) : new List<string>();
+            blacklist.Add(accessToken);
+            await _distributedCache.SetStringAsync(KeyCache.BlackList, JsonSerializer.Serialize(blacklist));
+            await _distributedCache.RemoveAsync($"{KeyCache.User}-{user.GUID}");
             return true;
         }
 
         public async Task<AuthenticationToken> RenewTokenAsync(string refreshToken)
         {
             var userDto = await _userBusiness.GetSingleUserWithPermissionAndRoleAsync("","",refreshToken);
+
+            if (userDto.Locked.HasValue && userDto.Locked >= DateTime.UtcNow)
+            {
+                throw new FriendlyException(StatusCodes.Status401Unauthorized, "User has been locked");
+            }
+
             if (userDto == null) 
             {
                 return null;

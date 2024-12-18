@@ -44,15 +44,6 @@ namespace IdentityCore.Services
             }
 
             var result = await _userBusiness.CreateUserAsync(request);
-
-            if (result == null)
-            {
-                return new ObjectResult<UserDTO>()
-                {
-                    Message = "User has been existed or has been inactive"
-                };
-            }
-
             await _emailBusiness.SendMailAsync(result, TemplateEmailType.OTP);
 
             return new ObjectResult<UserDTO>()

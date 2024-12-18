@@ -49,6 +49,9 @@ namespace IdentityCore.EFs.DTOs
 
     public class CreateOrUpdatePermissionRequest
     {
-
+        public string? GUID { get; set; }
+        public PermissionType PermissionType { get; set; }
+        public required string Name { get; set; }
+        public string? Description { get; set; }
     }
 }
