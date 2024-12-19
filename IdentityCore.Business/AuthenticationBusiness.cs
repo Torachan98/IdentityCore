@@ -155,7 +155,7 @@ namespace IdentityCore.Business
 
             if (userDto == null) 
             {
-                return null;
+                throw new FriendlyException(StatusCodes.Status401Unauthorized, "Refresh token invalid");
             }
 
             return new AuthenticationToken()

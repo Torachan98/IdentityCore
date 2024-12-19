@@ -120,20 +120,7 @@ namespace IdentityCore.Controllers
                 return error;
             }
 
-            var result = await _authenticationService.RenewToken(authenticationToken.RefreshToken);
-
-            if (result == null)
-            {
-                var error = new ObjectResult(new
-                {
-                    Message = "Refresh token invalid"
-                });
-
-                error.StatusCode = 400;
-                return error;
-            }
-
-            return Ok(new { Status = result });
+            return Ok(await _authenticationService.RenewToken(authenticationToken.RefreshToken));
         }
 
         [HttpPost]
