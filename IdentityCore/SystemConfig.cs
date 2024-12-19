@@ -10,6 +10,7 @@ namespace IdentityCore
             GlobalConfiguration.Jwt = configuration.GetSection<Jwt>(nameof(GlobalConfiguration.Jwt)) ?? new Jwt();
             GlobalConfiguration.AccountLocked = configuration.GetSection<AccountLocked>(nameof(GlobalConfiguration.AccountLocked)) ?? new AccountLocked();
             GlobalConfiguration.OTP = configuration.GetSection<OTP>(nameof(GlobalConfiguration.OTP)) ?? new OTP();
+            GlobalConfiguration.Redis = configuration.GetSection<Redis>(nameof(GlobalConfiguration.Redis)) ?? new Redis();
         }
 
         public static T GetSection<T>(this IConfiguration configuration, string key = null) where T : new()
