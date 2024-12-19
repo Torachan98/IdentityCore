@@ -6,6 +6,7 @@
         public static MailKits MailKit { get; set; } = new MailKits();
         public static AccountLocked AccountLocked { get; set; } = new AccountLocked();
         public static OTP OTP { get; set; } = new OTP();
+        public static Redis Redis { get; set; } = new Redis();
     }
 
     public class Jwt
@@ -45,5 +46,11 @@
     {
         public int SizeCode { get; set; }
         public int LifeTimeMinute { get; set; }
+    }
+
+    public class Redis
+    {
+        public string Url { get; set; } = string.Empty;
+        public string Port { get; set; } = string.Empty;
     }
 }

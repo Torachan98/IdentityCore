@@ -49,7 +49,7 @@ builder.Services.AddControllers(options =>
     .AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
 builder.Services.AddStackExchangeRedisCache(action => {
-    var connection = "redis-cache:6379"; 
+    var connection = $"{GlobalConfiguration.Redis.Url}:{GlobalConfiguration.Redis.Port}"; 
     action.Configuration = connection;
 });
 

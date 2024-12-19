@@ -26,46 +26,45 @@ namespace IdentityCore.Middlewares
         public async Task Invoke(HttpContext context)
         {
             var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-            var blackListString = await _distributedCache.GetStringAsync(KeyCache.BlackList);
-            var blackList = !string.IsNullOrEmpty(blackListString) ? JsonSerializer.Deserialize<List<string>>(blackListString) : new List<string>();
-            if (token != null || !blackList.Any(s => s.Equals(token)))
+            if (token != null)
             {
-                var tokenHandler = new JwtSecurityTokenHandler();
-                tokenHandler.ValidateToken(token, new TokenValidationParameters
+                var blackListString = await _distributedCache.GetStringAsync(KeyCache.BlackList);
+                var blackList = !string.IsNullOrEmpty(blackListString) ? JsonSerializer.Deserialize<List<string>>(blackListString) : new List<string>();
+                if (!blackList.Any(s => s.Equals(token))) 
                 {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(GlobalConfiguration.Jwt.Key)),
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = false,
-                    ValidAudience = GlobalConfiguration.Jwt.Audience,
-                    ValidIssuer = GlobalConfiguration.Jwt.Issuer
-                }, out SecurityToken validatedToken);
-
-                var jwtToken = (JwtSecurityToken)validatedToken;
-                var guid = jwtToken.Claims.First(x => x.Type == "userId").Value;
-                var timeStamp = jwtToken.Claims.First(x => x.Type == "exp").Value;
-
-                DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-                DateTime dateExpired = dateTime.AddSeconds(double.Parse(timeStamp)).ToUniversalTime();
-
-                if (dateExpired > DateTime.UtcNow)
-                {
-                    var user = await _distributedCache.GetStringAsync($"{KeyCache.User}-{guid}");
-                    if (user != null)
+                    var tokenHandler = new JwtSecurityTokenHandler();
+                    tokenHandler.ValidateToken(token, new TokenValidationParameters
                     {
-                        var userDto = JsonSerializer.Deserialize<UserDTO>(user);
-                        context.Items["User"] = userDto;
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(GlobalConfiguration.Jwt.Key)),
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = false,
+                        ValidAudience = GlobalConfiguration.Jwt.Audience,
+                        ValidIssuer = GlobalConfiguration.Jwt.Issuer
+                    }, out SecurityToken validatedToken);
+
+                    var jwtToken = (JwtSecurityToken)validatedToken;
+                    var guid = jwtToken.Claims.First(x => x.Type == "userId").Value;
+                    var timeStamp = jwtToken.Claims.First(x => x.Type == "exp").Value;
+
+                    DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+                    DateTime dateExpired = dateTime.AddSeconds(double.Parse(timeStamp)).ToUniversalTime();
+
+                    if (dateExpired > DateTime.UtcNow)
+                    {
+                        var user = await _distributedCache.GetStringAsync($"{KeyCache.User}-{guid}");
+                        if (user != null)
+                        {
+                            var userDto = JsonSerializer.Deserialize<UserDTO>(user);
+                            context.Items["User"] = userDto;
+                        }
+                    }
+                    else
+                    {
+                        context.Items["User"] = null;
                     }
                 }
-                else
-                {
-                    context.Items["User"] = null;
-                }
-            }
-            else
-            {
-                context.Items["User"] = null;
             }
 
             await _next(context);
