@@ -1,12 +1,13 @@
 ﻿using IdentityCore.EFs.DTOs;
+using IdentityCore.EFs.Requests;
 
 namespace IdentityCore.Business.Interfaces
 {
     public interface IPermissionBusiness
     {
-        Task<List<PermissionDTO>> GetPermissions();
-        Task<List<PermissionDTO>> CreatePermissionsAsync();
-        Task<List<PermissionDTO>> UpdatePermissionsAsync();
-        Task<bool> DeletePermissionsAsync();
+        Task<PaginationItems<PermissionDTO>> GetPermissionsAsync(PermissionFetchRequest request);
+        Task<PermissionDTO> CreatePermissionsAsync(CreateOrUpdatePermissionRequest request);
+        Task<PermissionDTO> UpdatePermissionsAsync(CreateOrUpdatePermissionRequest request);
+        Task<bool> DeletePermissionsAsync(string guid);
     }
 }

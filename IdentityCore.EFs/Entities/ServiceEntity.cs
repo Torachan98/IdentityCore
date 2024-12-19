@@ -6,13 +6,9 @@ namespace IdentityCore.EFs.Entities
     {
         [Key]
         public int ServiceId { get; set; }
-
-        [Required]
-        public string Name { get; set; }
-        public string Description { get; set; }
-
-        [Required]
-        public string SignatureKey { get; set; }
+        public required string Name { get; set; }
+        public string? Description { get; set; }
+        public required string SignatureKey { get; set; }
 
         public virtual ICollection<UserServiceEntity> UserServices { get; set; }
     }

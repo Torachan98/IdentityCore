@@ -21,12 +21,23 @@ namespace IdentityCore.AutoMapper
 
             CreateMap<PermissionEntity, PermissionDTO>().ReverseMap();
 
-            CreateMap<ServiceEntity, ServciceDTO>().ReverseMap();
+            CreateMap<ServiceEntity, ServiceDTO>().ReverseMap();
 
             CreateMap<UserRequest, UserDTO>(MemberList.Source)
                 .ForMember(s => s.IsRequiredChangePassword, opt => opt.MapFrom(src => src.ChangedPasswordFirstTime))
                 .ForMember(s => s.GroupPermissions, opt => opt.Ignore())
                 .ForMember(s => s.GroupRoles, opt => opt.Ignore())
+                .ReverseMap();
+
+            CreateMap<UserDTO, CreateOrUpdateUserRequest>()
+                .ForMember(s => s.Email, opt => opt.MapFrom(src => src.Email))
+                .ForMember(s => s.AvatarUrl, opt => opt.MapFrom(src => src.AvatarUrl))
+                .ForMember(s => s.GUID, opt => opt.MapFrom(src => src.GUID))
+                .ForMember(s => s.UserName, opt => opt.MapFrom(src => src.UserName))
+                .ForMember(s => s.FullName, opt => opt.MapFrom(src => src.FullName))
+                .ForMember(s => s.Phone, opt => opt.MapFrom(src => src.Phone))
+                .ForMember(s => s.PhoneCode, opt => opt.MapFrom(src => src.PhoneCode))
+                .ForMember(s => s.Region, opt => opt.MapFrom(src => src.Region))
                 .ReverseMap();
         }
     }

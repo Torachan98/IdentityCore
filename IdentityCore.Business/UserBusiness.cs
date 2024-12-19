@@ -8,6 +8,7 @@ using IdentityCore.EFs.Helpers;
 using IdentityCore.EFs.Requests;
 using IdentityCore.Repository.Interfaces;
 using IdentityCore.Repository.UnitOfWork;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace IdentityCore.Business
@@ -63,75 +64,84 @@ namespace IdentityCore.Business
                 userQuery = userQuery.Where(s => s.RefreshToken == refreshToken && s.IsLogin &&!s.IsDeleted);
             }
 
-            userQuery = userQuery.Where(s => !s.Locked.HasValue);
-
             userQuery = userQuery.Include(s => s.UserRolePermissions);
 
             var userEntity = await userQuery.FirstOrDefaultAsync();
 
             var userDto = _mapper.Map<UserDTO>(userEntity);
 
-            if (userEntity != null) {
-                var permissionIds = userEntity.UserRolePermissions.Select(s=> s.PermissionId).ToList();
-                var roleIds = userEntity.UserRolePermissions.Select(s=> s.RoleId).ToList();
+            if (userEntity != null)
+            {
+                if (userEntity.UserRolePermissions != null)
+                {
+                    var permissionIds = userEntity.UserRolePermissions.Select(s => s.PermissionId).ToList();
+                    var roleIds = userEntity.UserRolePermissions.Select(s => s.RoleId).ToList();
 
-                var permissionEntity = await _permissionRepository.Get(s => permissionIds.Contains(s.PermissionId)).ToListAsync();
-                var roleEntity = await _roleRepository.Get(s => roleIds.Contains(s.RoleId)).ToListAsync();
-                userDto.Services = await _userServiceRepository
-                                                .Get(s=> s.UserId == userEntity.UserId)
-                                                .Include(s=> s.Services)
-                                                .Select(s=> s.Services.SignatureKey)
+                    var permissionEntity = await _permissionRepository.Get(s => permissionIds.Contains(s.PermissionId)).ToListAsync();
+                    var roleEntity = await _roleRepository.Get(s => roleIds.Contains(s.RoleId)).ToListAsync();
+
+                    userDto.Services = await _userServiceRepository
+                                                .Get(s => s.UserId == userEntity.UserId)
+                                                .Include(s => s.Services)
+                                                .Select(s => s.Services.SignatureKey)
                                                 .ToListAsync();
 
-                var permissions = EnumHelper.ConvertPermissionToList<Permission, PermissionEnum>();
-                var roles = EnumHelper.ConvertRoleToList<Role, RoleEnum>();
+                    if (permissionEntity != null)
+                    {
+                        var permissions = EnumHelper.ConvertPermissionToList<Permission, PermissionEnum>();
+                        userDto.GroupPermissions = permissions.Where(s => permissionEntity.Any(r => r.Name == s.Permission.ToString() && r.PermissionType == s.PermissionType)).ToList();
+                    }
 
-                userDto.GroupPermissions = permissions.Where(s => permissionEntity.Any(r => r.Name == s.Permission.ToString() && r.PermissionType == s.PermissionType)).ToList();
-                userDto.GroupRoles = roles.Where(s => roleEntity.Any(r => r.RoleName == s.Role.ToString())).ToList();
+                    var roles = EnumHelper.ConvertRoleToList<Role, RoleEnum>();
+                    userDto.GroupRoles = roles.Where(s => roleEntity.Any(r => r.RoleName == s.Role.ToString())).ToList();
+                }
             }
 
             return userDto;
         }
 
-        public async Task<PaginationItems<UserDTO>> GetUsersAsync(UserFetchRequest userFetchRequest)
+        public async Task<PaginationItems<UserDTO>> GetUsersAsync(UserFetchRequest request)
         {
-            var userQuery = _userRepository.Get();
-            int pageNumInt = 1;
-            int pageSizeInt = 30;
+            var userQuery = _userRepository.Get(s => !s.IsDeleted);
+            int pageNum = 0;
+            int pageSize = 30;
             int totalCount = userQuery.Count(s => !s.IsDeleted);
 
-            if (!string.IsNullOrEmpty(userFetchRequest.PageNum) && !string.IsNullOrEmpty(userFetchRequest.PageSize))
+            if (!string.IsNullOrEmpty(request.PageNum) && !string.IsNullOrEmpty(request.PageSize))
             {
-                pageNumInt = int.Parse(userFetchRequest.PageNum);
-                pageSizeInt = int.Parse(userFetchRequest.PageSize);
+                pageNum = int.Parse(request.PageNum);
+                pageSize = int.Parse(request.PageSize);
             }
 
-            userQuery = userQuery.Skip(pageNumInt * pageSizeInt);
+            userQuery = userQuery.Skip(pageNum * (pageSize - 1)).Take(pageSize);
 
-            if (!string.IsNullOrEmpty(userFetchRequest.Region))
+            if (request.Regions.Any())
             {
-                userQuery = userQuery.Where(s => s.Region == userFetchRequest.Region);
+                userQuery = userQuery.Where(s => request.Regions.Contains(s.Region));
+            }
+
+            if (!string.IsNullOrEmpty(request.Keyword))
+            {
+                userQuery = userQuery.Where(s => !string.IsNullOrEmpty(s.Phone) && s.Phone.Contains(request.Keyword) ||
+                                                !string.IsNullOrEmpty(s.Email) && s.Email.Contains(request.Keyword) ||
+                                                !string.IsNullOrEmpty(s.UserName) && s.UserName.Contains(request.Keyword) ||
+                                                !string.IsNullOrEmpty(s.FirstName) && s.FirstName.Contains(request.Keyword) ||
+                                                !string.IsNullOrEmpty(s.LastName) && s.LastName.Contains(request.Keyword) ||
+                                                !string.IsNullOrEmpty(s.MiddleName) && s.MiddleName.Contains(request.Keyword));
             }
 
             var userEntities = await userQuery.ToListAsync();
 
-            return new PaginationItems<UserDTO>()
-            {
-                PageNum = pageNumInt,
-                PageSize = pageSizeInt,
-                Items = _mapper.Map<List<UserDTO>>(userEntities),
-                TotalCount = totalCount
-            };
+            return new PaginationItems<UserDTO>(pageSize, pageNum, totalCount, _mapper.Map<List<UserDTO>>(userEntities));
         }
 
-        public async Task<UserDTO?> CreateUserAsync(CreateUserRequest createUserRequest)
+        public async Task<UserDTO> CreateUserAsync(CreateOrUpdateUserRequest createUserRequest)
         {
             var isExistedUser = await _userRepository.Get(s => s.Email == createUserRequest.Email
                                                     || s.UserName == createUserRequest.UserName).AnyAsync();
-
             if (isExistedUser) 
             {
-                return null;
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "User already existed");
             }
 
             var userEntity = _mapper.Map<UserEntity>(createUserRequest);
@@ -140,7 +150,7 @@ namespace IdentityCore.Business
             userEntity.OTPLifeTime = DateTime.UtcNow.AddMinutes(GlobalConfiguration.OTP.LifeTimeMinute);
 
             var userCreated = _userRepository.Add(userEntity);
-            _unitOfWork.Commit();
+            await _unitOfWork.CommitAsync();
 
             return _mapper.Map<UserDTO>(createUserRequest);
         }
@@ -152,14 +162,14 @@ namespace IdentityCore.Business
             if (userEntity != null) 
             {
                 _userRepository.DeleteWhere(s => s.UserId == userEntity.UserId);
-                _unitOfWork.Commit();
+                await _unitOfWork.CommitAsync();
                 return true;
             }
 
             return false;
         }
 
-        public Task<UserDTO?> ForgotPasswordAsync(ForgotPasswordRequest forgotPasswordRequest)
+        public Task<UserDTO> ForgotPasswordAsync(ForgotPasswordRequest forgotPasswordRequest)
         {
             throw new NotImplementedException();
         }
@@ -174,7 +184,7 @@ namespace IdentityCore.Business
 
             if (userEntity == null) 
             {
-                return null;
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "Not found user");
             }
 
             if (!string.IsNullOrEmpty(userDto.AvatarUrl))
@@ -214,9 +224,9 @@ namespace IdentityCore.Business
 
             if (userDto.IsRequiredChangePassword != null)
             {
-                if(userDto.GroupRoles.Any(s => s.Role <= Role.Administrator))
+                if(userDto.GroupRoles != null && userDto.GroupRoles.Any(s => s.Role <= Role.Administrator))
                 {
-                    throw new Exception("User is not have permission");
+                    throw new FriendlyException(StatusCodes.Status400BadRequest, "User is not have permission");
                 }
 
                 userEntity.IsRequiredChangePassword = (bool)userDto.IsRequiredChangePassword;
@@ -243,10 +253,8 @@ namespace IdentityCore.Business
                 userEntity.OTPLifeTime = userDto.OTPLifeTime;
             }
 
-            userEntity.DateModified = DateTime.UtcNow;
-
             _userRepository.Update(userEntity);
-            _unitOfWork.Commit();
+            await _unitOfWork.CommitAsync();
 
             return _mapper.Map<UserDTO>(userEntity);
         }

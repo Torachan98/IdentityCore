@@ -9,6 +9,11 @@ namespace IdentityCore.Business
 {
     public class EmailBusiness : BaseBusiness, IEmailBusiness
     {
+        public EmailBusiness()
+        {
+
+        }
+
         public Task<bool> SendMailAsync(UserDTO user, TemplateEmailType templateType)
         {
             var message = new MimeMessage();
@@ -59,7 +64,7 @@ namespace IdentityCore.Business
             return new string(otp);
         }
 
-        private TemplateDTO? FetchTemplate(TemplateEmailType template, UserDTO user )
+        private TemplateDTO FetchTemplate(TemplateEmailType template, UserDTO user )
         {
             switch (template)
             {

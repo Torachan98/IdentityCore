@@ -5,9 +5,9 @@ namespace IdentityCore.Business.Interfaces
 {
     public interface IRoleBusiness
     {
-        Task<List<RoleDTO>> GetRoles();
-        Task<List<RoleDTO>> CreateRolesAsync();
-        Task<List<RoleDTO>> UpdateRolesAsync(UserRequest userRequest);
-        Task<bool> DeleteRolesAsync(UserDTO user);
+        Task<PaginationItems<RoleDTO>> GetRoles(RoleFetchRequest request);
+        Task<RoleDTO> CreateRolesAsync(CreateOrUpdateRoleRequest request);
+        Task<RoleDTO> UpdateRolesAsync(CreateOrUpdateRoleRequest request);
+        Task<bool> DeleteRolesAsync(string guid);
     }
 }

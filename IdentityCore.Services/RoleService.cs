@@ -1,27 +1,69 @@
-﻿using IdentityCore.Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using IdentityCore.Business;
+using IdentityCore.Business.Interfaces;
+using IdentityCore.EFs.DTOs;
+using IdentityCore.EFs.Requests;
+using IdentityCore.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
 
 namespace IdentityCore.Services
 {
     public class RoleService : IRoleService
     {
-        public Task<string> CreateRoleAsync()
+        private readonly IRoleBusiness _roleBusiness;
+        public RoleService(IRoleBusiness roleBusiness) 
+        {
+            _roleBusiness = roleBusiness;
+        }
+
+        public async Task<PaginationItems<RoleDTO>> GetAllAsync(RoleFetchRequest request)
+        {
+            return await _roleBusiness.GetRoles(request);
+        }
+
+        public Task<RoleDTO> GetByIdAsync(string guid)
         {
             throw new NotImplementedException();
         }
 
-        public Task<string> DeleteRoleAsync()
+        public async Task<ObjectResult<RoleDTO>> CreateAsync(CreateOrUpdateRoleRequest request)
         {
-            throw new NotImplementedException();
+            if (!string.IsNullOrEmpty(request.RoleName))
+            {
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "Name role do not allow empty");
+            }
+
+            return new ObjectResult<RoleDTO>()
+            {
+                Item = await _roleBusiness.CreateRolesAsync(request),
+            };
         }
 
-        public Task<string> UpdateRoleAsync()
+        public async Task<ObjectResult<RoleDTO>> UpdateAsync(CreateOrUpdateRoleRequest request)
         {
-            throw new NotImplementedException();
+            if (!string.IsNullOrEmpty(request.GUID))
+            {
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "Id role do not allow empty");
+            }
+
+            if (!string.IsNullOrEmpty(request.RoleName))
+            {
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "Name role do not allow empty");
+            }
+
+            return new ObjectResult<RoleDTO>()
+            {
+                Item = await _roleBusiness.UpdateRolesAsync(request),
+            };
+        }
+
+        public async Task<bool> DeleteAsync(string guid)
+        {
+            if (!string.IsNullOrEmpty(guid))
+            {
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "Id do not allow empty");
+            }
+
+            return await _roleBusiness.DeleteRolesAsync(guid);
         }
     }
 }

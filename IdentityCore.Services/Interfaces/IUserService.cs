@@ -8,12 +8,8 @@ using System.Threading.Tasks;
 
 namespace IdentityCore.Services.Interfaces
 {
-    public interface IUserService
+    public interface IUserService: IBaseService<UserDTO, CreateOrUpdateUserRequest, UserFetchRequest>
     {
-        Task<PaginationItems<UserDTO>> GetUsersAsync(UserFetchRequest userFetchRequest);
-        Task<ObjectResult<UserDTO>> CreateUserAsync(CreateUserRequest createUserRequest);
         Task<ObjectResult<UserDTO>> ForgotPasswordAsync(ForgotPasswordRequest forgotPasswordRequest);
-        Task<ObjectResult<UserDTO>> UpdateUserAsync(UserRequest userRequest);
-        Task<bool> DeleteUserAsync(string guid);
     }
 }

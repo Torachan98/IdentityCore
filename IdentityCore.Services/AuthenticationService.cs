@@ -38,15 +38,17 @@ namespace IdentityCore.Services
         public async Task<bool> SignOut()
         {
             var userDto = _httpContextAccessor.HttpContext.Items["User"] as UserDTO;
+            var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString();
+
             if(userDto == null)
             {
                 return false;
             }
 
-            return await _authenticationBusiness.SignOutAsync(userDto);
+            return await _authenticationBusiness.SignOutAsync(userDto, accessToken);
         }
 
-        public async Task<AuthenticationToken?> RenewToken(string refreshToken)
+        public async Task<AuthenticationToken> RenewToken(string refreshToken)
         {
             return await _authenticationBusiness.RenewTokenAsync(refreshToken);
         }
@@ -54,6 +56,26 @@ namespace IdentityCore.Services
         public async Task<bool> ConfirmOTP(string otpCode)
         {
             return await _authenticationBusiness.ConfirmOTPAsync(otpCode);
+        }
+
+        public async Task<bool> ResetEmail(string email)
+        {
+            return await _authenticationBusiness.ResetEmailAsync(email);
+        }
+
+        public async Task<bool> ResetEmailConfirm(string email, string otpCode)
+        {
+            return await _authenticationBusiness.ResetEmailConfirmAsync(email, otpCode);
+        }
+
+        public Task<bool> ResetPassword(string email)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> ResetPasswordConfirm(string password, string otpCode)
+        {
+            throw new NotImplementedException();
         }
     }
 }

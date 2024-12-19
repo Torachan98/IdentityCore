@@ -1,5 +1,5 @@
 ﻿using IdentityCore.Attributes;
-using IdentityCore.EFs.Requests;
+using IdentityCore.EFs.DTOs;
 using IdentityCore.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,26 +18,30 @@ namespace IdentityCore.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetUsers([FromQuery] UserFetchRequest userFetchRequest)
+        public async Task<IActionResult> GetUsers([FromQuery] UserFetchRequest request)
         {
-            var result = await _userService.GetUsersAsync(userFetchRequest);
-            return Ok(result);
+            return Ok(await _userService.GetAllAsync(request));
         }
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest createUserRequest)
+        public async Task<IActionResult> CreateUser([FromBody] CreateOrUpdateUserRequest request)
         {
-            var result = await _userService.CreateUserAsync(createUserRequest);
-            return Ok(result);
+            return Ok(await _userService.CreateAsync(request));
         }
 
         [HttpPut]
         [Authorize]
-        public async Task<IActionResult> UpdateUser([FromBody] UserRequest userRequest)
+        public async Task<IActionResult> UpdateUser([FromBody] CreateOrUpdateUserRequest request)
         {
-            var result = await _userService.UpdateUserAsync(userRequest);
-            return Ok(result);
+            return Ok(await _userService.UpdateAsync(request));
+        }
+
+        [HttpDelete]
+        [Authorize]
+        public async Task<IActionResult> DeleteUser([FromQuery] string guid)
+        {
+            return Ok(await _userService.DeleteAsync(guid));
         }
     }
 }
