@@ -148,14 +148,14 @@ namespace IdentityCore.Business
         {
             var userDto = await _userBusiness.GetSingleUserWithPermissionAndRoleAsync("","",refreshToken);
 
+            if (userDto == null)
+            {
+                throw new FriendlyException(StatusCodes.Status401Unauthorized, "Refresh token invalid");
+            }
+
             if (userDto.Locked.HasValue && userDto.Locked >= DateTime.UtcNow)
             {
                 throw new FriendlyException(StatusCodes.Status401Unauthorized, "User has been locked");
-            }
-
-            if (userDto == null) 
-            {
-                throw new FriendlyException(StatusCodes.Status401Unauthorized, "Refresh token invalid");
             }
 
             return new AuthenticationToken()
