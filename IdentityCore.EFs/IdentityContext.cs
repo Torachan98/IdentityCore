@@ -1,6 +1,5 @@
 ﻿using IdentityCore.EFs.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace IdentityCore.EFs
 {

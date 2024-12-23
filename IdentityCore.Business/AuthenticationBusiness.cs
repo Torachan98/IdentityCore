@@ -14,10 +14,8 @@ using Microsoft.EntityFrameworkCore;
 using IdentityCore.Repository.UnitOfWork;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
 using IdentityCore.EFs.Enums;
+using Microsoft.AspNetCore.Http;
 
 namespace IdentityCore.Business
 {
@@ -43,8 +41,8 @@ namespace IdentityCore.Business
 
         public async Task<ObjectResponse<AuthenticationToken>> SignInAsync(SignInRequest signInRequest)
         {
-            var user = await _userBusiness.GetSingleUserWithPermissionAndRoleAsync(signInRequest.UserName);
-            var passwordEnscrypt = EnscryptHelper.ConvertSHA256(signInRequest.Password);
+            var user = await _userBusiness.GetSingleUserWithPermissionAndRoleAsync(signInRequest.UserName!);
+            var passwordEnscrypt = EnscryptHelper.ConvertSHA256(signInRequest.Password!);
 
             if(user == null)
             {
@@ -138,7 +136,7 @@ namespace IdentityCore.Business
 
             var tokenBlacklist = await _distributedCache.GetStringAsync(KeyCache.BlackList) ?? "";
             var blacklist = !string.IsNullOrEmpty(tokenBlacklist) ? JsonSerializer.Deserialize<List<string>>(tokenBlacklist) : new List<string>();
-            blacklist.Add(accessToken);
+            blacklist!.Add(accessToken);
             await _distributedCache.SetStringAsync(KeyCache.BlackList, JsonSerializer.Serialize(blacklist));
             await _distributedCache.RemoveAsync($"{KeyCache.User}-{user.GUID}");
             return true;
@@ -167,7 +165,7 @@ namespace IdentityCore.Business
 
         private string GenerateToken(UserDTO user)
         {
-            var permissionItem = user.GroupPermissions.GroupBy(s => s.PermissionType).Select(s => new
+            var permissionItem = user.GroupPermissions!.GroupBy(s => s.PermissionType).Select(s => new
             {
                 PermissionGroup = s.Key.ToString(),
                 Permssions = s.Select(i => new
@@ -179,10 +177,10 @@ namespace IdentityCore.Business
             }).ToList();
 
             var claims = new[] {
-                new Claim("name",user.FullName),
-                new Claim("email",user.Email),
+                new Claim("name",user.FullName!),
+                new Claim("email",user.Email!),
                 new Claim("phone",$"{user.PhoneCode} {user.Phone}"),
-                new Claim("userId",user.GUID),
+                new Claim("userId",user.GUID !),
                 new Claim("permissions",JsonSerializer.Serialize(permissionItem)),
                 new Claim("services",JsonSerializer.Serialize(user.Services)),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())

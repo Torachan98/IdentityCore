@@ -34,7 +34,6 @@ builder.Services.Configure<Configuration>(configuration);
 builder.Services.AddDbContext<IdentityContext>(options
              => options.UseSqlServer(config.GetConnectionString("DbContext"),b => b.MigrationsAssembly("IdentityCore.EFs")));
 
-
 builder.Services.AddCors(options => options.AddPolicy("IdentityCore_Policy", p => p
                                                                    .AllowAnyOrigin()
                                                                    .AllowAnyMethod()
@@ -198,7 +197,7 @@ try
 }
 catch(Exception ex)
 {
-    logger.LogError(ex,ex.Message);
+    logger!.LogError(ex,ex.Message);
 }
 
 
