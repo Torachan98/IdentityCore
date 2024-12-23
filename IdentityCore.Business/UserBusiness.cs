@@ -146,8 +146,8 @@ namespace IdentityCore.Business
 
             var userEntity = _mapper.Map<UserEntity>(createUserRequest);
 
-            userEntity.OTPCode = _emailBusiness.GenerateOTP(GlobalConfiguration.OTP.SizeCode);
-            userEntity.OTPLifeTime = DateTime.UtcNow.AddMinutes(GlobalConfiguration.OTP.LifeTimeMinute);
+            userEntity.OTPCode = _emailBusiness.GenerateOTP(GlobalConst.OTP.SizeCode);
+            userEntity.OTPLifeTime = DateTime.UtcNow.AddMinutes(GlobalConst.OTP.LifeTimeMinute);
 
             var userCreated = _userRepository.Add(userEntity);
             await _unitOfWork.CommitAsync();

@@ -29,19 +29,19 @@ namespace IdentityCore.Middlewares
             if (token != null)
             {
                 var blackListString = await _distributedCache.GetStringAsync(KeyCache.BlackList);
-                var blackList = !string.IsNullOrEmpty(blackListString) ? JsonSerializer.Deserialize<List<string>>(blackListString) : new List<string>();
-                if (!blackList.Any(s => s.Equals(token))) 
+                var blackList = !string.IsNullOrEmpty(blackListString) ? JsonSerializer.Deserialize<List<string>>(blackListString)! : new List<string>();
+                if (blackList.Any(s => s.Equals(token))) 
                 {
                     var tokenHandler = new JwtSecurityTokenHandler();
                     tokenHandler.ValidateToken(token, new TokenValidationParameters
                     {
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(GlobalConfiguration.Jwt.Key)),
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(GlobalConst.Jwt.Key)),
                         ValidateIssuer = true,
                         ValidateAudience = true,
                         ValidateLifetime = false,
-                        ValidAudience = GlobalConfiguration.Jwt.Audience,
-                        ValidIssuer = GlobalConfiguration.Jwt.Issuer
+                        ValidAudience = GlobalConst.Jwt.Audience,
+                        ValidIssuer = GlobalConst.Jwt.Issuer
                     }, out SecurityToken validatedToken);
 
                     var jwtToken = (JwtSecurityToken)validatedToken;

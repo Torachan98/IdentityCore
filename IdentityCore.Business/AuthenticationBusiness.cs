@@ -54,9 +54,9 @@ namespace IdentityCore.Business
 
             if (!Equals(user.Password, passwordEnscrypt))
             {
-                if(user.AttemptLogin == GlobalConfiguration.AccountLocked.AttemptNumber)
+                if(user.AttemptLogin == GlobalConst.AccountLocked.AttemptNumber)
                 {
-                    user.Locked = DateTime.UtcNow.AddHours(GlobalConfiguration.AccountLocked.LockedHour);
+                    user.Locked = DateTime.UtcNow.AddHours(GlobalConst.AccountLocked.LockedHour);
                     await _userBusiness.UpdateUserAsync(user);
 
                     return new ObjectResponse<AuthenticationToken>()
@@ -85,8 +85,8 @@ namespace IdentityCore.Business
 
             if (user.IsActive.HasValue && !(bool)user.IsActive)
             {
-                user.OTPCode = _emailBusiness.GenerateOTP(GlobalConfiguration.OTP.SizeCode);
-                user.OTPLifeTime = DateTime.UtcNow.AddMinutes(GlobalConfiguration.OTP.LifeTimeMinute);
+                user.OTPCode = _emailBusiness.GenerateOTP(GlobalConst.OTP.SizeCode);
+                user.OTPLifeTime = DateTime.UtcNow.AddMinutes(GlobalConst.OTP.LifeTimeMinute);
 
                 await _emailBusiness.SendMailAsync(user, TemplateEmailType.OTP);
                 await _userBusiness.UpdateUserAsync(user);
@@ -186,12 +186,12 @@ namespace IdentityCore.Business
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(GlobalConfiguration.Jwt.Key));
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(GlobalConst.Jwt.Key));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-            var token = new JwtSecurityToken(GlobalConfiguration.Jwt.Issuer,
-                                              GlobalConfiguration.Jwt.Audience,
+            var token = new JwtSecurityToken(GlobalConst.Jwt.Issuer,
+                                              GlobalConst.Jwt.Audience,
                                               claims,
-                                              expires: DateTime.UtcNow.AddMinutes(GlobalConfiguration.Jwt.LifeTime),
+                                              expires: DateTime.UtcNow.AddMinutes(GlobalConst.Jwt.LifeTime),
                                               signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
