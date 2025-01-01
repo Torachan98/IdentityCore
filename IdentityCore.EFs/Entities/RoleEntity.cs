@@ -13,6 +13,6 @@ namespace IdentityCore.EFs.Entities
         [DefaultValue(false)]
         public bool IsLock { get; set; }
 
-        public virtual ICollection<UserRolePermissionEntity> UserRolePermissions { get; set; }
+        public virtual ICollection<RolePermissionEntity> RolePermissions { get; set; }
     }
 }

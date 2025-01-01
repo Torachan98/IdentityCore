@@ -40,6 +40,7 @@ namespace IdentityCore.EFs.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("GUID")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
@@ -75,6 +76,7 @@ namespace IdentityCore.EFs.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("GUID")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
@@ -90,6 +92,42 @@ namespace IdentityCore.EFs.Migrations
                     b.HasKey("RoleId");
 
                     b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("IdentityCore.EFs.Entities.RolePermissionEntity", b =>
+                {
+                    b.Property<int>("RolePermissionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RolePermissionId"));
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("GUID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("PermissionId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.HasKey("RolePermissionId");
+
+                    b.HasIndex("PermissionId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("RolePermissions");
                 });
 
             modelBuilder.Entity("IdentityCore.EFs.Entities.ServiceEntity", b =>
@@ -110,6 +148,7 @@ namespace IdentityCore.EFs.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("GUID")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
@@ -160,6 +199,7 @@ namespace IdentityCore.EFs.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("GUID")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
@@ -225,13 +265,13 @@ namespace IdentityCore.EFs.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("IdentityCore.EFs.Entities.UserRolePermissionEntity", b =>
+            modelBuilder.Entity("IdentityCore.EFs.Entities.UserPermissionEntity", b =>
                 {
-                    b.Property<int>("UserRolePermissionId")
+                    b.Property<int>("UserPermissionId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserRolePermissionId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserPermissionId"));
 
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
@@ -240,6 +280,7 @@ namespace IdentityCore.EFs.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("GUID")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
@@ -248,22 +289,55 @@ namespace IdentityCore.EFs.Migrations
                     b.Property<int>("PermissionId")
                         .HasColumnType("int");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserPermissionId");
+
+                    b.HasIndex("PermissionId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserPermissions");
+                });
+
+            modelBuilder.Entity("IdentityCore.EFs.Entities.UserRoleEntity", b =>
+                {
+                    b.Property<int>("UserRoleId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserRoleId"));
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("GUID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RolesRoleId")
                         .HasColumnType("int");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.HasKey("UserRolePermissionId");
+                    b.HasKey("UserRoleId");
 
-                    b.HasIndex("PermissionId")
-                        .IsUnique();
-
-                    b.HasIndex("RoleId");
+                    b.HasIndex("RolesRoleId");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserRolePermissions");
+                    b.ToTable("UserRoles");
                 });
 
             modelBuilder.Entity("IdentityCore.EFs.Entities.UserServiceEntity", b =>
@@ -287,6 +361,7 @@ namespace IdentityCore.EFs.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("GUID")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
@@ -307,27 +382,57 @@ namespace IdentityCore.EFs.Migrations
                     b.ToTable("UserServices");
                 });
 
-            modelBuilder.Entity("IdentityCore.EFs.Entities.UserRolePermissionEntity", b =>
+            modelBuilder.Entity("IdentityCore.EFs.Entities.RolePermissionEntity", b =>
                 {
                     b.HasOne("IdentityCore.EFs.Entities.PermissionEntity", "Permissions")
-                        .WithOne("UserRolePermissions")
-                        .HasForeignKey("IdentityCore.EFs.Entities.UserRolePermissionEntity", "PermissionId")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("PermissionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("IdentityCore.EFs.Entities.RoleEntity", "Roles")
-                        .WithMany("UserRolePermissions")
+                        .WithMany("RolePermissions")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Permissions");
+
+                    b.Navigation("Roles");
+                });
+
+            modelBuilder.Entity("IdentityCore.EFs.Entities.UserPermissionEntity", b =>
+                {
+                    b.HasOne("IdentityCore.EFs.Entities.PermissionEntity", "Permissions")
+                        .WithMany("UserPermissions")
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("IdentityCore.EFs.Entities.UserEntity", "Users")
-                        .WithMany("UserRolePermissions")
+                        .WithMany("UserPermissions")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Permissions");
+
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("IdentityCore.EFs.Entities.UserRoleEntity", b =>
+                {
+                    b.HasOne("IdentityCore.EFs.Entities.RoleEntity", "Roles")
+                        .WithMany()
+                        .HasForeignKey("RolesRoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IdentityCore.EFs.Entities.UserEntity", "Users")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Roles");
 
@@ -355,12 +460,14 @@ namespace IdentityCore.EFs.Migrations
 
             modelBuilder.Entity("IdentityCore.EFs.Entities.PermissionEntity", b =>
                 {
-                    b.Navigation("UserRolePermissions");
+                    b.Navigation("RolePermissions");
+
+                    b.Navigation("UserPermissions");
                 });
 
             modelBuilder.Entity("IdentityCore.EFs.Entities.RoleEntity", b =>
                 {
-                    b.Navigation("UserRolePermissions");
+                    b.Navigation("RolePermissions");
                 });
 
             modelBuilder.Entity("IdentityCore.EFs.Entities.ServiceEntity", b =>
@@ -370,7 +477,9 @@ namespace IdentityCore.EFs.Migrations
 
             modelBuilder.Entity("IdentityCore.EFs.Entities.UserEntity", b =>
                 {
-                    b.Navigation("UserRolePermissions");
+                    b.Navigation("UserPermissions");
+
+                    b.Navigation("UserRoles");
 
                     b.Navigation("UserServices");
                 });

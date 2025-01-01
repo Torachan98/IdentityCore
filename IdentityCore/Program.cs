@@ -97,7 +97,9 @@ builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 builder.Services.AddScoped<IUserServiceRepository, UserServiceRepository>();
-builder.Services.AddScoped<IUserRolePermissionRepository, UserRolePermissionRepository>();
+builder.Services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
+builder.Services.AddScoped<IUserPermissionRepository, UserPermissionRepository>();
+builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 #endregion
 
 #region UnitOfWork

@@ -8,6 +8,8 @@ namespace IdentityCore.EFs.DTOs
 {
     public class UserDTO
     {
+        [IgnoreDataMember]
+        public int UserId { get; set; }
         public string? AvatarUrl { get; set; } 
         public string? UserName { get; set; } 
         public string? FullName { get; set; } 
@@ -58,11 +60,10 @@ namespace IdentityCore.EFs.DTOs
         [IgnoreDataMember]
         public string? RefreshToken { get; set; } 
 
-        public List<PermissionEnum>? GroupPermissions { get; set; }
-        public List<RoleEnum>? GroupRoles { get; set; }
-        public List<string>? Services { get; set; }
-
-        public List<UserRolePermissionEntity>? UserRolePermissions { get; set; }
+        public List<PermissionEnum> GroupPermissions { get; set; } = new List<PermissionEnum>();
+        public List<RoleEnum> GroupRoles { get; set; } = new List<RoleEnum>();
+        public List<string> Services { get; set; } = new List<string>();
+        public List<RolePermissionEntity> RolePermissions { get; set; } = new List<RolePermissionEntity>();
     }
 
     public class UserFetchRequest: FetchParams

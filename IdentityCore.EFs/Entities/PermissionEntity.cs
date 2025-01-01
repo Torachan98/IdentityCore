@@ -10,6 +10,7 @@ namespace IdentityCore.EFs.Entities
         public required string Name { get; set; } 
         public string? Description { get; set; }
 
-        public virtual UserRolePermissionEntity UserRolePermissions{ get; set; }
+        public virtual ICollection<RolePermissionEntity> RolePermissions{ get; set; }
+        public virtual ICollection<UserPermissionEntity> UserPermissions{ get; set; }
     }
 }

@@ -47,7 +47,7 @@ namespace IdentityCore.Business
             _userServiceRepository = userServiceRepository;
         }
 
-        public async Task<UserDTO> GetSingleUserWithPermissionAndRoleAsync(string userName, string guid = "",string refreshToken = "")
+        public async Task<UserDTO> GetSingleUserWithPermissionAndRoleAsync(string userName,List<string> appKeys, string guid = "",string refreshToken = "")
         {
             var userQuery = _userRepository.Get();
 
@@ -64,7 +64,8 @@ namespace IdentityCore.Business
                 userQuery = userQuery.Where(s => s.RefreshToken == refreshToken && s.IsLogin &&!s.IsDeleted);
             }
 
-            userQuery = userQuery.Include(s => s.UserRolePermissions);
+            userQuery = userQuery.Include(s => s.UserPermissions)
+                                .Include(s => s.UserServices);
 
             var userEntity = await userQuery.FirstOrDefaultAsync();
 
@@ -72,25 +73,43 @@ namespace IdentityCore.Business
 
             if (userEntity != null)
             {
-                if (userEntity.UserRolePermissions != null)
+                /*
+                    var permissions = await _userPermissionRepository.Get(s => !s.IsDeleted)
+                                                            .Include(s=> s.Permissions)
+                                                            .Where(s => s.UserId == user.UserId)
+                                                            .Select(s=> new
+                                                            {
+                                                                Permission = s.Permissions.Name,
+                                                                Type = s.Permissions.PermissionType,
+                                                                Description = s.Permissions.Description,
+                                                            })
+                                                            .ToListAsync();
+                 
+                 */
+                if (userEntity.UserPermissions != null)
                 {
-                    var permissionIds = userEntity.UserRolePermissions.Select(s => s.PermissionId).ToList();
-                    var roleIds = userEntity.UserRolePermissions.Select(s => s.RoleId).ToList();
-
-                    var permissionEntity = await _permissionRepository.Get(s => permissionIds.Contains(s.PermissionId)).ToListAsync();
-                    var roleEntity = await _roleRepository.Get(s => roleIds.Contains(s.RoleId)).ToListAsync();
+                    var permissionIds = userEntity.UserPermissions.Select(s => s.PermissionId).ToList();
+                    var permissionEntity = await _permissionRepository.Get(s => permissionIds.Contains(s.PermissionId) && !s.IsDeleted).ToListAsync();
+                   
 
                     userDto.Services = await _userServiceRepository
-                                                .Get(s => s.UserId == userEntity.UserId)
+                                                .Get(s => s.UserId == userEntity.UserId && !s.IsDeleted)
                                                 .Include(s => s.Services)
+                                                .Where(s => appKeys.Any(x => x == s.Services.SignatureKey) &&
+                                                            (!s.DateActive.HasValue && !s.DateExpired.HasValue) || 
+                                                            (s.DateActive.HasValue && s.DateActive <= DateTime.UtcNow) &&
+                                                            (s.DateExpired.HasValue && s.DateExpired > DateTime.UtcNow))                                                
                                                 .Select(s => s.Services.SignatureKey)
                                                 .ToListAsync();
 
-                    if (permissionEntity != null)
-                    {
-                        var permissions = EnumHelper.ConvertPermissionToList<Permission, PermissionEnum>();
-                        userDto.GroupPermissions = permissions.Where(s => permissionEntity.Any(r => r.Name == s.Permission.ToString() && r.PermissionType == s.PermissionType)).ToList();
-                    }
+                    var permissions = EnumHelper.ConvertPermissionToList<Permission, PermissionEnum>();
+                    userDto.GroupPermissions = permissions.Where(s => permissionEntity.Any(r => r.Name == s.Permission.ToString() && r.PermissionType == s.PermissionType)).ToList();
+                }
+
+                if(userEntity.UserRoles != null)
+                {
+                    var roleIds = userEntity.UserRoles.Select(s => s.RoleId).ToList();
+                    var roleEntity = await _roleRepository.Get(s => roleIds.Contains(s.RoleId)).ToListAsync();
 
                     var roles = EnumHelper.ConvertRoleToList<Role, RoleEnum>();
                     userDto.GroupRoles = roles.Where(s => roleEntity.Any(r => r.RoleName == s.Role.ToString())).ToList();
@@ -178,7 +197,7 @@ namespace IdentityCore.Business
         {
             var userEntity = await _userRepository
                                         .Get(s => (s.GUID == userDto.GUID || s.Email == userDto.Email) && !s.IsDeleted)
-                                        .Include(s => s.UserRolePermissions)
+                                        .Include(s => s.UserPermissions)
                                         .ThenInclude(r => r.Permissions)
                                         .FirstOrDefaultAsync();
 
