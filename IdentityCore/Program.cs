@@ -1,4 +1,5 @@
 using AutoMapper;
+using Hangfire;
 using IdentityCore;
 using IdentityCore.AutoMapper;
 using IdentityCore.Business;
@@ -18,6 +19,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Text;
+using static IdentityCore.HangfireService;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
@@ -39,6 +41,16 @@ builder.Services.AddCors(options => options.AddPolicy("IdentityCore_Policy", p =
                                                                    .AllowAnyOrigin()
                                                                    .AllowAnyMethod()
                                                                    .AllowAnyHeader()));
+
+builder.Services.AddHangfire(configuration => configuration
+                    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                    .UseSimpleAssemblyNameTypeSerializer()
+                    .UseRecommendedSerializerSettings()
+                    .UseSqlServerStorage(config.GetConnectionString("HangsfireContenxt")));
+
+builder.Services.AddHangfireServer()
+        .AddHangfire(config, config.GetConnectionString("HangsfireContenxt")!);
+
 builder.Services.AddLogging();
 builder.Services.AddTransient<GlobalHandlerMiddleware>();
 builder.Services.AddControllers(options =>
@@ -49,12 +61,17 @@ builder.Services.AddControllers(options =>
     .AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
 builder.Services.AddStackExchangeRedisCache(action => {
-    var connection = $"{GlobalConfiguration.Redis.Url}:{GlobalConfiguration.Redis.Port}"; 
+    var connection = $"{GlobalConst.Redis.Url}:{GlobalConst.Redis.Port}"; 
     action.Configuration = connection;
 });
 
 #region AutoMapper Profile
 builder.Services.AddAutoMapper(typeof(MappingProfile));
+#endregion
+
+#region CronJobs
+builder.Services.AddTransient<ICronJobService, CronJobService>();
+builder.Services.AddTransient<ICronJobBusiness, CronJobBusiness>();
 #endregion
 
 #region Service
@@ -80,7 +97,9 @@ builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 builder.Services.AddScoped<IUserServiceRepository, UserServiceRepository>();
-builder.Services.AddScoped<IUserRolePermissionRepository, UserRolePermissionRepository>();
+builder.Services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
+builder.Services.AddScoped<IUserPermissionRepository, UserPermissionRepository>();
+builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 #endregion
 
 #region UnitOfWork
@@ -100,7 +119,7 @@ builder.Services.AddAuthentication(options =>
     o.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"])),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]!)),
         ValidateIssuer = false,
         ValidateAudience = false
     };
@@ -165,6 +184,7 @@ using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
 var context = services.GetRequiredService<IdentityContext>();
 var logger = services.GetService<ILogger<LoggerExtension>>();
+var cronJob = services.GetService<ICronJobService>();
 
 if(builder.Environment.IsDevelopment())
 {
@@ -178,6 +198,13 @@ if(builder.Environment.IsDevelopment())
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
         options.RoutePrefix = string.Empty;
     });
+
+    Console.WriteLine();
+    Console.ForegroundColor = ConsoleColor.Cyan;
+    Console.WriteLine(!string.IsNullOrWhiteSpace(HangfireConfig.DashboardUrl)
+        ? $"Hangfire Access Dashboard via Url: {HangfireConfig.DashboardUrl}?{HangfireConfig.AccessKeyQueryParam}={HangfireConfig.AccessKey}"
+        : "Hangfire Setup without Dashboard");
+    Console.ResetColor();
 }
 
 // Configure the HTTP request pipeline.
@@ -185,11 +212,21 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseMiddleware<GlobalHandlerMiddleware>();
 app.UseMiddleware<AuthenticationMiddleware>();
+app.UseMiddleware<HangfireDashboardAccessMiddleware>();
 app.UseAuthentication();
 app.UseCors("IdentityCore_Policy");
+app.UseHangfireDashboard(HangfireConfig.DashboardUrl, new DashboardOptions
+{
+    Authorization = new[] { new CustomAuthorizeFilter() },
+    AppPath = HangfireConfig.BackToSiteUrl,
+    StatsPollingInterval = HangfireConfig.StatsPollingInterval
+});
 app.UseRouting();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHangfireDashboard();
+
+cronJob!.RunCronJobs();
 
 try
 {
@@ -198,7 +235,7 @@ try
 }
 catch(Exception ex)
 {
-    logger.LogError(ex,ex.Message);
+    logger!.LogError(ex,ex.Message);
 }
 
 

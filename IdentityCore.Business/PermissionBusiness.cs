@@ -1,11 +1,8 @@
-﻿using System.Linq;
-using AutoMapper;
+﻿using AutoMapper;
 using IdentityCore.Business.Interfaces;
-using IdentityCore.EFs;
 using IdentityCore.EFs.DTOs;
 using IdentityCore.EFs.Entities;
 using IdentityCore.EFs.Requests;
-using IdentityCore.Repository;
 using IdentityCore.Repository.Interfaces;
 using IdentityCore.Repository.UnitOfWork;
 using Microsoft.AspNetCore.Http;

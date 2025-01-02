@@ -20,19 +20,19 @@ namespace IdentityCore.Business
 
             var template = FetchTemplate(templateType, user);
 
-            message.From.Add(new MailboxAddress(GlobalConfiguration.MailKit.FullName, GlobalConfiguration.MailKit.Email));
+            message.From.Add(new MailboxAddress(GlobalConst.MailKit.FullName, GlobalConst.MailKit.Email));
             message.To.Add(new MailboxAddress(user.FullName, user.Email));
             message.Subject = template.Title;            
 
-            message.Body = new TextPart(GlobalConfiguration.MailKit.TextPart)
+            message.Body = new TextPart(GlobalConst.MailKit.TextPart)
             {
                 Text = template.Content
             };
 
             using (var client = new SmtpClient())
             {
-                client.Connect(GlobalConfiguration.MailKit.Host, GlobalConfiguration.MailKit.Port, GlobalConfiguration.MailKit.UseSSL);
-                client.Authenticate(GlobalConfiguration.MailKit.Email, GlobalConfiguration.MailKit.AppPassword);
+                client.Connect(GlobalConst.MailKit.Host, GlobalConst.MailKit.Port, GlobalConst.MailKit.UseSSL);
+                client.Authenticate(GlobalConst.MailKit.Email, GlobalConst.MailKit.AppPassword);
                 client.Send(message);
                 client.Disconnect(true);
             }
@@ -70,9 +70,9 @@ namespace IdentityCore.Business
             {
                 case TemplateEmailType.OTP:
                 {
-                    if(GlobalConfiguration.MailKit != null && GlobalConfiguration.MailKit.Templates != null)
+                    if(GlobalConst.MailKit != null && GlobalConst.MailKit.Templates != null)
                     {
-                        var templateInfo = GlobalConfiguration.MailKit.Templates.Where(s => s.EmailType == template).FirstOrDefault();
+                        var templateInfo = GlobalConst.MailKit.Templates.Where(s => s.EmailType == template).FirstOrDefault();
                         if(templateInfo == null)
                         {
                             return null;

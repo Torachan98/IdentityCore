@@ -14,10 +14,8 @@ using Microsoft.EntityFrameworkCore;
 using IdentityCore.Repository.UnitOfWork;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
 using IdentityCore.EFs.Enums;
+using Microsoft.AspNetCore.Http;
 
 namespace IdentityCore.Business
 {
@@ -26,91 +24,91 @@ namespace IdentityCore.Business
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IDistributedCache _distributedCache;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         private readonly IUserBusiness _userBusiness;
         private readonly IEmailBusiness _emailBusiness;
         private readonly IUserRepository _userRepository;
+        private readonly IServiceRepository _serviceRepository;
+        private readonly IUserServiceRepository _userServiceRepository;
+        private readonly IUserPermissionRepository _userPermissionRepository;
         
-        public AuthenticationBusiness(IMapper mapper, IUnitOfWork unitOfWork, IDistributedCache distributedCache, IUserBusiness userBusiness, IEmailBusiness emailBusiness, IUserRepository userRepository)
+        public AuthenticationBusiness(IMapper mapper, 
+            IUnitOfWork unitOfWork, 
+            IDistributedCache distributedCache,
+            IHttpContextAccessor httpContextAccessor,
+            IUserBusiness userBusiness,
+            IEmailBusiness emailBusiness, 
+            IUserRepository userRepository,
+            IServiceRepository serviceRepository,
+            IUserServiceRepository userServiceRepository,
+            IUserPermissionRepository userPermissionRepository)
         {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _distributedCache = distributedCache;
+            _httpContextAccessor = httpContextAccessor;
             _userBusiness = userBusiness;
             _emailBusiness = emailBusiness;
             _userRepository = userRepository;
+            _serviceRepository = serviceRepository;
+            _userServiceRepository = userServiceRepository;
+            _userPermissionRepository = userPermissionRepository;
         }
 
         public async Task<ObjectResponse<AuthenticationToken>> SignInAsync(SignInRequest signInRequest)
         {
-            var user = await _userBusiness.GetSingleUserWithPermissionAndRoleAsync(signInRequest.UserName);
-            var passwordEnscrypt = EnscryptHelper.ConvertSHA256(signInRequest.Password);
+            var user = await _userBusiness.GetSingleUserWithPermissionAndRoleAsync(signInRequest.UserName!,signInRequest.AppKeys);
+            var passwordEnscrypt = EnscryptHelper.ConvertSHA256(signInRequest.Password!);
 
             if(user == null)
             {
-                return new ObjectResponse<AuthenticationToken>()
-                {
-                    Message = "User or password is not corrected"
-                };
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "User or password is not corrected");
             }
 
             if (!Equals(user.Password, passwordEnscrypt))
             {
-                if(user.AttemptLogin == GlobalConfiguration.AccountLocked.AttemptNumber)
+                if(user.AttemptLogin == GlobalConst.AccountLocked.AttemptNumber)
                 {
-                    user.Locked = DateTime.UtcNow.AddHours(GlobalConfiguration.AccountLocked.LockedHour);
+                    user.Locked = DateTime.UtcNow.AddHours(GlobalConst.AccountLocked.LockedHour);
                     await _userBusiness.UpdateUserAsync(user);
-
-                    return new ObjectResponse<AuthenticationToken>()
-                    {
-                        Message = "This user has been locked"
-                    };
+                    throw new FriendlyException(StatusCodes.Status423Locked, "This user has been locked");
                 }
 
                 user.AttemptLogin = user.AttemptLogin + 1;
 
                 await _userBusiness.UpdateUserAsync(user);
 
-                return new ObjectResponse<AuthenticationToken>()
-                {
-                    Message = "User or password is not corrected"
-                };
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "User or password is not corrected");
             }
 
             if(user.Locked > DateTime.UtcNow)
             {
-                return new ObjectResponse<AuthenticationToken>()
-                {
-                    Message = "This user has been locked"
-                };
+                throw new FriendlyException(StatusCodes.Status423Locked, "This user has been locked");
             }
 
             if (user.IsActive.HasValue && !(bool)user.IsActive)
             {
-                user.OTPCode = _emailBusiness.GenerateOTP(GlobalConfiguration.OTP.SizeCode);
-                user.OTPLifeTime = DateTime.UtcNow.AddMinutes(GlobalConfiguration.OTP.LifeTimeMinute);
+                user.OTPCode = _emailBusiness.GenerateOTP(GlobalConst.OTP.SizeCode);
+                user.OTPLifeTime = DateTime.UtcNow.AddMinutes(GlobalConst.OTP.LifeTimeMinute);
 
                 await _emailBusiness.SendMailAsync(user, TemplateEmailType.OTP);
                 await _userBusiness.UpdateUserAsync(user);
 
-                return new ObjectResponse<AuthenticationToken>()
-                {
-                    Message = "User is not active"
-                };
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "User is not active");
             }
 
             if (user.IsLogin != null && (bool)user.IsLogin)
             {
-                return new ObjectResponse<AuthenticationToken>()
-                {
-                    Message = "User already login"
-                };
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "User already login");
             }
+
+            var accessToken = await GenerateToken(user);
 
             var result = new AuthenticationToken()
             {
                 RefreshToken = GenerateRefreshToken(),
-                AccessToken = GenerateToken(user)
+                AccessToken = accessToken
             };
 
             user.IsLogin = true;
@@ -137,8 +135,8 @@ namespace IdentityCore.Business
             }
 
             var tokenBlacklist = await _distributedCache.GetStringAsync(KeyCache.BlackList) ?? "";
-            var blacklist = !string.IsNullOrEmpty(tokenBlacklist) ? JsonSerializer.Deserialize<List<string>>(tokenBlacklist) : new List<string>();
-            blacklist.Add(accessToken);
+            var blacklist = !string.IsNullOrEmpty(tokenBlacklist) ? JsonSerializer.Deserialize<List<TokenBlacklist>>(tokenBlacklist) : new List<TokenBlacklist>();
+            blacklist!.Add(new TokenBlacklist() { Token = accessToken, DateExpired = FetchSessionToken(accessToken) });
             await _distributedCache.SetStringAsync(KeyCache.BlackList, JsonSerializer.Serialize(blacklist));
             await _distributedCache.RemoveAsync($"{KeyCache.User}-{user.GUID}");
             return true;
@@ -146,7 +144,8 @@ namespace IdentityCore.Business
 
         public async Task<AuthenticationToken> RenewTokenAsync(string refreshToken)
         {
-            var userDto = await _userBusiness.GetSingleUserWithPermissionAndRoleAsync("","",refreshToken);
+            var appKeys = _httpContextAccessor.HttpContext!.Items["AppKeys"] as List<string>;
+            var userDto = await _userBusiness.GetSingleUserWithPermissionAndRoleAsync("", appKeys ?? new List<string>(), "",refreshToken);
 
             if (userDto == null)
             {
@@ -158,53 +157,14 @@ namespace IdentityCore.Business
                 throw new FriendlyException(StatusCodes.Status401Unauthorized, "User has been locked");
             }
 
+           
+            var accessToken = await GenerateToken(userDto);
+
             return new AuthenticationToken()
             {
                 RefreshToken = userDto.RefreshToken,
-                AccessToken = GenerateToken(userDto)
+                AccessToken = accessToken
             };
-        }
-
-        private string GenerateToken(UserDTO user)
-        {
-            var permissionItem = user.GroupPermissions.GroupBy(s => s.PermissionType).Select(s => new
-            {
-                PermissionGroup = s.Key.ToString(),
-                Permssions = s.Select(i => new
-                {
-                    Permission = i.Permission.ToString(),
-                    Type = i.PermissionType.ToString(),
-                    Description = i.Description,
-                }).ToList()
-            }).ToList();
-
-            var claims = new[] {
-                new Claim("name",user.FullName),
-                new Claim("email",user.Email),
-                new Claim("phone",$"{user.PhoneCode} {user.Phone}"),
-                new Claim("userId",user.GUID),
-                new Claim("permissions",JsonSerializer.Serialize(permissionItem)),
-                new Claim("services",JsonSerializer.Serialize(user.Services)),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
-
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(GlobalConfiguration.Jwt.Key));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-            var token = new JwtSecurityToken(GlobalConfiguration.Jwt.Issuer,
-                                              GlobalConfiguration.Jwt.Audience,
-                                              claims,
-                                              expires: DateTime.UtcNow.AddMinutes(GlobalConfiguration.Jwt.LifeTime),
-                                              signingCredentials: credentials);
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
-
-        private string GenerateRefreshToken()
-        {
-            var randomNumber = new byte[64];
-            using var rng = RandomNumberGenerator.Create();
-            rng.GetBytes(randomNumber);
-            return Convert.ToBase64String(randomNumber);
         }
 
         public Task<bool> ValidateToken()
@@ -219,16 +179,16 @@ namespace IdentityCore.Business
                 return false;
             }
 
-            var userEntity = await _userRepository.Get(s=> s.OTPCode == otpCode && !s.IsActive && !s.IsDeleted).FirstOrDefaultAsync();
+            var userEntity = await _userRepository.Get(s => s.OTPCode == otpCode && !s.IsActive && !s.IsDeleted).FirstOrDefaultAsync();
 
-            if (userEntity == null) 
+            if (userEntity == null)
             {
                 return false;
             }
 
-            if(userEntity.OTPLifeTime > DateTime.UtcNow)
+            if (userEntity.OTPLifeTime > DateTime.UtcNow)
             {
-                await _userBusiness.UpdateUserAsync(new UserDTO() 
+                await _userBusiness.UpdateUserAsync(new UserDTO()
                 {
                     GUID = userEntity.GUID,
                     IsActive = true
@@ -248,7 +208,7 @@ namespace IdentityCore.Business
             }
 
             var userEntity = await _userRepository.Get().FirstOrDefaultAsync(s => s.Email == email && s.IsActive);
-            if (userEntity == null) 
+            if (userEntity == null)
             {
                 return false;
             }
@@ -257,7 +217,7 @@ namespace IdentityCore.Business
             userEntity.OTPLifeTime = DateTime.UtcNow.AddMinutes(15);
             _userRepository.Add(userEntity);
 
-            var userDto = _mapper.Map<UserDTO>(userEntity);            
+            var userDto = _mapper.Map<UserDTO>(userEntity);
             await _emailBusiness.SendMailAsync(userDto, TemplateEmailType.OTP);
             await _unitOfWork.CommitAsync();
 
@@ -271,9 +231,9 @@ namespace IdentityCore.Business
                 return false;
             }
 
-            var userEntity = await _userRepository.Get().FirstOrDefaultAsync(s => s.Email == email && 
+            var userEntity = await _userRepository.Get().FirstOrDefaultAsync(s => s.Email == email &&
                                                                             s.OTPCode == otpCode &&
-                                                                            s.OTPLifeTime.HasValue && s.OTPLifeTime >= DateTime.UtcNow && 
+                                                                            s.OTPLifeTime.HasValue && s.OTPLifeTime >= DateTime.UtcNow &&
                                                                             s.IsActive);
             if (userEntity == null)
             {
@@ -296,6 +256,59 @@ namespace IdentityCore.Business
         public Task<bool> ResetPasswordConfirmAsync(string password, string otpCode)
         {
             throw new NotImplementedException();
+        }
+
+        private DateTime FetchSessionToken(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            tokenHandler.ValidateToken(token, new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(GlobalConst.Jwt.Key)),
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = false,
+                ValidAudience = GlobalConst.Jwt.Audience,
+                ValidIssuer = GlobalConst.Jwt.Issuer
+            }, out SecurityToken validatedToken);
+
+            var jwtToken = (JwtSecurityToken)validatedToken;
+            var timeStamp = jwtToken.Claims.First(x => x.Type == "exp").Value;
+            DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            DateTime dateExpired = dateTime.AddSeconds(double.Parse(timeStamp)).ToUniversalTime();
+            return dateExpired;
+        }
+
+        private string GenerateRefreshToken()
+        {
+            var randomNumber = new byte[64];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomNumber);
+            return Convert.ToBase64String(randomNumber);
+        }
+
+        private async Task<string> GenerateToken(UserDTO user)
+        {
+            
+            var claims = new[] {
+                new Claim("name",user.FullName!),
+                new Claim("email",user.Email!),
+                new Claim("phone",$"{user.PhoneCode} {user.Phone}"),
+                new Claim("userId",user.GUID !),
+                new Claim("permissions",JsonSerializer.Serialize(user.GroupPermissions)),
+                new Claim("services",JsonSerializer.Serialize(user.Services)),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(GlobalConst.Jwt.Key));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            var token = new JwtSecurityToken(GlobalConst.Jwt.Issuer,
+                                              GlobalConst.Jwt.Audience,
+                                              claims,
+                                              expires: DateTime.UtcNow.AddMinutes(GlobalConst.Jwt.LifeTime),
+                                              signingCredentials: credentials);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

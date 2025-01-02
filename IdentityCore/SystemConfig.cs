@@ -6,11 +6,12 @@ namespace IdentityCore
     {
         public static void BuildSystemConfig(IConfiguration configuration)
         {
-            GlobalConfiguration.MailKit = configuration.GetSection<MailKits>(nameof(GlobalConfiguration.MailKit)) ?? new MailKits();
-            GlobalConfiguration.Jwt = configuration.GetSection<Jwt>(nameof(GlobalConfiguration.Jwt)) ?? new Jwt();
-            GlobalConfiguration.AccountLocked = configuration.GetSection<AccountLocked>(nameof(GlobalConfiguration.AccountLocked)) ?? new AccountLocked();
-            GlobalConfiguration.OTP = configuration.GetSection<OTP>(nameof(GlobalConfiguration.OTP)) ?? new OTP();
-            GlobalConfiguration.Redis = configuration.GetSection<Redis>(nameof(GlobalConfiguration.Redis)) ?? new Redis();
+            GlobalConst.MailKit = configuration.GetSection<MailKits>(nameof(GlobalConst.MailKit)) ?? new MailKits();
+            GlobalConst.Jwt = configuration.GetSection<Jwt>(nameof(GlobalConst.Jwt)) ?? new Jwt();
+            GlobalConst.AccountLocked = configuration.GetSection<AccountLocked>(nameof(GlobalConst.AccountLocked)) ?? new AccountLocked();
+            GlobalConst.OTP = configuration.GetSection<OTP>(nameof(GlobalConst.OTP)) ?? new OTP();
+            GlobalConst.Redis = configuration.GetSection<Redis>(nameof(GlobalConst.Redis)) ?? new Redis();
+            GlobalConst.CronJobs = configuration.GetSection<CronJob>(nameof(GlobalConst.CronJobs)) ?? new CronJob();
         }
 
         public static T GetSection<T>(this IConfiguration configuration, string key = null) where T : new()

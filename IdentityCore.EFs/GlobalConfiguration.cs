@@ -1,12 +1,13 @@
 ﻿namespace IdentityCore.EFs
 {
-    public static class GlobalConfiguration
+    public static class GlobalConst
     {
         public static Jwt Jwt { get; set; } = new Jwt();
         public static MailKits MailKit { get; set; } = new MailKits();
         public static AccountLocked AccountLocked { get; set; } = new AccountLocked();
         public static OTP OTP { get; set; } = new OTP();
         public static Redis Redis { get; set; } = new Redis();
+        public static CronJob CronJobs { get; set; } = new CronJob();
     }
 
     public class Jwt
@@ -52,5 +53,18 @@
     {
         public string Url { get; set; } = string.Empty;
         public string Port { get; set; } = string.Empty;
+    }
+
+    public class CronJob
+    {
+        public int DaysInWeek { get; set; }
+        public List<Job> Jobs { get; set; } = new List<Job>();
+    }
+
+    public class Job
+    {
+        public bool IsEnable { get; set; }
+        public string? Name { get; set; }
+        public string[]? CronExpressions { get; set; }
     }
 }

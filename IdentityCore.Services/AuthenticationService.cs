@@ -37,7 +37,7 @@ namespace IdentityCore.Services
 
         public async Task<bool> SignOut()
         {
-            var userDto = _httpContextAccessor.HttpContext.Items["User"] as UserDTO;
+            var userDto = _httpContextAccessor.HttpContext!.Items["User"] as UserDTO;
             var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString();
 
             if(userDto == null)
