@@ -15,7 +15,7 @@ namespace IdentityCore.Services
     {
         private readonly ICronJobBusiness _cronJobBusiness;
 
-        private const string DoSomeThing = "DoSomeThing";
+        private const string Cronjob_CleanupTokenInBlackList = "CleanupTokenInBlackList";
 
         public CronJobService(ICronJobBusiness cronJobBusiness) 
         { 
@@ -35,7 +35,7 @@ namespace IdentityCore.Services
 
                 switch (cronJob.Name)
                 {
-                    case DoSomeThing:
+                    case Cronjob_CleanupTokenInBlackList:
                     {
                         foreach (var cronExpression in cronJob.CronExpressions!)
                         {
