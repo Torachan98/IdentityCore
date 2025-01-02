@@ -30,7 +30,7 @@ namespace IdentityCore.Middlewares
             {
                 var blackListString = await _distributedCache.GetStringAsync(KeyCache.BlackList);
                 var blackList = !string.IsNullOrEmpty(blackListString) ? JsonSerializer.Deserialize<List<TokenBlacklist>>(blackListString)! : new List<TokenBlacklist>();
-                if (blackList.Any(s => s.Token.Equals(token))) 
+                if (!blackList.Any(s => s.Token.Equals(token))) 
                 {
                     var tokenHandler = new JwtSecurityTokenHandler();
                     tokenHandler.ValidateToken(token, new TokenValidationParameters
@@ -47,7 +47,7 @@ namespace IdentityCore.Middlewares
                     var jwtToken = (JwtSecurityToken)validatedToken;
                     var guid = jwtToken.Claims.First(x => x.Type == "userId").Value;
                     var timeStamp = jwtToken.Claims.First(x => x.Type == "exp").Value;
-                    var appKeys = jwtToken.Claims.First(x => x.Type == "appKeys").Value;
+                    var appKeys = jwtToken.Claims.FirstOrDefault(x => x.Type == "appKeys") == null ? "" : jwtToken.Claims.FirstOrDefault(x => x.Type == "appKeys")!.Value;
 
                     DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
                     DateTime dateExpired = dateTime.AddSeconds(double.Parse(timeStamp)).ToUniversalTime();
@@ -58,13 +58,13 @@ namespace IdentityCore.Middlewares
                         if (user != null)
                         {
                             context.Items["User"] = JsonSerializer.Deserialize<UserDTO>(user);
-                            context.Items["AppKeys"] = JsonSerializer.Deserialize<List<string>>(appKeys);
+                            context.Items["AppKeys"] = !string.IsNullOrEmpty(appKeys) ? JsonSerializer.Deserialize<List<string>>(appKeys) : new List<string>();
                         }
                     }
                     else
                     {
                         context.Items["User"] = null;
-                        context.Items["AppKeys"] = null;
+                        context.Items["AppKeys"] = new List<string>();
                     }
                 }
             }

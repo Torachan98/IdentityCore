@@ -19,12 +19,13 @@ namespace IdentityCore.EFs
                 entity.HasMany(p => p.UserServices).WithOne(r => r.Users).HasForeignKey(c => c.UserId);
                 entity.HasMany(p => p.UserPermissions).WithOne(r => r.Users).HasForeignKey(c => c.UserId);
             });
-        
 
-            modelBuilder.Entity<RoleEntity>()
-            .HasMany(p => p.RolePermissions)
-            .WithOne(r => r.Roles)
-            .HasForeignKey(c => c.RoleId);
+
+            modelBuilder.Entity<RoleEntity>(entity =>
+            {
+                entity.HasMany(p => p.RolePermissions).WithOne(r => r.Roles).HasForeignKey(c => c.RoleId);
+                entity.HasMany(p => p.UserRoles).WithOne(r => r.Roles).HasForeignKey(c => c.RoleId);
+            });
 
             modelBuilder.Entity<PermissionEntity>(entity =>
             {
@@ -32,10 +33,7 @@ namespace IdentityCore.EFs
                 entity.HasMany(p => p.UserPermissions).WithOne(r => r.Permissions).HasForeignKey(c => c.PermissionId);
             });
 
-            modelBuilder.Entity<ServiceEntity>()
-            .HasMany(p => p.UserServices)
-            .WithOne(r => r.Services)
-            .HasForeignKey(c => c.ServiceId);        
+            modelBuilder.Entity<ServiceEntity>().HasMany(p => p.UserServices).WithOne(r => r.Services).HasForeignKey(c => c.ServiceId);        
         }
 
         public DbSet<UserEntity> Users { get; set; }

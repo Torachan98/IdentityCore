@@ -73,19 +73,6 @@ namespace IdentityCore.Business
 
             if (userEntity != null)
             {
-                /*
-                    var permissions = await _userPermissionRepository.Get(s => !s.IsDeleted)
-                                                            .Include(s=> s.Permissions)
-                                                            .Where(s => s.UserId == user.UserId)
-                                                            .Select(s=> new
-                                                            {
-                                                                Permission = s.Permissions.Name,
-                                                                Type = s.Permissions.PermissionType,
-                                                                Description = s.Permissions.Description,
-                                                            })
-                                                            .ToListAsync();
-                 
-                 */
                 if (userEntity.UserPermissions != null)
                 {
                     var permissionIds = userEntity.UserPermissions.Select(s => s.PermissionId).ToList();
@@ -103,8 +90,13 @@ namespace IdentityCore.Business
                                                 .ToListAsync();
 
                     var permissions = EnumHelper.ConvertPermissionToList<Permission, PermissionEnum>();
-                    userDto.GroupPermissions = permissions.Where(s => permissionEntity.Any(r => r.Name == s.Permission.ToString() && r.PermissionType == s.PermissionType)).ToList();
-                }
+                    userDto.GroupPermissions = permissions.Where(s => permissionEntity.Any(r => r.Name == s.Permission.ToString() && r.PermissionType == s.PermissionType))
+                                                            .Select(s => new PermissionEnum
+                                                            {
+                                                                PermissionType= s.PermissionType,
+                                                                Permission = s.Permission
+                                                            }).ToList();
+                }   
 
                 if(userEntity.UserRoles != null)
                 {

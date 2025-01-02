@@ -325,15 +325,12 @@ namespace IdentityCore.EFs.Migrations
                     b.Property<int>("RoleId")
                         .HasColumnType("int");
 
-                    b.Property<int>("RolesRoleId")
-                        .HasColumnType("int");
-
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("UserRoleId");
 
-                    b.HasIndex("RolesRoleId");
+                    b.HasIndex("RoleId");
 
                     b.HasIndex("UserId");
 
@@ -423,8 +420,8 @@ namespace IdentityCore.EFs.Migrations
             modelBuilder.Entity("IdentityCore.EFs.Entities.UserRoleEntity", b =>
                 {
                     b.HasOne("IdentityCore.EFs.Entities.RoleEntity", "Roles")
-                        .WithMany()
-                        .HasForeignKey("RolesRoleId")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -468,6 +465,8 @@ namespace IdentityCore.EFs.Migrations
             modelBuilder.Entity("IdentityCore.EFs.Entities.RoleEntity", b =>
                 {
                     b.Navigation("RolePermissions");
+
+                    b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("IdentityCore.EFs.Entities.ServiceEntity", b =>

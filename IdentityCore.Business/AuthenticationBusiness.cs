@@ -103,7 +103,7 @@ namespace IdentityCore.Business
                 throw new FriendlyException(StatusCodes.Status400BadRequest, "User already login");
             }
 
-            var accessToken = await GenerateToken(user, signInRequest.AppKeys);
+            var accessToken = await GenerateToken(user);
 
             var result = new AuthenticationToken()
             {
@@ -158,7 +158,7 @@ namespace IdentityCore.Business
             }
 
            
-            var accessToken = await GenerateToken(userDto, appKeys ?? new List<string>());
+            var accessToken = await GenerateToken(userDto);
 
             return new AuthenticationToken()
             {
@@ -274,7 +274,9 @@ namespace IdentityCore.Business
 
             var jwtToken = (JwtSecurityToken)validatedToken;
             var timeStamp = jwtToken.Claims.First(x => x.Type == "exp").Value;
-            return DateTime.Parse(timeStamp).ToUniversalTime();
+            DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            DateTime dateExpired = dateTime.AddSeconds(double.Parse(timeStamp)).ToUniversalTime();
+            return dateExpired;
         }
 
         private string GenerateRefreshToken()
@@ -285,7 +287,7 @@ namespace IdentityCore.Business
             return Convert.ToBase64String(randomNumber);
         }
 
-        private async Task<string> GenerateToken(UserDTO user, List<string> appKeys)
+        private async Task<string> GenerateToken(UserDTO user)
         {
             
             var claims = new[] {
@@ -293,9 +295,8 @@ namespace IdentityCore.Business
                 new Claim("email",user.Email!),
                 new Claim("phone",$"{user.PhoneCode} {user.Phone}"),
                 new Claim("userId",user.GUID !),
-                //new Claim("permissions",JsonSerializer.Serialize(permissions)),
+                new Claim("permissions",JsonSerializer.Serialize(user.GroupPermissions)),
                 new Claim("services",JsonSerializer.Serialize(user.Services)),
-                //new Claim("appKeys",JsonSerializer.Serialize(serviceKeys)),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
