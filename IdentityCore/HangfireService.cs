@@ -32,6 +32,7 @@ namespace IdentityCore
                 typeof(IBackgroundJobPerformer),
                 typeof(IBackgroundJobClient),
                 typeof(IRecurringJobManager),
+                typeof(IBackgroundProcess),
                 typeof(Action<IGlobalConfiguration>));
 
             // Add Hangfire Service
