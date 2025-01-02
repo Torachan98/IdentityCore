@@ -30,10 +30,7 @@ jobs:
         run: |
           # Run the Docker container on your VM
           docker rm -f $(docker ps -aq --filter "name=identity_core") > /dev/null 2>&1 || echo "Not have any containers"          
-          docker run -d --name identity_core -p 81:8080 \ 
-          --env ConnectionStrings__DbContext="${{ secrets.CONNECTSTRING }}" \
-          --env ConnectionStrings__Hangsfire="${{ secrets.CONNECTSTRING_HANGSFIRE }}" \
-          identitycore:latest # Modify ports as necessary 
+          docker run -d --name identity_core -p 81:8080 --env ConnectionStrings__DbContext="${{ secrets.CONNECTSTRING }}" ConnectionStrings__Hangsfire="${{ secrets.CONNECTSTRING_HANGSFIRE }}" identitycore:latest # Modify ports as necessary 
 
       - name: Join container into network
         run: |
