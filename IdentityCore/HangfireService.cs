@@ -64,7 +64,6 @@ namespace IdentityCore
                     services.Remove(removeTypeFound);
                 }
             }
-
             return services;
         }
 
