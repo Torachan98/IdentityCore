@@ -123,7 +123,7 @@ namespace IdentityCore
         ///     Access Key read from URI 
         /// </summary>
         /// <remarks> Empty is allow <c> Anonymous </c> </remarks>
-        public static string AccessKey { get; set; } = string.Empty;
+        public static string AccessKey { get; set; } = "261073FA-D236-4F04-9D53-3E4CAC686FA1";
 
         /// <summary>
         ///     Query parameter via http request 
