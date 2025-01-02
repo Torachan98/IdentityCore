@@ -47,7 +47,6 @@ namespace IdentityCore.Middlewares
                     var jwtToken = (JwtSecurityToken)validatedToken;
                     var guid = jwtToken.Claims.First(x => x.Type == "userId").Value;
                     var timeStamp = jwtToken.Claims.First(x => x.Type == "exp").Value;
-                    var appKeys = jwtToken.Claims.FirstOrDefault(x => x.Type == "appKeys") == null ? "" : jwtToken.Claims.FirstOrDefault(x => x.Type == "appKeys")!.Value;
 
                     DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
                     DateTime dateExpired = dateTime.AddSeconds(double.Parse(timeStamp)).ToUniversalTime();
@@ -58,13 +57,11 @@ namespace IdentityCore.Middlewares
                         if (user != null)
                         {
                             context.Items["User"] = JsonSerializer.Deserialize<UserDTO>(user);
-                            context.Items["AppKeys"] = !string.IsNullOrEmpty(appKeys) ? JsonSerializer.Deserialize<List<string>>(appKeys) : new List<string>();
                         }
                     }
                     else
                     {
                         context.Items["User"] = null;
-                        context.Items["AppKeys"] = new List<string>();
                     }
                 }
             }

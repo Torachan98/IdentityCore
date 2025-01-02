@@ -1,5 +1,6 @@
 ﻿using IdentityCore.EFs;
 using IdentityCore.EFs.DTOs;
+using IdentityCore.EFs.Requests;
 using IdentityCore.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -44,26 +45,14 @@ namespace IdentityCore.Controllers
         {
             if (string.IsNullOrEmpty(otpRequest.OTPCode))
             {
-                var error = new ObjectResult(new
-                {
-                    Message = "OTP invalid"
-                });
-
-                error.StatusCode = 400;
-                return error;
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "OTP invalid");
             }
 
             var result = await _authenticationService.ConfirmOTP(otpRequest.OTPCode);
 
             if (!result)
             {
-                var error = new ObjectResult(new
-                {
-                    Message = "OTP has expired or not existed"
-                });
-
-                error.StatusCode = 400;
-                return error;
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "OTP has expired or not existed");
             }
 
 
@@ -92,13 +81,7 @@ namespace IdentityCore.Controllers
 
             if (!string.IsNullOrEmpty(result.Message))
             {
-                var error = new ObjectResult(new
-                {
-                    Message = result.Message
-                });
-
-                error.StatusCode = 400;
-                return error;
+                throw new FriendlyException(StatusCodes.Status400BadRequest, result.Message);
             }
 
             return Ok(result);
@@ -111,13 +94,7 @@ namespace IdentityCore.Controllers
         {
             if (string.IsNullOrEmpty(authenticationToken.RefreshToken))
             {
-                var error = new ObjectResult(new
-                {
-                    Message = "Refresh token invalid"
-                });
-
-                error.StatusCode = 400;
-                return error;
+                throw new FriendlyException(StatusCodes.Status400BadRequest,"Refresh token invalid");
             }
 
             return Ok(await _authenticationService.RenewToken(authenticationToken.RefreshToken));
