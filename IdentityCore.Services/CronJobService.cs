@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
-using Hangfire;
+﻿using Hangfire;
 using IdentityCore.Business.Interfaces;
 using IdentityCore.EFs;
 using IdentityCore.Services.Interfaces;
@@ -16,6 +10,7 @@ namespace IdentityCore.Services
         private readonly ICronJobBusiness _cronJobBusiness;
 
         private const string Cronjob_CleanupTokenInBlackList = "CleanupTokenInBlackList";
+        private const string Cronjob_ResetOtpCode = "ResetOtpCode";
 
         public CronJobService(ICronJobBusiness cronJobBusiness) 
         { 
@@ -40,7 +35,18 @@ namespace IdentityCore.Services
                         foreach (var cronExpression in cronJob.CronExpressions!)
                         {
                             RecurringJob.AddOrUpdate<ICronJobBusiness>($"{cronJob.Name}_{Guid.NewGuid()}",
-                                x => _cronJobBusiness.CleanOTPAsync(), cronExpression, options);
+                                x => _cronJobBusiness.CleanBlackListAsync(), cronExpression, options);
+                        }
+
+                        break;
+                    }
+
+                    case Cronjob_ResetOtpCode:
+                    {
+                        foreach (var cronExpression in cronJob.CronExpressions!)
+                        {
+                            RecurringJob.AddOrUpdate<ICronJobBusiness>($"{cronJob.Name}_{Guid.NewGuid()}",
+                                x => _cronJobBusiness.ResetOTPAsync(), cronExpression, options);
                         }
 
                         break;

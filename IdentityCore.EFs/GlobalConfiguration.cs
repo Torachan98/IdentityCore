@@ -8,6 +8,7 @@
         public static OTP OTP { get; set; } = new OTP();
         public static Redis Redis { get; set; } = new Redis();
         public static CronJob CronJobs { get; set; } = new CronJob();
+        public static Hangsfire Hangsfire { get; set; } = new Hangsfire();
     }
 
     public class Jwt
@@ -66,5 +67,13 @@
         public bool IsEnable { get; set; }
         public string? Name { get; set; }
         public string[]? CronExpressions { get; set; }
+    }
+
+    public class Hangsfire
+    {
+        public string DashboardUrl { get; set; } = string.Empty;
+        public string AccessKey { get; set; } = string.Empty;
+        public string AccessKeyQueryParam { get; set; } = string.Empty;
+        public string BackToSiteUrl { get; set; } = string.Empty;
     }
 }

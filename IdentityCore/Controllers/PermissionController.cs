@@ -2,6 +2,7 @@
 using IdentityCore.Attributes;
 using IdentityCore.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using IdentityCore.EFs.Enums;
 
 namespace IdentityCore.Controllers
 {
@@ -18,6 +19,7 @@ namespace IdentityCore.Controllers
 
         [HttpGet]
         [Authorize]
+        [Permission(Permission.FETCH, Role.Administrator)]
         public async Task<IActionResult> GetPermissions([FromQuery] PermissionFetchRequest request)
         {
             return Ok(await _permissionService.GetAllAsync(request));
@@ -25,6 +27,7 @@ namespace IdentityCore.Controllers
 
         [HttpPost]
         [Authorize]
+        [Permission(Permission.CREATE, Role.Administrator)]
         public async Task<IActionResult> CreatePermission([FromBody] CreateOrUpdatePermissionRequest request)
         {
             return Ok(await _permissionService.CreateAsync(request));
@@ -32,6 +35,7 @@ namespace IdentityCore.Controllers
 
         [HttpPut]
         [Authorize]
+        [Permission(Permission.EDIT, Role.Administrator)]
         public async Task<IActionResult> UpdatePermission([FromBody] CreateOrUpdatePermissionRequest request)
         {
             return Ok(await _permissionService.UpdateAsync(request));
@@ -39,6 +43,7 @@ namespace IdentityCore.Controllers
 
         [HttpDelete]
         [Authorize]
+        [Permission(Permission.DELETE, Role.Administrator)]
         public async Task<IActionResult> DeletePermission([FromQuery] string guid)
         {
             return Ok(await _permissionService.DeleteAsync(guid));

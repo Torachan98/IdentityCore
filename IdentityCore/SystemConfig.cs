@@ -12,6 +12,7 @@ namespace IdentityCore
             GlobalConst.OTP = configuration.GetSection<OTP>(nameof(GlobalConst.OTP)) ?? new OTP();
             GlobalConst.Redis = configuration.GetSection<Redis>(nameof(GlobalConst.Redis)) ?? new Redis();
             GlobalConst.CronJobs = configuration.GetSection<CronJob>(nameof(GlobalConst.CronJobs)) ?? new CronJob();
+            GlobalConst.Hangsfire = configuration.GetSection<Hangsfire>(nameof(GlobalConst.Hangsfire)) ?? new Hangsfire();
         }
 
         public static T GetSection<T>(this IConfiguration configuration, string key = null) where T : new()

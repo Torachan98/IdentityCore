@@ -37,10 +37,12 @@ namespace IdentityCore.EFs
             };
 
             var userData = userItems.Where(s => !context.Users.Any(r => s.UserName == r.UserName)).ToList();
-            if (userData.Count > 0)
+            if (userData.Count == 0)
             {
-                await context.Users.AddRangeAsync(userData);
+                return;
             }
+
+            await context.Users.AddRangeAsync(userData);
         }
 
         private static async Task InitialPermission(IdentityContext context)
@@ -56,10 +58,12 @@ namespace IdentityCore.EFs
                                                     Name = s.Permission.ToString(),
 
                                                 }).ToList();
-                if (permissionData.Count > 0)
+                if (permissionData.Count == 0)
                 {
-                    await context.Permissions.AddRangeAsync(permissionData);
+                    return;
                 }
+
+                await context.Permissions.AddRangeAsync(permissionData);
             }
         }
 
@@ -75,10 +79,12 @@ namespace IdentityCore.EFs
                                             Description = s.Description,
                                         }).ToList();
 
-                if (roleData.Count > 0)
+                if (roleData.Count == 0)
                 {
-                    await context.Roles.AddRangeAsync(roleData);
+                    return;
                 }
+
+                await context.Roles.AddRangeAsync(roleData);
             }
         }
     }

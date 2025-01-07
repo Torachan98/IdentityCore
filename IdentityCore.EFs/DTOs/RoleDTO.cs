@@ -13,6 +13,7 @@ namespace IdentityCore.EFs.DTOs
     {
         public Role Role { get; set; }
         public string? Description { get; set; }
+        public List<PermissionEnum>? Permissions { get; set; } 
     }
 
     public class CreateOrUpdateRoleRequest
