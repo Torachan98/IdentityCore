@@ -16,6 +16,8 @@ using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
 using IdentityCore.EFs.Enums;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace IdentityCore.Business
 {
@@ -87,7 +89,7 @@ namespace IdentityCore.Business
                 throw new FriendlyException(StatusCodes.Status423Locked, "This user has been locked");
             }
 
-            if (user.IsActive.HasValue && !(bool)user.IsActive)
+            if (user.IsActive.HasValue && !user.IsActive.Value)
             {
                 user.OTPCode = _emailBusiness.GenerateOTP(GlobalConst.OTP.SizeCode);
                 user.OTPLifeTime = DateTime.UtcNow.AddMinutes(GlobalConst.OTP.LifeTimeMinute);
@@ -98,24 +100,22 @@ namespace IdentityCore.Business
                 throw new FriendlyException(StatusCodes.Status400BadRequest, "User is not active");
             }
 
-            if (user.IsLogin != null && (bool)user.IsLogin)
+            if (user.IsLogin != null && user.IsLogin.Value)
             {
                 throw new FriendlyException(StatusCodes.Status400BadRequest, "User already login");
             }
 
-            var accessToken = await GenerateToken(user);
-
             var result = new AuthenticationToken()
             {
                 RefreshToken = GenerateRefreshToken(),
-                AccessToken = accessToken
+                AccessToken = GenerateToken(user)
             };
 
             user.IsLogin = true;
             user.RefreshToken = result.RefreshToken;
 
             await _userBusiness.UpdateUserAsync(user);
-            await _distributedCache.SetStringAsync($"{KeyCache.User}-{user.GUID}", JsonSerializer.Serialize(user));
+            await _distributedCache.SetStringAsync($"{KeyCache.User}-{user.GUID}", JsonConvert.SerializeObject(user));
 
             return new ObjectResponse<AuthenticationToken>()
             {
@@ -135,9 +135,9 @@ namespace IdentityCore.Business
             }
 
             var tokenBlacklist = await _distributedCache.GetStringAsync(KeyCache.BlackList) ?? "";
-            var blacklist = !string.IsNullOrEmpty(tokenBlacklist) ? JsonSerializer.Deserialize<List<TokenBlacklist>>(tokenBlacklist) : new List<TokenBlacklist>();
+            var blacklist = !string.IsNullOrEmpty(tokenBlacklist) ? JsonConvert.DeserializeObject<List<TokenBlacklist>>(tokenBlacklist) : new List<TokenBlacklist>();
             blacklist!.Add(new TokenBlacklist() { Token = accessToken, DateExpired = FetchSessionToken(accessToken) });
-            await _distributedCache.SetStringAsync(KeyCache.BlackList, JsonSerializer.Serialize(blacklist));
+            await _distributedCache.SetStringAsync(KeyCache.BlackList, JsonConvert.SerializeObject(blacklist));
             await _distributedCache.RemoveAsync($"{KeyCache.User}-{user.GUID}");
             return true;
         }
@@ -157,19 +157,11 @@ namespace IdentityCore.Business
                 throw new FriendlyException(StatusCodes.Status401Unauthorized, "User has been locked");
             }
 
-           
-            var accessToken = await GenerateToken(userDto);
-
             return new AuthenticationToken()
             {
                 RefreshToken = userDto.RefreshToken,
-                AccessToken = accessToken
+                AccessToken = GenerateToken(userDto)
             };
-        }
-
-        public Task<bool> ValidateToken()
-        {
-            throw new NotImplementedException();
         }
 
         public async Task<bool> ConfirmOTPAsync(string otpCode)
@@ -287,16 +279,16 @@ namespace IdentityCore.Business
             return Convert.ToBase64String(randomNumber);
         }
 
-        private async Task<string> GenerateToken(UserDTO user)
+        private string GenerateToken(UserDTO user)
         {
-            
             var claims = new[] {
                 new Claim("name",user.FullName!),
                 new Claim("email",user.Email!),
                 new Claim("phone",$"{user.PhoneCode} {user.Phone}"),
                 new Claim("userId",user.GUID !),
-                new Claim("permissions",JsonSerializer.Serialize(user.GroupPermissions)),
-                new Claim("services",JsonSerializer.Serialize(user.Services)),
+                new Claim("permissions",JsonConvert.SerializeObject(user.GroupPermissions)),
+                new Claim("roles",JsonConvert.SerializeObject(user.GroupRoles)),
+                new Claim("services",JsonConvert.SerializeObject(user.Services)),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 

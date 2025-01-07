@@ -7,6 +7,7 @@ using Hangfire;
 using System.Diagnostics.CodeAnalysis;
 using RouteCollection = Hangfire.Dashboard.RouteCollection;
 using Hangfire.MemoryStorage;
+using IdentityCore.EFs;
 
 namespace IdentityCore
 {
@@ -117,19 +118,19 @@ namespace IdentityCore
         ///     Hangfire Dashboard Url. Ex: /developers/job, if this is <c> empty </c> then disable dashboard
         /// </summary>
         /// <remarks> Start with <c> "/" </c> but end with <c> empty </c>, default is "/developers/job" </remarks>
-        public static string DashboardUrl { get; set; } = "/developers/job";
+        public static string DashboardUrl { get; set; } = GlobalConst.Hangsfire.DashboardUrl;
 
         /// <summary>
         ///     Access Key read from URI 
         /// </summary>
         /// <remarks> Empty is allow <c> Anonymous </c> </remarks>
-        public static string AccessKey { get; set; } = "261073FA-D236-4F04-9D53-3E4CAC686FA1";
+        public static string AccessKey { get; set; } = GlobalConst.Hangsfire.AccessKey;
 
         /// <summary>
         ///     Query parameter via http request 
         /// </summary>
         /// <remarks> Empty is allow <c> Anonymous </c> </remarks>
-        public static string AccessKeyQueryParam { get; set; } = "key";
+        public static string AccessKeyQueryParam { get; set; } = GlobalConst.Hangsfire.AccessKeyQueryParam;
 
         /// <summary>
         ///     Un-authorize message when user access api document with not correct key. Default is
@@ -141,7 +142,7 @@ namespace IdentityCore
         ///     The path for the Back To Site link. Set to <see langword="null" /> in order to hide
         ///     the Back To Site link. Default is "/"
         /// </summary>
-        public static string BackToSiteUrl { get; set; } = "/";
+        public static string BackToSiteUrl { get; set; } = GlobalConst.Hangsfire.BackToSiteUrl;
 
         /// <summary>
         ///     The interval the /stats endpoint should be polled with (milliseconds). Default is 2000

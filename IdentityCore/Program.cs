@@ -1,4 +1,3 @@
-using AutoMapper;
 using Hangfire;
 using IdentityCore;
 using IdentityCore.AutoMapper;
@@ -17,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json.Serialization;
 using System.Reflection;
 using System.Text;
 using static IdentityCore.HangfireService;
@@ -57,8 +57,11 @@ builder.Services.AddControllers(options =>
 {
     options.Filters.Add(typeof(ExceptionFilter));
     options.Filters.Add(typeof(GlobalEndPointFilter));
-})
-    .AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+}).AddNewtonsoftJson(x =>
+{
+    x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+    x.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+});
 
 builder.Services.AddStackExchangeRedisCache(action => {
     var connection = $"{GlobalConst.Redis.Url}:{GlobalConst.Redis.Port}"; 

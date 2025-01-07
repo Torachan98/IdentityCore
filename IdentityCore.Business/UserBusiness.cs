@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using System.Data;
+using System.Linq;
+using AutoMapper;
 using IdentityCore.Business.Interfaces;
 using IdentityCore.EFs;
 using IdentityCore.EFs.DTOs;
@@ -25,6 +27,7 @@ namespace IdentityCore.Business
         private readonly IRoleRepository _roleRepository;
         private readonly IServiceRepository _serviceRepository;
         private readonly IUserServiceRepository _userServiceRepository;
+        private readonly IRolePermissionRepository _rolePermissionRepository;
 
         public UserBusiness(IUnitOfWork unitOfWork, 
             IMapper mapper, 
@@ -33,7 +36,8 @@ namespace IdentityCore.Business
             IPermissionRepository permissionRepository,
             IRoleRepository roleRepository,
             IServiceRepository serviceRepository,
-            IUserServiceRepository userServiceRepository)
+            IUserServiceRepository userServiceRepository,
+            IRolePermissionRepository rolePermissionRepository)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -45,6 +49,7 @@ namespace IdentityCore.Business
             _roleRepository = roleRepository;
             _serviceRepository = serviceRepository;
             _userServiceRepository = userServiceRepository;
+            _rolePermissionRepository = rolePermissionRepository;
         }
 
         public async Task<UserDTO> GetSingleUserWithPermissionAndRoleAsync(string userName,List<string> appKeys, string guid = "",string refreshToken = "")
@@ -65,6 +70,7 @@ namespace IdentityCore.Business
             }
 
             userQuery = userQuery.Include(s => s.UserPermissions)
+                                .Include(s => s.UserRoles)
                                 .Include(s => s.UserServices);
 
             var userEntity = await userQuery.FirstOrDefaultAsync();
@@ -100,11 +106,35 @@ namespace IdentityCore.Business
 
                 if(userEntity.UserRoles != null)
                 {
-                    var roleIds = userEntity.UserRoles.Select(s => s.RoleId).ToList();
-                    var roleEntity = await _roleRepository.Get(s => roleIds.Contains(s.RoleId)).ToListAsync();
+                    var roleType = typeof(Role);
+                    var roleQuery = _roleRepository.Get();
+                    var permissionQuery = _permissionRepository.Get();
+                    var rolePermissionQuery = _rolePermissionRepository.Get();                    
 
-                    var roles = EnumHelper.ConvertRoleToList<Role, RoleEnum>();
-                    userDto.GroupRoles = roles.Where(s => roleEntity.Any(r => r.RoleName == s.Role.ToString())).ToList();
+                    var roleData = await (from rp in rolePermissionQuery
+                                          join r in roleQuery on rp.RoleId equals r.RoleId
+                                          join p in permissionQuery on rp.PermissionId equals p.PermissionId
+                                          select new
+                                          {
+                                              Role = r.RoleName,
+                                              Description = r.Description,
+                                              PermissionType = p.PermissionType,
+                                              Permission = p.Name,
+                                          }).ToListAsync();
+
+                    userDto.GroupRoles = (from c in roleData
+                              group c by c.Role into g
+                              select new RoleEnum
+                              {
+                                  Role = Enum.TryParse(g.Key, out Role roleEnum) ? roleEnum : Role.Guest,
+                                  Description = g.Select(s => s.Description).FirstOrDefault(),
+                                  Permissions = g.Select(s => new PermissionEnum
+                                  {
+                                      Permission = Enum.TryParse(s.Permission, out Permission permission) ? permission : Permission.AUTHENTICATION,
+                                      PermissionType = s.PermissionType,
+                                      Description = "",
+                                  }).ToList()
+                              }).ToList();
                 }
             }
 
@@ -233,7 +263,7 @@ namespace IdentityCore.Business
                 userEntity.Locked = (DateTime)userDto.Locked;
             }
 
-            if (userDto.IsRequiredChangePassword != null)
+            if (userDto.IsRequiredChangePassword != null && userDto.IsRequiredChangePassword.Value)
             {
                 if(userDto.GroupRoles != null && userDto.GroupRoles.Any(s => s.Role <= Role.Administrator))
                 {

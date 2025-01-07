@@ -10,6 +10,10 @@ namespace IdentityCore.EFs.Enums
         AUTHENTICATION,
 
         [Permission(PermissionType.Services)]
+        [Description("Allow user can get a specific item in a module")]
+        FETCH,
+
+        [Permission(PermissionType.Services)]
         [Description("Allow user can create a specific item in a module")]
         CREATE,
 
