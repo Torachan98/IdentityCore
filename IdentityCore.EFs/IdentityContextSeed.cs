@@ -24,9 +24,9 @@ namespace IdentityCore.EFs
             var userItems = new List<UserEntity>() {
                 new UserEntity()
                 {
-                    FirstName = "",
-                    LastName = "",
-                    MiddleName = "",
+                    FirstName = "Japper",
+                    LastName = "Woody",
+                    MiddleName = ".T",
                     UserName = "Administrator",
                     Email = "baovkg@gmail.com",
                     Password = EnscryptHelper.ConvertSHA256("Aa@123456"),

@@ -13,11 +13,9 @@ using IdentityCore.EFs.Helpers;
 using Microsoft.EntityFrameworkCore;
 using IdentityCore.Repository.UnitOfWork;
 using Microsoft.Extensions.Caching.Distributed;
-using System.Text.Json;
 using IdentityCore.EFs.Enums;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace IdentityCore.Business
 {
@@ -192,17 +190,12 @@ namespace IdentityCore.Business
             return false;
         }
 
-        public async Task<bool> ResetEmailAsync(string email)
+        public async Task ResetEmailAsync(string email)
         {
-            if (string.IsNullOrEmpty(email))
-            {
-                return false;
-            }
-
-            var userEntity = await _userRepository.Get().FirstOrDefaultAsync(s => s.Email == email && s.IsActive);
+            var userEntity = await _userRepository.Get().FirstOrDefaultAsync(s => s.Email == email && s.IsActive && !s.IsDeleted);
             if (userEntity == null)
             {
-                return false;
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "User not valid");
             }
 
             userEntity.OTPCode = _emailBusiness.GenerateOTP(5);
@@ -212,40 +205,43 @@ namespace IdentityCore.Business
             var userDto = _mapper.Map<UserDTO>(userEntity);
             await _emailBusiness.SendMailAsync(userDto, TemplateEmailType.OTP);
             await _unitOfWork.CommitAsync();
-
-            return true;
         }
 
-        public async Task<bool> ResetEmailConfirmAsync(string email, string otpCode)
+        public async Task ResetEmailConfirmAsync(string email, string otpCode)
         {
-            if (string.IsNullOrEmpty(email))
-            {
-                return false;
-            }
-
             var userEntity = await _userRepository.Get().FirstOrDefaultAsync(s => s.Email == email &&
                                                                             s.OTPCode == otpCode &&
                                                                             s.OTPLifeTime.HasValue && s.OTPLifeTime >= DateTime.UtcNow &&
-                                                                            s.IsActive);
+                                                                            s.IsActive && !s.IsDeleted);
             if (userEntity == null)
             {
-                return false;
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "User not valid");
             }
 
             userEntity.Email = email;
             userEntity.OTPLifeTime = DateTime.UtcNow;
             _userRepository.Update(userEntity, s => s.Email);
-
             await _unitOfWork.CommitAsync();
-            return true;
         }
 
-        public Task<bool> ResetPasswordAsync(string email)
+        public async Task ResetPasswordAsync(string email)
         {
-            throw new NotImplementedException();
+            var userEntity = await _userRepository.Get().FirstOrDefaultAsync(s => s.Email == email && s.IsActive && !s.IsDeleted);
+            if(userEntity == null)
+            {
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "User not valid");
+            }
+
+            userEntity.OTPCode = _emailBusiness.GenerateOTP(5);
+            userEntity.OTPLifeTime = DateTime.UtcNow.AddMinutes(15);
+            _userRepository.Add(userEntity);
+
+            var userDto = _mapper.Map<UserDTO>(userEntity);
+            await _emailBusiness.SendMailAsync(userDto, TemplateEmailType.OTP);
+            await _unitOfWork.CommitAsync();
         }
 
-        public Task<bool> ResetPasswordConfirmAsync(string password, string otpCode)
+        public Task ResetPasswordConfirmAsync(string password, string otpCode)
         {
             throw new NotImplementedException();
         }

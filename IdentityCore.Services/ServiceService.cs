@@ -26,7 +26,7 @@ namespace IdentityCore.Services
             throw new NotImplementedException();
         }
 
-        public async Task<ObjectResult<ServiceDTO>> CreateAsync(CreateOrUpdateServiceRequest request)
+        public async Task<ServiceDTO> CreateAsync(CreateOrUpdateServiceRequest request)
         {
             if (!string.IsNullOrEmpty(request.Name))
             {
@@ -38,33 +38,17 @@ namespace IdentityCore.Services
                 throw new FriendlyException(StatusCodes.Status400BadRequest, "Key service do not allow empty");
             }
 
-            return new ObjectResult<ServiceDTO>
-            {
-                Item = await _serviceBusiness.CreateServicesAsync(request)
-            };
+            return await _serviceBusiness.CreateServicesAsync(request);
         }
 
-        public async Task<ObjectResult<ServiceDTO>> UpdateAsync(CreateOrUpdateServiceRequest request)
+        public async Task<ServiceDTO> UpdateAsync(CreateOrUpdateServiceRequest request)
         {
-            if (!string.IsNullOrEmpty(request.GUID))
+            if (string.IsNullOrEmpty(request.GUID))
             {
                 throw new FriendlyException(StatusCodes.Status400BadRequest, "Id service do not allow empty");
             }
 
-            if (!string.IsNullOrEmpty(request.Name))
-            {
-                throw new FriendlyException(StatusCodes.Status400BadRequest, "Name service do not allow empty");
-            }
-
-            if (!string.IsNullOrEmpty(request.SignatureKey))
-            {
-                throw new FriendlyException(StatusCodes.Status400BadRequest, "Key service do not allow empty");
-            }
-
-            return new ObjectResult<ServiceDTO>
-            {
-                Item = await _serviceBusiness.UpdateServicesAsync(request)
-            };
+            return await _serviceBusiness.UpdateServicesAsync(request);
         }
 
         public async Task<bool> DeleteAsync(string guid)

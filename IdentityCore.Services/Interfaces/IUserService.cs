@@ -10,6 +10,6 @@ namespace IdentityCore.Services.Interfaces
 {
     public interface IUserService: IBaseService<UserDTO, CreateOrUpdateUserRequest, UserFetchRequest>
     {
-        Task<ObjectResult<UserDTO>> ForgotPasswordAsync(ForgotPasswordRequest forgotPasswordRequest);
+        Task<UserDTO> ForgotPasswordAsync(ForgotPasswordRequest forgotPasswordRequest);
     }
 }

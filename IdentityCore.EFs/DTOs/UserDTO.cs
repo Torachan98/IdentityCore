@@ -25,6 +25,15 @@ namespace IdentityCore.EFs.DTOs
         public DateTime DateModified { get; set; }
 
         [IgnoreDataMember]
+        public string? FirstName { get; set; }
+
+        [IgnoreDataMember]
+        public string? MiddleName { get; set; }
+
+        [IgnoreDataMember]
+        public string? LastName { get; set; }
+
+        [IgnoreDataMember]
         public bool? IsRequiredChangePassword { get; set; }
 
         [IgnoreDataMember]
@@ -73,12 +82,17 @@ namespace IdentityCore.EFs.DTOs
 
     public class CreateOrUpdateUserRequest
     {
+        [AllowNotValidate]
         public string? GUID { get; set; }
         public string? Password { get; set; }
         public string? Email { get; set; }
+
+        [AllowNotValidate]
         public string? AvatarUrl { get; set; }
         public string? UserName { get; set; }
-        public string? FullName { get; set; }
+        public string? FirstName { get; set; }
+        public string? MiddleName { get; set; }
+        public string? LastName { get; set; }
         public string? Phone { get; set; }
         public string? PhoneCode { get; set; }
         public string? Region { get; set; }

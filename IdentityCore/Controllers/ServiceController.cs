@@ -6,6 +6,8 @@ using IdentityCore.EFs.Enums;
 
 namespace IdentityCore.Controllers
 {
+    [ApiController]
+    [Route("api/[Controller]")]
     public class ServiceController : ControllerBase
     {
         private readonly IServiceService _serviceService;

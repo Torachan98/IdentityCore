@@ -12,7 +12,7 @@ namespace IdentityCore.Controllers
     {
         private readonly IUserService _userService;
 
-        public UserController(IHttpContextAccessor httpContextAccessor, IUserService userService) 
+        public UserController(IUserService userService) 
         {  
             _userService = userService;
         }

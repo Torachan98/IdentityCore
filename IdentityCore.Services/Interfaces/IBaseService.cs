@@ -16,8 +16,8 @@ namespace IdentityCore.Services.Interfaces
     {
         Task<PaginationItems<ClassDto>> GetAllAsync(ClassFetchParams request);
         Task<ClassDto> GetByIdAsync(string guid);
-        Task<ObjectResult<ClassDto>> CreateAsync(ClassRequest request);
-        Task<ObjectResult<ClassDto>> UpdateAsync(ClassRequest request);
+        Task<ClassDto> CreateAsync(ClassRequest request);
+        Task<ClassDto> UpdateAsync(ClassRequest request);
         Task<bool> DeleteAsync(string guid);
     }
 }
