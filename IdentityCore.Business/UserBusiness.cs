@@ -189,6 +189,7 @@ namespace IdentityCore.Business
 
             userDto.OTPCode = _emailBusiness.GenerateOTP(GlobalConst.OTP.SizeCode);
             userDto.OTPLifeTime = DateTime.UtcNow.AddMinutes(GlobalConst.OTP.LifeTimeMinute);
+            userDto.Password = EnscryptHelper.ConvertSHA256(userDto.Password);
 
             var userEntity = _mapper.Map<UserEntity>(userDto);
 
