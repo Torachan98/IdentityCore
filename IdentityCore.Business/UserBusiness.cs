@@ -185,15 +185,16 @@ namespace IdentityCore.Business
                 throw new FriendlyException(StatusCodes.Status400BadRequest, "User already existed");
             }
 
-            var userEntity = _mapper.Map<UserEntity>(createUserRequest);
+            var userDto = _mapper.Map<UserDTO>(createUserRequest);
 
-            userEntity.OTPCode = _emailBusiness.GenerateOTP(GlobalConst.OTP.SizeCode);
-            userEntity.OTPLifeTime = DateTime.UtcNow.AddMinutes(GlobalConst.OTP.LifeTimeMinute);
+            userDto.OTPCode = _emailBusiness.GenerateOTP(GlobalConst.OTP.SizeCode);
+            userDto.OTPLifeTime = DateTime.UtcNow.AddMinutes(GlobalConst.OTP.LifeTimeMinute);
+
+            var userEntity = _mapper.Map<UserEntity>(userDto);
 
             var userCreated = _userRepository.Add(userEntity);
             await _unitOfWork.CommitAsync();
-
-            return _mapper.Map<UserDTO>(createUserRequest);
+            return _mapper.Map<UserDTO>(userCreated);
         }
 
         public async Task<bool> DeleteUserAsync(string guid)
@@ -236,6 +237,21 @@ namespace IdentityCore.Business
             if (userDto.RefreshToken != null) 
             {
                 userEntity.RefreshToken = userDto.RefreshToken;
+            }
+
+            if (userDto.FirstName != null)
+            {
+                userEntity.FirstName = userDto.FirstName;
+            }
+
+            if (userDto.MiddleName != null)
+            {
+                userEntity.MiddleName = userDto.MiddleName;
+            }
+
+            if (userDto.LastName != null)
+            {
+                userEntity.LastName = userDto.LastName;
             }
 
             if (!string.IsNullOrEmpty(userDto.Phone))

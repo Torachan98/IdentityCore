@@ -58,24 +58,48 @@ namespace IdentityCore.Services
             return await _authenticationBusiness.ConfirmOTPAsync(otpCode);
         }
 
-        public async Task<bool> ResetEmail(string email)
+        public async Task<string> ResetEmail(string email)
         {
-            return await _authenticationBusiness.ResetEmailAsync(email);
+            if (!string.IsNullOrEmpty(email))
+            {
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "Email is not empty");
+            }
+
+            await _authenticationBusiness.ResetEmailAsync(email);
+            return "OTP has been sent into email";
         }
 
-        public async Task<bool> ResetEmailConfirm(string email, string otpCode)
+        public async Task<string> ResetEmailConfirm(string email, string otpCode)
         {
-            return await _authenticationBusiness.ResetEmailConfirmAsync(email, otpCode);
+            await _authenticationBusiness.ResetEmailConfirmAsync(email, otpCode);
+            return "Confirmed";
         }
 
-        public Task<bool> ResetPassword(string email)
+        public async Task<string> ResetPassword(string email)
         {
-            throw new NotImplementedException();
+            if (!string.IsNullOrEmpty(email))
+            {
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "Email is not empty");
+            }
+
+            await _authenticationBusiness.ResetPasswordAsync(email);
+            return "OTP has been sent into email";
         }
 
-        public Task<bool> ResetPasswordConfirm(string password, string otpCode)
+        public async Task<string> ResetPasswordConfirm(string password, string otpCode)
         {
-            throw new NotImplementedException();
+            if (!string.IsNullOrEmpty(password))
+            {
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "Email is not empty");
+            }
+
+            if (!string.IsNullOrEmpty(otpCode))
+            {
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "OTP is not empty");
+            }
+
+            await _authenticationBusiness.ResetPasswordConfirmAsync(password, otpCode);
+            return "Confirmed";
         }
     }
 }

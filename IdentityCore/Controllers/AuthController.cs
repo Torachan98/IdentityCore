@@ -61,7 +61,7 @@ namespace IdentityCore.Controllers
         
         [HttpPost]
         [Route(ForgotPasswordRoute)]
-        [AllowAnonymous]
+        [Attributes.Authorize]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest forgotPasswordRequest)
         {
             if (forgotPasswordRequest == null) {

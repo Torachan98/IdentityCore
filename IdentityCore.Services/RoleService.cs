@@ -25,20 +25,17 @@ namespace IdentityCore.Services
             throw new NotImplementedException();
         }
 
-        public async Task<ObjectResult<RoleDTO>> CreateAsync(CreateOrUpdateRoleRequest request)
+        public async Task<RoleDTO> CreateAsync(CreateOrUpdateRoleRequest request)
         {
             if (!string.IsNullOrEmpty(request.RoleName))
             {
                 throw new FriendlyException(StatusCodes.Status400BadRequest, "Name role do not allow empty");
             }
 
-            return new ObjectResult<RoleDTO>()
-            {
-                Item = await _roleBusiness.CreateRolesAsync(request),
-            };
+            return await _roleBusiness.CreateRolesAsync(request);
         }
 
-        public async Task<ObjectResult<RoleDTO>> UpdateAsync(CreateOrUpdateRoleRequest request)
+        public async Task<RoleDTO> UpdateAsync(CreateOrUpdateRoleRequest request)
         {
             if (!string.IsNullOrEmpty(request.GUID))
             {
@@ -50,10 +47,7 @@ namespace IdentityCore.Services
                 throw new FriendlyException(StatusCodes.Status400BadRequest, "Name role do not allow empty");
             }
 
-            return new ObjectResult<RoleDTO>()
-            {
-                Item = await _roleBusiness.UpdateRolesAsync(request),
-            };
+            return await _roleBusiness.UpdateRolesAsync(request);
         }
 
         public async Task<bool> DeleteAsync(string guid)

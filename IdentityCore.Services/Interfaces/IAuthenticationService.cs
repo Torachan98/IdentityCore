@@ -9,10 +9,10 @@ namespace IdentityCore.Services.Interfaces
         Task<ObjectResponse<AuthenticationToken>> SignIn(SignInRequest signInRequest);
         Task<bool> SignOut();
         Task<AuthenticationToken> RenewToken(string refreshToken);
-        Task<bool> ResetEmail(string email);
-        Task<bool> ResetEmailConfirm(string email, string otpCode);
-        Task<bool> ResetPassword(string email);
-        Task<bool> ResetPasswordConfirm(string password, string otpCode);
+        Task<string> ResetEmail(string email);
+        Task<string> ResetEmailConfirm(string email, string otpCode);
+        Task<string> ResetPassword(string email);
+        Task<string> ResetPasswordConfirm(string password, string otpCode);
         Task<bool> ConfirmOTP(string otpCode);
     }
 }

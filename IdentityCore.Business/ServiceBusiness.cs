@@ -56,7 +56,7 @@ namespace IdentityCore.Business
                 return new ServiceDTO();
             }
 
-            var isExistedService = await _serviceRepository.Get().FirstOrDefaultAsync(s => s.Name.Contains(request.Name));
+            var isExistedService = await _serviceRepository.Get(s => !s.IsDeleted).FirstOrDefaultAsync(s => s.Name.Contains(request.Name));
             if (isExistedService != null)
             {
                 if (!isExistedService.IsDeleted)
@@ -83,21 +83,30 @@ namespace IdentityCore.Business
 
         public async Task<ServiceDTO> UpdateServicesAsync(CreateOrUpdateServiceRequest request)
         {
-            var isExistedService = await _serviceRepository.Get().FirstOrDefaultAsync(s => s.GUID == request.GUID);
-            if (isExistedService == null)
+            var serviceEntity = await _serviceRepository.Get(s => !s.IsDeleted).FirstOrDefaultAsync(s => s.GUID == request.GUID || s.Name == request.Name);
+            if (serviceEntity == null)
             {
                 throw new FriendlyException(StatusCodes.Status400BadRequest, "Not found service");
             }
 
-            var isExistedServiceName = await _serviceRepository.Get().FirstOrDefaultAsync(s => s.Name == request.Name);
-            if (isExistedServiceName != null)
+            if (!string.IsNullOrEmpty(request.Name))
             {
-                throw new FriendlyException(StatusCodes.Status400BadRequest, "Name is already existed");
+                serviceEntity.Name = request.Name;
             }
 
-            isExistedService.Description = request.Description;
-            isExistedService.DateModified = DateTime.UtcNow;
-            return _mapper.Map<ServiceDTO>(isExistedServiceName);
+            if (!string.IsNullOrEmpty(request.Description))
+            {
+                serviceEntity.Description = request.Description;
+            }
+
+            if (!string.IsNullOrEmpty(request.SignatureKey))
+            {
+                serviceEntity.SignatureKey = request.SignatureKey;
+            }
+
+            _serviceRepository.Update(serviceEntity);
+            await _unitOfWork.CommitAsync();
+            return _mapper.Map<ServiceDTO>(serviceEntity);
         }
 
         public async Task<bool> DeleteServicesAsync(string guid)

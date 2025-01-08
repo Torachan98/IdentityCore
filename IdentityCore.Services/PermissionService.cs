@@ -24,20 +24,17 @@ namespace IdentityCore.Services
             throw new NotImplementedException();
         }
 
-        public async Task<ObjectResult<PermissionDTO>> CreateAsync(CreateOrUpdatePermissionRequest request)
+        public async Task<PermissionDTO> CreateAsync(CreateOrUpdatePermissionRequest request)
         {
             if (!string.IsNullOrEmpty(request.Name)) 
             {
                 throw new FriendlyException(StatusCodes.Status400BadRequest, "Name permission do not allow empty");
             }
 
-            return new ObjectResult<PermissionDTO>()
-            {
-                Item = await _permissionBusiness.CreatePermissionsAsync(request),
-            };
+            return await _permissionBusiness.CreatePermissionsAsync(request);
         }
 
-        public async Task<ObjectResult<PermissionDTO>> UpdateAsync(CreateOrUpdatePermissionRequest request)
+        public async Task<PermissionDTO> UpdateAsync(CreateOrUpdatePermissionRequest request)
         {
             if (!string.IsNullOrEmpty(request.GUID))
             {
@@ -49,10 +46,7 @@ namespace IdentityCore.Services
                 throw new FriendlyException(StatusCodes.Status400BadRequest, "Name permission do not allow empty");
             }
 
-            return new ObjectResult<PermissionDTO>()
-            {
-                Item = await _permissionBusiness.UpdatePermissionsAsync(request),
-            };
+            return await _permissionBusiness.UpdatePermissionsAsync(request);
         }
 
         public async Task<bool> DeleteAsync(string guid)
