@@ -79,7 +79,7 @@ namespace IdentityCore.Business
 
             if (userEntity != null)
             {
-                if (userEntity.UserPermissions != null)
+                if (userEntity.UserPermissions.Count > 0)
                 {
                     var permissionIds = userEntity.UserPermissions.Select(s => s.PermissionId).ToList();
                     var permissionEntity = await _permissionRepository.Get(s => permissionIds.Contains(s.PermissionId) && !s.IsDeleted).ToListAsync();
@@ -104,10 +104,10 @@ namespace IdentityCore.Business
                                                             }).ToList();
                 }   
 
-                if(userEntity.UserRoles != null)
+                if(userEntity.UserRoles.Count > 0)
                 {
                     var roleType = typeof(Role);
-                    var roleQuery = _roleRepository.Get();
+                    var roleQuery = _roleRepository.Get(s => !s.IsDeleted && userEntity.UserRoles.Any(x => s.RoleId == s.RoleId));
                     var permissionQuery = _permissionRepository.Get();
                     var rolePermissionQuery = _rolePermissionRepository.Get();                    
 
@@ -132,7 +132,7 @@ namespace IdentityCore.Business
                                   {
                                       Permission = Enum.TryParse(s.Permission, out Permission permission) ? permission : Permission.AUTHENTICATION,
                                       PermissionType = s.PermissionType,
-                                      Description = "",
+                                      Description = s.Description,
                                   }).ToList()
                               }).ToList();
                 }

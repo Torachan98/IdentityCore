@@ -28,5 +28,21 @@ namespace IdentityCore.EFs.Enums
         [Permission(PermissionType.Services)]
         [Description("Allow user can lock a specific item in a module")]
         LOCK,
+
+        [Permission(PermissionType.UIAccess)]
+        [Description("Allow user can get a specific item in a module")]
+        FETCH_UI,
+
+        [Permission(PermissionType.UIAccess)]
+        [Description("Allow user can create a specific item in a module")]
+        CREATE_UI,
+
+        [Permission(PermissionType.UIAccess)]
+        [Description("Allow user can edit a specific item in a module")]
+        EDIT_UI,
+
+        [Permission(PermissionType.UIAccess)]
+        [Description("Allow user can delete a specific item in a module")]
+        DELETE_UI,
     }
 }
