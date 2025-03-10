@@ -31,18 +31,18 @@ namespace IdentityCore.EFs.Enums
 
         [Permission(PermissionType.UIAccess)]
         [Description("Allow user can get a specific item in a module")]
-        FETCH_UI,
+        FETCH_UI_ACCESS,
 
         [Permission(PermissionType.UIAccess)]
         [Description("Allow user can create a specific item in a module")]
-        CREATE_UI,
+        CREATE_UI_ACCESS,
 
         [Permission(PermissionType.UIAccess)]
         [Description("Allow user can edit a specific item in a module")]
-        EDIT_UI,
+        EDIT_UI_ACCESS,
 
         [Permission(PermissionType.UIAccess)]
         [Description("Allow user can delete a specific item in a module")]
-        DELETE_UI,
+        DELETE_UI_ACCESS,
     }
 }
