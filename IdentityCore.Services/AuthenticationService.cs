@@ -24,10 +24,7 @@ namespace IdentityCore.Services
             var errors = Validator.ValidateRequiredProperties(signInRequest);
             if (errors.Any())
             {
-                return new ObjectResponse<AuthenticationToken>()
-                {
-                    Message = JsonConvert.SerializeObject(errors),
-                };
+                throw new FriendlyException(StatusCodes.Status400BadRequest, JsonConvert.SerializeObject(errors));
             }
 
             var result = await _authenticationBusiness.SignInAsync(signInRequest);
@@ -38,7 +35,7 @@ namespace IdentityCore.Services
         public async Task<bool> SignOut()
         {
             var userDto = _httpContextAccessor.HttpContext!.Items["User"] as UserDTO;
-            var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString();
+            var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Split(" ").Last();
 
             if(userDto == null)
             {

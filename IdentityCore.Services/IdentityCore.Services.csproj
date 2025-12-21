@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.13.1" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.71.0" />
     <PackageReference Include="Hangfire.Core" Version="1.8.17" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" />
     <PackageReference Include="System.Text.Json" Version="9.0.0" />
@@ -16,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\IdentityCore.Business\IdentityCore.Business.csproj" />
     <ProjectReference Include="..\IdentityCore.EFs\IdentityCore.EFs.csproj" />
+	<Protobuf Include="Protos\identity.proto" GrpcServices="Server" />
   </ItemGroup>
 
 </Project>

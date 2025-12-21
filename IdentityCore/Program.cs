@@ -12,6 +12,7 @@ using IdentityCore.Repository.UnitOfWork;
 using IdentityCore.Services;
 using IdentityCore.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.IdentityModel.Tokens;
@@ -23,6 +24,21 @@ using static IdentityCore.HangfireService;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(5000, o =>
+    {
+        o.Protocols = HttpProtocols.Http1;
+        o.UseHttps();
+    });
+
+    options.ListenAnyIP(5001, listenOptions =>
+    {
+        listenOptions.Protocols = HttpProtocols.Http2;
+        listenOptions.UseHttps();
+    });
+});
 
 
 var build = new ConfigurationBuilder().AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: false);
@@ -181,6 +197,9 @@ builder.Services.AddSwaggerGen(options =>
 #endregion
 
 
+builder.Services.AddGrpc();
+
+
 var app = builder.Build();
 
 using var scope = app.Services.CreateScope();
@@ -227,6 +246,7 @@ app.UseHangfireDashboard(HangfireConfig.DashboardUrl, new DashboardOptions
 app.UseRouting();
 app.UseAuthorization();
 app.MapControllers();
+app.MapGrpcService<IdentityGrpcService>();
 app.MapHangfireDashboard();
 
 cronJob!.RunCronJobs();

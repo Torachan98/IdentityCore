@@ -67,10 +67,13 @@ namespace IdentityCore.EFs.DTOs
         public DateTime? OTPLifeTime { get; set; }
 
         [IgnoreDataMember]
-        public string? RefreshToken { get; set; } 
+        public string? RefreshToken { get; set; }
+
+        public int? Step { get; set; }
 
         public List<PermissionEnum> GroupPermissions { get; set; } = new List<PermissionEnum>();
         public List<RoleEnum> GroupRoles { get; set; } = new List<RoleEnum>();
+        public List<string> Roles { get; set; } = new List<string>();
         public List<string> Services { get; set; } = new List<string>();
         public List<RolePermissionEntity> RolePermissions { get; set; } = new List<RolePermissionEntity>();
     }

@@ -18,7 +18,14 @@
             }
             set
             {
-                _guid = value.ToUpper();
+                if(value == null)
+                {
+                    _guid = Guid.NewGuid().ToString().ToUpper();
+                }
+                else
+                {
+                    _guid = value.ToUpper();
+                }
             }
         }
         public DateTime DateCreated { get; set; } = DateTime.UtcNow;

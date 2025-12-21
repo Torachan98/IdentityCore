@@ -1,5 +1,7 @@
-﻿using IdentityCore.EFs;
+﻿using IdentityCore.Attributes;
+using IdentityCore.EFs;
 using IdentityCore.EFs.DTOs;
+using IdentityCore.EFs.Enums;
 using IdentityCore.EFs.Requests;
 using IdentityCore.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -79,9 +81,18 @@ namespace IdentityCore.Controllers
         {
             var result = await _authenticationService.SignIn(signInRequest);
 
-            if (!string.IsNullOrEmpty(result.Message))
+            if(result.Item != null && result.Item.RefreshToken != null)
             {
-                throw new FriendlyException(StatusCodes.Status400BadRequest, result.Message);
+                Response.Cookies.Append("refreshToken", result.Item.RefreshToken,
+                    new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true,
+                        SameSite = SameSiteMode.None,
+                        Path = UrlRoot,
+                        Expires = DateTimeOffset.UtcNow.AddDays(7)
+                    }
+                );
             }
 
             return Ok(result);
@@ -89,20 +100,35 @@ namespace IdentityCore.Controllers
 
         [HttpPost]
         [Route(RenewTokenRoute)]
-        [AllowAnonymous]
-        public async Task<IActionResult> RenewToken([FromBody] AuthenticationToken authenticationToken)
+        public async Task<IActionResult> RenewToken()
         {
-            if (string.IsNullOrEmpty(authenticationToken.RefreshToken))
+            var refreshToken = Request.Cookies["refreshToken"];
+
+            if (string.IsNullOrEmpty(refreshToken))
             {
                 throw new FriendlyException(StatusCodes.Status400BadRequest,"Refresh token invalid");
             }
 
-            return Ok(await _authenticationService.RenewToken(authenticationToken.RefreshToken));
+            var result = await _authenticationService.RenewToken(refreshToken);
+
+            Response.Cookies.Append(
+                "refreshToken",
+                result.RefreshToken,
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,  
+                    SameSite = SameSiteMode.None,
+                    Path = UrlRoot,
+                    Expires = DateTimeOffset.UtcNow.AddDays(7)
+                }
+            );
+
+            return Ok(result.AccessToken);
         }
 
         [HttpPost]
         [Route(ResetEmailUserRoute)]
-        [AllowAnonymous]
         public async Task<IActionResult> ResetEmail([FromQuery] string emailAddress)
         {
             return Ok(await _authenticationService.ResetEmail(emailAddress));

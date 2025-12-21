@@ -16,7 +16,10 @@ namespace IdentityCore.EFs.Entities
         public required string Password { get; set; } 
         public required string Phone { get; set; } 
         public required string PhoneCode { get; set; } 
-        public required string Region { get; set; } 
+        public required string Region { get; set; }
+
+        [DefaultValue(0)]
+        public int Step { get; set; }
 
         [DefaultValue(false)]
         public bool IsRequiredChangePassword { get; set; }

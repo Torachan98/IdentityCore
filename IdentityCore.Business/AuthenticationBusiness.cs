@@ -95,7 +95,16 @@ namespace IdentityCore.Business
                 await _emailBusiness.SendMailAsync(user, TemplateEmailType.OTP);
                 await _userBusiness.UpdateUserAsync(user);
 
-                throw new FriendlyException(StatusCodes.Status400BadRequest, "User is not active");
+                return new ObjectResponse<AuthenticationToken>()
+                {
+                    Item = new AuthenticationToken()
+                    {
+                        Step = user.Step ?? (int)Step.WaitingConfirmed,
+                        AccessToken = null,
+                        RefreshToken = null
+                    },
+                    Message = "User is not active"
+                };
             }
 
             if (user.IsLogin != null && user.IsLogin.Value)
@@ -106,7 +115,8 @@ namespace IdentityCore.Business
             var result = new AuthenticationToken()
             {
                 RefreshToken = GenerateRefreshToken(),
-                AccessToken = GenerateToken(user)
+                AccessToken = GenerateToken(user),
+                Step = user.Step ?? (int)Step.Verified
             };
 
             user.IsLogin = true;
@@ -181,11 +191,20 @@ namespace IdentityCore.Business
                 await _userBusiness.UpdateUserAsync(new UserDTO()
                 {
                     GUID = userEntity.GUID,
+                    Step = (int)Step.Verified,
                     IsActive = true
                 });
 
                 return true;
             }
+
+
+            userEntity.OTPCode = _emailBusiness.GenerateOTP(GlobalConst.OTP.SizeCode);
+            userEntity.OTPLifeTime = DateTime.UtcNow.AddMinutes(GlobalConst.OTP.LifeTimeMinute);
+
+            var userDto = _mapper.Map<UserDTO>(userEntity);
+            await _emailBusiness.SendMailAsync(userDto, TemplateEmailType.OTP);
+            await _userBusiness.UpdateUserAsync(userDto);
 
             return false;
         }
@@ -278,12 +297,14 @@ namespace IdentityCore.Business
         private string GenerateToken(UserDTO user)
         {
             var claims = new[] {
-                new Claim("name",user.FullName!),
+                new Claim("firstName",user.FirstName!),
+                new Claim("lastName",user.LastName!),
                 new Claim("email",user.Email!),
                 new Claim("phone",$"{user.PhoneCode} {user.Phone}"),
                 new Claim("userId",user.GUID !),
                 new Claim("permissions",JsonConvert.SerializeObject(user.GroupPermissions)),
-                new Claim("roles",JsonConvert.SerializeObject(user.GroupRoles)),
+                new Claim("rolePermission",JsonConvert.SerializeObject(user.GroupRoles)),
+                new Claim("roles",JsonConvert.SerializeObject(user.Roles)),
                 new Claim("services",JsonConvert.SerializeObject(user.Services)),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };

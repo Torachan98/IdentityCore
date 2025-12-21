@@ -1,0 +1,20 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "IdentityCore.Services";
+
+package IdentityCore;
+
+service Identity {
+    rpc GetUserInfo (UserInfoRequest) returns (UserInfoResponse);
+}
+
+message UserInfoRequest {
+    string access_token = 1;
+}
+
+message UserInfoResponse {
+    string user_id = 1;
+    string email = 2;
+    string roles = 3;
+    bool status = 4;
+}

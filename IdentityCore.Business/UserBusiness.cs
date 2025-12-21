@@ -106,12 +106,13 @@ namespace IdentityCore.Business
 
                 if(userEntity.UserRoles.Count > 0)
                 {
+                    var roleIds = userEntity.UserRoles.Select(r => r.RoleId).ToList();
                     var roleType = typeof(Role);
-                    var roleQuery = _roleRepository.Get(s => !s.IsDeleted && userEntity.UserRoles.Any(x => s.RoleId == s.RoleId));
+                    var roleQuery = _roleRepository.Get(s => !s.IsDeleted && roleIds.Contains(s.RoleId));
                     var permissionQuery = _permissionRepository.Get();
                     var rolePermissionQuery = _rolePermissionRepository.Get();                    
 
-                    var roleData = await (from rp in rolePermissionQuery
+                    var rolePermissionData = await (from rp in rolePermissionQuery
                                           join r in roleQuery on rp.RoleId equals r.RoleId
                                           join p in permissionQuery on rp.PermissionId equals p.PermissionId
                                           select new
@@ -122,8 +123,12 @@ namespace IdentityCore.Business
                                               Permission = p.Name,
                                           }).ToListAsync();
 
-                    userDto.GroupRoles = (from c in roleData
-                              group c by c.Role into g
+                    var role = await (from r in roleQuery select r.RoleName).ToListAsync();
+
+                    userDto.Roles = role;
+
+                    userDto.GroupRoles = (from c in rolePermissionData
+                                          group c by c.Role into g
                               select new RoleEnum
                               {
                                   Role = Enum.TryParse(g.Key, out Role roleEnum) ? roleEnum : Role.Guest,
@@ -187,6 +192,7 @@ namespace IdentityCore.Business
 
             var userDto = _mapper.Map<UserDTO>(createUserRequest);
 
+            userDto.Step = (int)Step.WaitingConfirmed;
             userDto.OTPCode = _emailBusiness.GenerateOTP(GlobalConst.OTP.SizeCode);
             userDto.OTPLifeTime = DateTime.UtcNow.AddMinutes(GlobalConst.OTP.LifeTimeMinute);
             userDto.Password = EnscryptHelper.ConvertSHA256(userDto.Password);
@@ -309,6 +315,11 @@ namespace IdentityCore.Business
             {
                 userEntity.OTPCode = userDto.OTPCode;
                 userEntity.OTPLifeTime = userDto.OTPLifeTime;
+            }
+
+            if(userDto.Step != null)
+            {
+                userEntity.Step = (int)userDto.Step;
             }
 
             _userRepository.Update(userEntity);
