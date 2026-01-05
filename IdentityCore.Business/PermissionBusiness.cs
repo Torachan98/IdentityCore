@@ -26,17 +26,9 @@ namespace IdentityCore.Business
         public async Task<PaginationItems<PermissionDTO>> GetPermissionsAsync(PermissionFetchRequest request)
         {
             var permissionQuery = _permissionRepository.Get(s => !s.IsDeleted);
-            int pageNum = 0;
+            int pageNum = 1;
             int pageSize = 30;
             int totalCount = permissionQuery.Count(s => !s.IsDeleted);
-
-            if (!string.IsNullOrEmpty(request.PageNum) && !string.IsNullOrEmpty(request.PageSize))
-            {
-                pageNum = int.Parse(request.PageNum);
-                pageSize = int.Parse(request.PageSize);
-
-                permissionQuery = permissionQuery.Skip(pageNum * (pageSize - 1)).Take(pageSize);
-            }
 
             if (!string.IsNullOrEmpty(request.Keyword))
             {
@@ -48,9 +40,17 @@ namespace IdentityCore.Business
                 permissionQuery = permissionQuery.Where(s => request.PermissionTypes.Contains((long)s.PermissionType));
             }
 
+            if (!string.IsNullOrEmpty(request.PageNum) && !string.IsNullOrEmpty(request.PageSize))
+            {
+                pageNum = int.Parse(request.PageNum);
+                pageSize = int.Parse(request.PageSize);
+            }
+
+            permissionQuery = permissionQuery.Skip((pageNum - 1) * pageSize).Take(pageSize);
+
             var permissionEntities = await permissionQuery.ToListAsync();
 
-            return new PaginationItems<PermissionDTO>(pageNum, pageSize, totalCount, _mapper.Map<List<PermissionDTO>>(permissionEntities));
+            return new PaginationItems<PermissionDTO>(pageSize, pageNum, totalCount, _mapper.Map<List<PermissionDTO>>(permissionEntities));
         }
 
         public async Task<PermissionDTO> CreatePermissionsAsync(CreateOrUpdatePermissionRequest request)

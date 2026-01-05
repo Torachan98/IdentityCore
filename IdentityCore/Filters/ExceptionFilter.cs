@@ -15,7 +15,7 @@ namespace IdentityCore.Filters
                 context.HttpContext.Response.ContentType = "application/json";
                 context.HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
 
-                var result = new { isSucess = false, requestId = Guid.NewGuid().ToString(), exception.Code, exception.Message };
+                var result = new { isSuccess = false, requestId = Guid.NewGuid().ToString(), exception.Code, exception.Message };
                 context.Result = new JsonResult(result);
             }
             else
@@ -24,7 +24,7 @@ namespace IdentityCore.Filters
                 context.HttpContext.Response.ContentType = "application/json";
                 context.HttpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-                var result = new { isSucess = false, requestId = Guid.NewGuid().ToString(), code = StatusCodes.Status500InternalServerError, message = context.Exception.Message };
+                var result = new { isSuccess = false, requestId = Guid.NewGuid().ToString(), code = StatusCodes.Status500InternalServerError, message = context.Exception.Message };
                 context.Result = new JsonResult(result);
             }
 

@@ -15,6 +15,7 @@ namespace IdentityCore.Business.Interfaces
         /// <param name="refreshToken"></param>
         /// <returns></returns>
         Task<UserDTO> GetSingleUserWithPermissionAndRoleAsync(string userName, List<string> appKeys, string guid = "", string refreshToken = "");
+        Task<UserDTO> GetUserById(string guid);
         Task<PaginationItems<UserDTO>> GetUsersAsync(UserFetchRequest userFetchRequest);
         Task<UserDTO> CreateUserAsync(CreateOrUpdateUserRequest createUserRequest);
         Task<UserDTO> ForgotPasswordAsync(ForgotPasswordRequest forgotPasswordRequest);

@@ -26,7 +26,7 @@ namespace IdentityCore.Business
         public async Task<PaginationItems<RoleDTO>> GetRoles(RoleFetchRequest request)
         {
             var roleQuery = _roleRepository.Get(s => !s.IsDeleted);
-            int pageNum = 0;
+            int pageNum = 1;
             int pageSize = 30;
             int totalCount = roleQuery.Count(s => !s.IsDeleted);
 
@@ -34,8 +34,6 @@ namespace IdentityCore.Business
             {
                 pageNum = int.Parse(request.PageNum);
                 pageSize = int.Parse(request.PageSize);
-
-                roleQuery = roleQuery.Skip(pageNum * (pageSize - 1)).Take(pageSize);
             }
 
             if (!string.IsNullOrEmpty(request.Keyword))
@@ -48,9 +46,11 @@ namespace IdentityCore.Business
                 roleQuery = roleQuery.Where(s => s.RoleName.Contains(request.Keyword));
             }
 
+            roleQuery = roleQuery.Skip((pageNum - 1) * pageSize).Take(pageSize);
+
             var roleEntities = await roleQuery.ToListAsync();
 
-            return new PaginationItems<RoleDTO>(pageNum, pageSize, totalCount, _mapper.Map<List<RoleDTO>>(roleEntities));
+            return new PaginationItems<RoleDTO>(pageSize, pageNum, totalCount, _mapper.Map<List<RoleDTO>>(roleEntities));
         }
 
         public async Task<RoleDTO> CreateRolesAsync(CreateOrUpdateRoleRequest request)

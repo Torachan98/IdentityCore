@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
+using IdentityCore.EFs.Requests;
 
 namespace IdentityCore.Filters
 {
@@ -12,7 +13,7 @@ namespace IdentityCore.Filters
 
                 if (objectResult.StatusCode == StatusCodes.Status200OK)
                 {
-                    var globalResponse = new { isSucess = true, requestId = Guid.NewGuid().ToString(), data = objectResult.Value };
+                    var globalResponse = new ApiResponse<object> { IsSuccess = true, RequestId = Guid.NewGuid(), Data = objectResult.Value, Message = "Successfully" };
                     objectResult.Value = globalResponse;
                 }
             }

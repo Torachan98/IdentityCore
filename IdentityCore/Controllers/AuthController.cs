@@ -34,6 +34,7 @@ namespace IdentityCore.Controllers
         [HttpPost]
         [Route(RegistrationRoute)]
         [AllowAnonymous]
+        [ProducesResponseType(typeof(ApiResponse<UserDTO>), StatusCodes.Status200OK)]
         public async Task<IActionResult> CreateUser([FromBody] CreateOrUpdateUserRequest createUserRequest)
         {
             var result = await _userService.CreateAsync(createUserRequest);

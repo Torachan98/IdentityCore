@@ -28,9 +28,9 @@ namespace IdentityCore.Services
             return await _userBusiness.GetUsersAsync(request);
         }
 
-        public Task<UserDTO> GetByIdAsync(string guid)
+        public async Task<UserDTO> GetByIdAsync(string guid)
         {
-            throw new NotImplementedException();
+            return await _userBusiness.GetUserById(guid);
         }
 
         public async Task<UserDTO> CreateAsync(CreateOrUpdateUserRequest request)

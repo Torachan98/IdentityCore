@@ -149,7 +149,7 @@ namespace IdentityCore.Business
         public async Task<PaginationItems<UserDTO>> GetUsersAsync(UserFetchRequest request)
         {
             var userQuery = _userRepository.Get(s => !s.IsDeleted);
-            int pageNum = 0;
+            int pageNum = 1;
             int pageSize = 30;
             int totalCount = userQuery.Count(s => !s.IsDeleted);
 
@@ -158,8 +158,6 @@ namespace IdentityCore.Business
                 pageNum = int.Parse(request.PageNum);
                 pageSize = int.Parse(request.PageSize);
             }
-
-            userQuery = userQuery.Skip(pageNum * (pageSize - 1)).Take(pageSize);
 
             if (request.Regions.Any())
             {
@@ -176,9 +174,28 @@ namespace IdentityCore.Business
                                                 !string.IsNullOrEmpty(s.MiddleName) && s.MiddleName.Contains(request.Keyword));
             }
 
+            userQuery = userQuery.Skip((pageNum - 1) * pageSize).Take(pageSize);
+
             var userEntities = await userQuery.ToListAsync();
 
             return new PaginationItems<UserDTO>(pageSize, pageNum, totalCount, _mapper.Map<List<UserDTO>>(userEntities));
+        }
+
+        public async Task<UserDTO> GetUserById(string guid)
+        {
+            if (string.IsNullOrEmpty(guid))
+            {
+                throw new FriendlyException(StatusCodes.Status204NoContent, "User not existed");
+            }
+
+            var result = await _userRepository.Get(s => s.GUID == guid).FirstOrDefaultAsync();
+            if(result == null)
+            {
+                throw new FriendlyException(StatusCodes.Status204NoContent, "User not existed");
+            }
+
+            return _mapper.Map<UserDTO>(result);
+
         }
 
         public async Task<UserDTO> CreateUserAsync(CreateOrUpdateUserRequest createUserRequest)

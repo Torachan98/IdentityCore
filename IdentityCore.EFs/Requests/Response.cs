@@ -14,4 +14,12 @@
     {
         public string? Message { get; set; } = string.Empty;
     }
+
+    public class ApiResponse<T> where T : class
+    {
+        public Guid RequestId { get; set; } = Guid.NewGuid();
+        public bool IsSuccess { get; set; }
+        public string? Message { get; set; } = string.Empty;
+        public T Data { get; set; }
+    }
 }

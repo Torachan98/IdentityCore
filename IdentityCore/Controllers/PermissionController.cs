@@ -3,6 +3,7 @@ using IdentityCore.Attributes;
 using IdentityCore.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using IdentityCore.EFs.Enums;
+using IdentityCore.EFs.Requests;
 
 namespace IdentityCore.Controllers
 {
@@ -20,6 +21,7 @@ namespace IdentityCore.Controllers
         [HttpGet]
         [Authorize]
         [Permission(Permission.FETCH, Role.Administrator)]
+        [ProducesResponseType(typeof(ApiResponse<PaginationItems<PermissionDTO>>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetPermissions([FromQuery] PermissionFetchRequest request)
         {
             return Ok(await _permissionService.GetAllAsync(request));
@@ -28,6 +30,7 @@ namespace IdentityCore.Controllers
         [HttpPost]
         [Authorize]
         [Permission(Permission.CREATE, Role.Administrator)]
+        [ProducesResponseType(typeof(ApiResponse<PermissionDTO>), StatusCodes.Status200OK)]
         public async Task<IActionResult> CreatePermission([FromBody] CreateOrUpdatePermissionRequest request)
         {
             return Ok(await _permissionService.CreateAsync(request));
@@ -36,6 +39,7 @@ namespace IdentityCore.Controllers
         [HttpPut]
         [Authorize]
         [Permission(Permission.EDIT, Role.Administrator)]
+        [ProducesResponseType(typeof(ApiResponse<PermissionDTO>), StatusCodes.Status200OK)]
         public async Task<IActionResult> UpdatePermission([FromBody] CreateOrUpdatePermissionRequest request)
         {
             return Ok(await _permissionService.UpdateAsync(request));

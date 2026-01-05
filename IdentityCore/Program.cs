@@ -148,6 +148,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
+    options.OperationFilter<GlobalResponseOperationFilter>();
     options.SwaggerDoc("v1", new OpenApiInfo
     {
         Version = "v1",
@@ -235,8 +236,9 @@ app.UseStaticFiles();
 app.UseMiddleware<GlobalHandlerMiddleware>();
 app.UseMiddleware<AuthenticationMiddleware>();
 app.UseMiddleware<HangfireDashboardAccessMiddleware>();
-app.UseAuthentication();
 app.UseCors("IdentityCore_Policy");
+
+app.UseAuthentication();
 app.UseHangfireDashboard(HangfireConfig.DashboardUrl, new DashboardOptions
 {
     Authorization = new[] { new CustomAuthorizeFilter() },

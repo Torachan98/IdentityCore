@@ -27,16 +27,14 @@ namespace IdentityCore.Business
         public async Task<PaginationItems<ServiceDTO>> GetServices(ServiceFetchRequest request)
         {
             var serviceQuery = _serviceRepository.Get(s => !s.IsDeleted);
-            int pageNum = 0;
+            int pageNum = 1;
             int pageSize = 30;
             int totalCount = serviceQuery.Count(s => !s.IsDeleted);
 
             if (!string.IsNullOrEmpty(request.PageNum) && !string.IsNullOrEmpty(request.PageSize))
             {
                 pageNum = int.Parse(request.PageNum);
-                pageSize = int.Parse(request.PageSize);
-
-                serviceQuery = serviceQuery.Skip(pageNum * (pageSize - 1)).Take(pageSize);
+                pageSize = int.Parse(request.PageSize);                
             }
 
             if (!string.IsNullOrEmpty(request.Keyword))
@@ -44,9 +42,11 @@ namespace IdentityCore.Business
                 serviceQuery = serviceQuery.Where(s => s.Name.Contains(request.Keyword));
             }
 
+            serviceQuery = serviceQuery.Skip((pageNum - 1) * pageSize).Take(pageSize);
+
             var serviceEntities = await serviceQuery.ToListAsync();
 
-            return new PaginationItems<ServiceDTO>(pageNum, pageSize, totalCount, _mapper.Map<List<ServiceDTO>>(serviceEntities));
+            return new PaginationItems<ServiceDTO>(pageSize, pageNum, totalCount, _mapper.Map<List<ServiceDTO>>(serviceEntities));
         }
 
         public async Task<ServiceDTO> CreateServicesAsync(CreateOrUpdateServiceRequest request)
