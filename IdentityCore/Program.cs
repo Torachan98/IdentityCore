@@ -54,7 +54,7 @@ builder.Services.AddDbContext<IdentityContext>(options
 
 
 builder.Services.AddCors(options => options.AddPolicy("IdentityCore_Policy", p => p
-                                                                   .AllowAnyOrigin()
+                                                                   .WithOrigins("http://localhost:5173")
                                                                    .AllowAnyMethod()
                                                                    .AllowAnyHeader()));
 
@@ -99,6 +99,7 @@ builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddScoped<IRoleService,RoleService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
+builder.Services.AddScoped<IFileService, FileService>();
 #endregion
 
 #region Business
@@ -236,9 +237,8 @@ app.UseStaticFiles();
 app.UseMiddleware<GlobalHandlerMiddleware>();
 app.UseMiddleware<AuthenticationMiddleware>();
 app.UseMiddleware<HangfireDashboardAccessMiddleware>();
-app.UseCors("IdentityCore_Policy");
 
-app.UseAuthentication();
+
 app.UseHangfireDashboard(HangfireConfig.DashboardUrl, new DashboardOptions
 {
     Authorization = new[] { new CustomAuthorizeFilter() },
@@ -246,7 +246,10 @@ app.UseHangfireDashboard(HangfireConfig.DashboardUrl, new DashboardOptions
     StatsPollingInterval = HangfireConfig.StatsPollingInterval
 });
 app.UseRouting();
+app.UseCors("IdentityCore_Policy");
+
 app.UseAuthorization();
+app.UseAuthentication();
 app.MapControllers();
 app.MapGrpcService<IdentityGrpcService>();
 app.MapHangfireDashboard();

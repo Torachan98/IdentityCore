@@ -1,10 +1,6 @@
 ﻿using IdentityCore.EFs.DTOs;
-using IdentityCore.EFs.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace IdentityCore.EFs.Requests
 {
@@ -19,5 +15,11 @@ namespace IdentityCore.EFs.Requests
         public string Email { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
         public List<RoleEnum> Roles { get; set; }
+    }
+
+    public class FileRequest
+    {
+        public int FileType { get; set; }
+        public IFormFile File { get; set; }
     }
 }

@@ -24,43 +24,32 @@ namespace IdentityCore.EFs.DTOs
         public DateTime DateCreated { get; set; }
         public DateTime DateModified { get; set; }
 
-        [IgnoreDataMember]
         public string? FirstName { get; set; }
 
-        [IgnoreDataMember]
         public string? MiddleName { get; set; }
 
-        [IgnoreDataMember]
         public string? LastName { get; set; }
 
-        [IgnoreDataMember]
         public bool? IsRequiredChangePassword { get; set; }
 
-        [IgnoreDataMember]
         public bool IsPasswordExpired { get; set; }
 
         [IgnoreDataMember]
         public bool IsDeleted { get; set; }   
         
-        [IgnoreDataMember]
         public bool? IsLogin { get; set; }
 
-        [IgnoreDataMember]
         public bool? IsActive { get; set; }
 
         [IgnoreDataMember]
         public string? OTPCode {get;set;} 
 
-        [IgnoreDataMember]
         public int? AttemptLogin { get; set; }
 
-        [IgnoreDataMember]
         public DateTime? Locked { get; set; }
 
-        [IgnoreDataMember]
         public DateTime? LastLogin { get; set; }
 
-        [IgnoreDataMember]
         public DateTime? ExpirationDate { get; set; }
 
         [IgnoreDataMember]

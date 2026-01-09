@@ -134,7 +134,7 @@ namespace IdentityCore.Business
         public async Task<bool> SignOutAsync(UserDTO user, string accessToken)
         {
             user.IsLogin = false;
-            user.RefreshToken = "";
+            user.RefreshToken = null;
 
             var userDto = await _userBusiness.UpdateUserAsync(user);
             if(userDto == null)

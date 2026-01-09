@@ -5,6 +5,7 @@ using IdentityCore.EFs.Enums;
 using IdentityCore.EFs.Requests;
 using IdentityCore.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IdentityCore.Controllers
@@ -33,6 +34,7 @@ namespace IdentityCore.Controllers
 
         [HttpPost]
         [Route(RegistrationRoute)]
+        [DisableCors]
         [AllowAnonymous]
         [ProducesResponseType(typeof(ApiResponse<UserDTO>), StatusCodes.Status200OK)]
         public async Task<IActionResult> CreateUser([FromBody] CreateOrUpdateUserRequest createUserRequest)
@@ -43,6 +45,7 @@ namespace IdentityCore.Controllers
         
         [HttpPost]
         [Route(ConfirmOTPRoute)]
+        [DisableCors]
         [AllowAnonymous]
         public async Task<IActionResult> ConfirmOTP([FromBody] OTPRequest otpRequest)
         {
@@ -64,6 +67,7 @@ namespace IdentityCore.Controllers
         
         [HttpPost]
         [Route(ForgotPasswordRoute)]
+        [DisableCors]
         [Attributes.Authorize]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest forgotPasswordRequest)
         {
@@ -77,6 +81,7 @@ namespace IdentityCore.Controllers
 
         [HttpPost]
         [Route(SignInRoute)]
+        [DisableCors]
         [AllowAnonymous]
         public async Task<IActionResult> SignIn([FromBody] SignInRequest signInRequest)
         {
@@ -101,6 +106,7 @@ namespace IdentityCore.Controllers
 
         [HttpPost]
         [Route(RenewTokenRoute)]
+        [DisableCors]
         public async Task<IActionResult> RenewToken()
         {
             var refreshToken = Request.Cookies["refreshToken"];
@@ -130,6 +136,7 @@ namespace IdentityCore.Controllers
 
         [HttpPost]
         [Route(ResetEmailUserRoute)]
+        [DisableCors]
         public async Task<IActionResult> ResetEmail([FromQuery] string emailAddress)
         {
             return Ok(await _authenticationService.ResetEmail(emailAddress));
@@ -137,6 +144,7 @@ namespace IdentityCore.Controllers
 
         [HttpPost]
         [Route(ResetEmaiConfirmlUserRoute)]
+        [DisableCors]
         [AllowAnonymous]
         public async Task<IActionResult> ResetEmailConfirm([FromQuery] string emailAddress,string otpCode)
         {
@@ -145,6 +153,7 @@ namespace IdentityCore.Controllers
 
         [HttpPost]
         [Route(ResetPasswordUserRoute)]
+        [DisableCors]
         [AllowAnonymous]
         public async Task<IActionResult> ResetPassword()
         {

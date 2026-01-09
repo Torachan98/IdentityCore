@@ -12,4 +12,10 @@
         OTP,
         ForgotPassword,
     }
+
+    public enum FileType
+    {
+        Image,
+        File
+    }
 }

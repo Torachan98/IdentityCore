@@ -49,7 +49,7 @@ namespace IdentityCore.Services
 
         public async Task<UserDTO> UpdateAsync(CreateOrUpdateUserRequest request)
         {
-            if (!string.IsNullOrEmpty(request.GUID))
+            if (string.IsNullOrEmpty(request.GUID))
             {
                 throw new FriendlyException(StatusCodes.Status400BadRequest, "Id user do not allow empty");
             }

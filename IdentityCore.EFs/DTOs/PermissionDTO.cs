@@ -7,6 +7,7 @@ namespace IdentityCore.EFs.DTOs
 {
     public class PermissionDTO
     {
+        public Guid Guid { get; set; }
         public PermissionType PermissionType { get; set; }
         public string? Name { get; set; }
         public string? Description { get; set; }
