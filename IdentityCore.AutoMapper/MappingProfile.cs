@@ -13,9 +13,9 @@ namespace IdentityCore.AutoMapper
         {
             CreateMap<UserEntity, UserDTO>()
                 .ForMember(s => s.FullName, opt => opt.MapFrom(src => src.FirstName + " " + src.MiddleName + " " + src.LastName))
-                .ForMember(s => s.GroupPermissions, opt => opt.Ignore())
-                .ForMember(s => s.GroupRoles, opt => opt.Ignore())
                 .ForMember(s => s.Roles, opt => opt.Ignore())
+                .ForMember(s => s.Permissions, opt => opt.Ignore())
+                .ForMember(s => s.Services, opt => opt.Ignore())
                 .ReverseMap();
 
             CreateMap<RoleEntity, RoleDTO>().ReverseMap();
@@ -26,8 +26,6 @@ namespace IdentityCore.AutoMapper
 
             CreateMap<UserRequest, UserDTO>(MemberList.Source)
                 .ForMember(s => s.IsRequiredChangePassword, opt => opt.MapFrom(src => src.ChangedPasswordFirstTime))
-                .ForMember(s => s.GroupPermissions, opt => opt.Ignore())
-                .ForMember(s => s.GroupRoles, opt => opt.Ignore())
                 .ReverseMap();
 
             CreateMap<UserDTO, CreateOrUpdateUserRequest>()

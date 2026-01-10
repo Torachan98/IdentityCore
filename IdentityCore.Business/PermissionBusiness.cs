@@ -35,11 +35,6 @@ namespace IdentityCore.Business
                 permissionQuery = permissionQuery.Where(s => s.Name.Contains(request.Keyword));
             }
 
-            if (request.PermissionTypes.Any())
-            {
-                permissionQuery = permissionQuery.Where(s => request.PermissionTypes.Contains((long)s.PermissionType));
-            }
-
             if (!string.IsNullOrEmpty(request.PageNum) && !string.IsNullOrEmpty(request.PageSize))
             {
                 pageNum = int.Parse(request.PageNum);
@@ -63,7 +58,7 @@ namespace IdentityCore.Business
 
             var permissionEntities = _permissionRepository.Add(new PermissionEntity()
             {
-                PermissionType = request.PermissionType,
+                Value = request.Value,
                 Name = request.Name,
                 Description = request.Description,
             });

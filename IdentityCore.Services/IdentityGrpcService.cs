@@ -51,7 +51,7 @@ namespace IdentityCore.Services
                 throw new RpcException(new Status(StatusCode.NotFound, "User not found"));
             }
             var roleIds = user.UserRoles.Select(r => r.RoleId).ToList();
-            var roleName = await _role.Get(s => roleIds.Contains(s.RoleId)).Select(s => s.RoleName).ToListAsync();
+            var roleName = await _role.Get(s => roleIds.Contains(s.RoleId)).Select(s => s.Name).ToListAsync();
             var userDto = _mapper.Map<UserDTO>(user);
 
             if(userDto is null)

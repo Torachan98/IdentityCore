@@ -60,11 +60,9 @@ namespace IdentityCore.EFs.DTOs
 
         public int? Step { get; set; }
 
-        public List<PermissionEnum> GroupPermissions { get; set; } = new List<PermissionEnum>();
-        public List<RoleEnum> GroupRoles { get; set; } = new List<RoleEnum>();
-        public List<string> Roles { get; set; } = new List<string>();
+        public List<string> Permissions { get; set; } = new List<string>();
         public List<string> Services { get; set; } = new List<string>();
-        public List<RolePermissionEntity> RolePermissions { get; set; } = new List<RolePermissionEntity>();
+        public List<RoleResponse> Roles { get; set; } = new List<RoleResponse>();
     }
 
     public class UserFetchRequest: FetchParams

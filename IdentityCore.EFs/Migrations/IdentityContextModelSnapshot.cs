@@ -50,7 +50,7 @@ namespace IdentityCore.EFs.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("PermissionType")
+                    b.Property<int>("Value")
                         .HasColumnType("int");
 
                     b.HasKey("PermissionId");
@@ -85,9 +85,12 @@ namespace IdentityCore.EFs.Migrations
                     b.Property<bool>("IsLock")
                         .HasColumnType("bit");
 
-                    b.Property<string>("RoleName")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Value")
+                        .HasColumnType("int");
 
                     b.HasKey("RoleId");
 
@@ -265,7 +268,12 @@ namespace IdentityCore.EFs.Migrations
 
                     b.HasKey("UserId");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", null, t =>
+                        {
+                            t.HasTrigger("TR_User_Insert_UserRole");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("IdentityCore.EFs.Entities.UserPermissionEntity", b =>

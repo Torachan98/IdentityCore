@@ -1,5 +1,4 @@
-﻿using IdentityCore.EFs.Attributes;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 
 namespace IdentityCore.EFs.Enums
 {

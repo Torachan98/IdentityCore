@@ -1,5 +1,4 @@
-﻿using IdentityCore.EFs.Attributes;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Reflection;
 
@@ -39,26 +38,19 @@ namespace IdentityCore.EFs.Helpers
 
             foreach (var enumValue in Enum.GetValues(typeof(TEnum)).Cast<TEnum>())
             {
-                var permissionType = GetEnumPermissionType(enumValue);
+               // var permissionType = GetEnumPermissionType(enumValue);
                 var description = GetEnumDescription(enumValue);
 
                 var instance = new T();
 
-                SetProperty(instance, "PermissionType", permissionType);
-                SetProperty(instance, "Permission", enumValue);
-                SetProperty(instance, "Description", description);
+                SetProperty(instance, "Name", enumValue.ToString());
+                SetProperty(instance, "Description", description.ToString());
+                SetProperty(instance, "Value", Convert.ToInt32(enumValue));
 
                 result.Add(instance);
             }
 
             return result;
-        }
-
-        private static PermissionType GetEnumPermissionType<TEnum>(TEnum enumValue) where TEnum : Enum
-        {
-            var field = enumValue.GetType().GetField(enumValue.ToString());
-            var attribute = field.GetCustomAttribute<PermissionAttribute>();
-            return attribute?.PermissionType ?? PermissionType.Services;
         }
         #endregion
 
@@ -75,8 +67,9 @@ namespace IdentityCore.EFs.Helpers
 
                 var instance = new T();
 
-                SetProperty(instance, "Role", enumValue);
-                SetProperty(instance, "Description", description);
+                SetProperty(instance, "Name", enumValue.ToString());
+                SetProperty(instance, "Description", description.ToString());
+                SetProperty(instance, "Value", Convert.ToInt32(enumValue));
 
                 result.Add(instance);
             }

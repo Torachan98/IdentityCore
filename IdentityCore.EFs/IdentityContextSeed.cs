@@ -33,6 +33,7 @@ namespace IdentityCore.EFs
                     Phone = "0908768106",
                     PhoneCode = "+84",
                     Region = "VN",
+                    Step = (int)Step.WaitingConfirmed,
                 }
             };
 
@@ -50,12 +51,12 @@ namespace IdentityCore.EFs
             var permissions = EnumHelper.ConvertPermissionToList<Permission, PermissionEnum>();
             if (permissions != null)
             {
-                var permissionData = permissions.Where(s => !context.Permissions.Any(r => s.Permission.ToString() == r.Name))
+                var permissionData = permissions.Where(s => !context.Permissions.Any(r => s.Value == r.Value))
                                                 .Select(s => new PermissionEntity()
                                                 {
-                                                    PermissionType = s.PermissionType,
+                                                    Value = s.Value,
                                                     Description = s.Description,
-                                                    Name = s.Permission.ToString(),
+                                                    Name = s.Name,
 
                                                 }).ToList();
                 if (permissionData.Count == 0)
@@ -72,11 +73,12 @@ namespace IdentityCore.EFs
             var roleItems = EnumHelper.ConvertRoleToList<Role, RoleEnum>();
             if (roleItems != null)
             {
-                var roleData = roleItems.Where(s => !context.Roles.Any(r => s.Role.ToString() == r.RoleName))
-                                        .Select(s=> new RoleEntity()
+                var roleData = roleItems.Where(s => !context.Roles.Any(r => s.Value == r.Value))
+                                        .Select(s => new RoleEntity()
                                         {
-                                            RoleName = s.Role.ToString(),
+                                            Name = s.Name,
                                             Description = s.Description,
+                                            Value = s.Value
                                         }).ToList();
 
                 if (roleData.Count == 0)

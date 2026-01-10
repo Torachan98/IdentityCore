@@ -8,6 +8,7 @@ using IdentityCore.EFs.Entities;
 using IdentityCore.EFs.Enums;
 using IdentityCore.EFs.Helpers;
 using IdentityCore.EFs.Requests;
+using IdentityCore.Repository;
 using IdentityCore.Repository.Interfaces;
 using IdentityCore.Repository.UnitOfWork;
 using Microsoft.AspNetCore.Http;
@@ -23,8 +24,10 @@ namespace IdentityCore.Business
         private readonly IEmailBusiness _emailBusiness;
 
         private readonly IUserRepository _userRepository;
+        private readonly IUserPermissionRepository _userPermissionRepository;
         private readonly IPermissionRepository _permissionRepository;
         private readonly IRoleRepository _roleRepository;
+        private readonly IUserRoleRepository _userRoleRepository;
         private readonly IServiceRepository _serviceRepository;
         private readonly IUserServiceRepository _userServiceRepository;
         private readonly IRolePermissionRepository _rolePermissionRepository;
@@ -33,6 +36,8 @@ namespace IdentityCore.Business
             IMapper mapper, 
             IEmailBusiness emailBusiness, 
             IUserRepository userRepository, 
+            IUserPermissionRepository userPermissionRepository,
+            IUserRoleRepository userRoleRepository,
             IPermissionRepository permissionRepository,
             IRoleRepository roleRepository,
             IServiceRepository serviceRepository,
@@ -45,6 +50,8 @@ namespace IdentityCore.Business
             _emailBusiness = emailBusiness;
 
             _userRepository = userRepository;
+            _userPermissionRepository = userPermissionRepository;
+            _userRoleRepository = userRoleRepository;
             _permissionRepository = permissionRepository;
             _roleRepository = roleRepository;
             _serviceRepository = serviceRepository;
@@ -82,64 +89,44 @@ namespace IdentityCore.Business
                 if (userEntity.UserPermissions.Count > 0)
                 {
                     var permissionIds = userEntity.UserPermissions.Select(s => s.PermissionId).ToList();
-                    var permissionEntity = await _permissionRepository.Get(s => permissionIds.Contains(s.PermissionId) && !s.IsDeleted).ToListAsync();
-                   
+                    var permissionEntity = await _permissionRepository.Get(s => permissionIds.Contains(s.PermissionId) && !s.IsDeleted).Select(s => s.Name).ToListAsync();
 
-                    userDto.Services = await _userServiceRepository
-                                                .Get(s => s.UserId == userEntity.UserId && !s.IsDeleted)
-                                                .Include(s => s.Services)
-                                                .Where(s => appKeys.Any(x => x == s.Services.SignatureKey) &&
-                                                            (!s.DateActive.HasValue && !s.DateExpired.HasValue) || 
-                                                            (s.DateActive.HasValue && s.DateActive <= DateTime.UtcNow) &&
-                                                            (s.DateExpired.HasValue && s.DateExpired > DateTime.UtcNow))                                                
-                                                .Select(s => s.Services.SignatureKey)
+                    userDto.Permissions = await _userPermissionRepository
+                                                .Get(s => s.UserId == userDto.UserId && !s.IsDeleted)
+                                                .Include(s => s.Permissions)
+                                                .Select(s=> s.Permissions.Name)
                                                 .ToListAsync();
+                }
 
-                    var permissions = EnumHelper.ConvertPermissionToList<Permission, PermissionEnum>();
-                    userDto.GroupPermissions = permissions.Where(s => permissionEntity.Any(r => r.Name == s.Permission.ToString() && r.PermissionType == s.PermissionType))
-                                                            .Select(s => new PermissionEnum
-                                                            {
-                                                                PermissionType= s.PermissionType,
-                                                                Permission = s.Permission
-                                                            }).ToList();
-                }   
-
-                if(userEntity.UserRoles.Count > 0)
+                if (userEntity.UserServices.Count > 0)
                 {
-                    var roleIds = userEntity.UserRoles.Select(r => r.RoleId).ToList();
-                    var roleType = typeof(Role);
-                    var roleQuery = _roleRepository.Get(s => !s.IsDeleted && roleIds.Contains(s.RoleId));
-                    var permissionQuery = _permissionRepository.Get();
-                    var rolePermissionQuery = _rolePermissionRepository.Get();                    
+                    userDto.Services = await _userServiceRepository
+                                            .Get(s => s.UserId == userEntity.UserId && !s.IsDeleted)
+                                            .Include(s => s.Services)
+                                            .Where(s => appKeys.Any(x => x == s.Services.SignatureKey) &&
+                                                        (!s.DateActive.HasValue && !s.DateExpired.HasValue) ||
+                                                        (s.DateActive.HasValue && s.DateActive <= DateTime.UtcNow) &&
+                                                        (s.DateExpired.HasValue && s.DateExpired > DateTime.UtcNow))
+                                            .Select(s => s.Services.SignatureKey)
+                                            .ToListAsync();
+                }
 
-                    var rolePermissionData = await (from rp in rolePermissionQuery
-                                          join r in roleQuery on rp.RoleId equals r.RoleId
-                                          join p in permissionQuery on rp.PermissionId equals p.PermissionId
-                                          select new
-                                          {
-                                              Role = r.RoleName,
-                                              Description = r.Description,
-                                              PermissionType = p.PermissionType,
-                                              Permission = p.Name,
-                                          }).ToListAsync();
-
-                    var role = await (from r in roleQuery select r.RoleName).ToListAsync();
-
-                    userDto.Roles = role;
-
-                    userDto.GroupRoles = (from c in rolePermissionData
-                                          group c by c.Role into g
-                              select new RoleEnum
-                              {
-                                  Role = Enum.TryParse(g.Key, out Role roleEnum) ? roleEnum : Role.Guest,
-                                  Description = g.Select(s => s.Description).FirstOrDefault(),
-                                  Permissions = g.Select(s => new PermissionEnum
-                                  {
-                                      Permission = Enum.TryParse(s.Permission, out Permission permission) ? permission : Permission.AUTHENTICATION,
-                                      PermissionType = s.PermissionType,
-                                      Description = s.Description,
-                                  }).ToList()
-                              }).ToList();
+                if (userEntity.UserRoles.Count > 0) 
+                {
+                    userDto.Roles = await _userRoleRepository
+                            .Get(s => s.UserId == userDto.UserId && !s.IsDeleted)
+                            .Include(s => s.Roles)
+                            .ThenInclude(s => s.RolePermissions)
+                            .ThenInclude(s => s.Permissions)
+                            .Where(s => !s.Roles.IsLock)
+                            .Select(s => new RoleResponse
+                            {
+                                Role = s.Roles.Name,
+                                Permissions = s.Roles.RolePermissions
+                                                        .Where(r => !r.Permissions.IsDeleted)
+                                                        .Select(r => r.Permissions.Name)
+                                                        .ToList()
+                            }).ToListAsync();
                 }
             }
 
@@ -258,7 +245,7 @@ namespace IdentityCore.Business
                 userEntity.AvatarUrl = userDto.AvatarUrl;
             }
 
-            if (userDto.RefreshToken != null) 
+            if (userDto.RefreshToken != "") 
             {
                 userEntity.RefreshToken = userDto.RefreshToken;
             }
@@ -305,7 +292,7 @@ namespace IdentityCore.Business
 
             if (userDto.IsRequiredChangePassword != null && userDto.IsRequiredChangePassword.Value)
             {
-                if(userDto.GroupRoles != null && userDto.GroupRoles.Any(s => s.Role <= Role.Administrator))
+                if(userDto.Roles != null && userDto.Roles.Any(s => s.Value <= (int)Role.Administrator))
                 {
                     throw new FriendlyException(StatusCodes.Status400BadRequest, "User is not have permission");
                 }

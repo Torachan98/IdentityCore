@@ -28,22 +28,17 @@ namespace IdentityCore.Attributes
                 var user = context.HttpContext.Items["User"] as UserDTO;                
                 if (user == null)
                 {
-                    context.Result = new JsonResult(new { isSucess = false, requestId = Guid.NewGuid().ToString(), code = StatusCodes.Status400BadRequest, message = "User do not have permission" });
+                    context.Result = new JsonResult(new { isSuccess = false, requestId = Guid.NewGuid().ToString(), code = StatusCodes.Status400BadRequest, message = "User do not have permission" });
                     return;
                 }
 
-                var isRoleHavePermission = user.GroupRoles.Select(s => s.Role).Any(s => s >= _role);
-                if (!isRoleHavePermission)
-                {
-                    context.Result = new JsonResult(new { isSucess = false, requestId = Guid.NewGuid().ToString(), code = StatusCodes.Status400BadRequest, message = "User do not have permission" });
-                    return;
-                }
+                var isUserHaveRole = user.Roles.Where(s => s.Permissions.Any(p => p == _permission.ToString())).FirstOrDefault();
+                var isUserHavePermission = user.Permissions.Where(u => u == _permission.ToString()).FirstOrDefault();
 
-                var isPermissionRole = user.GroupRoles.Where(s => s.Permissions!.Any(x => x.Permission == _permission)).Any();
-                var isPermissionExisted = user.GroupPermissions.Any(s => s.Permission == _permission);
-                if (!isPermissionExisted && !isPermissionRole)
+
+                if (isUserHaveRole == null && isUserHavePermission == null)
                 {
-                    context.Result = new JsonResult(new { isSucess = false, requestId = Guid.NewGuid().ToString(), code = StatusCodes.Status400BadRequest, message = "User do not have permission" });
+                    context.Result = new JsonResult(new { isSuccess = false, requestId = Guid.NewGuid().ToString(), code = StatusCodes.Status400BadRequest, message = "User do not have permission" });
                     return;
                 }
             }

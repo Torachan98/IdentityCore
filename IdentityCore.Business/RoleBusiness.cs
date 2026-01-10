@@ -38,12 +38,12 @@ namespace IdentityCore.Business
 
             if (!string.IsNullOrEmpty(request.Keyword))
             {
-                roleQuery = roleQuery.Where(s => s.RoleName.Contains(request.Keyword));
+                roleQuery = roleQuery.Where(s => s.Name.Contains(request.Keyword));
             }
 
             if (request.IsLock.HasValue)
             {
-                roleQuery = roleQuery.Where(s => s.RoleName.Contains(request.Keyword));
+                roleQuery = roleQuery.Where(s => s.Name.Contains(request.Keyword));
             }
 
             roleQuery = roleQuery.Skip((pageNum - 1) * pageSize).Take(pageSize);
@@ -55,7 +55,7 @@ namespace IdentityCore.Business
 
         public async Task<RoleDTO> CreateRolesAsync(CreateOrUpdateRoleRequest request)
         {
-            var isExistedRole = await _roleRepository.Get().FirstOrDefaultAsync(s => s.RoleName.Contains(request.RoleName));
+            var isExistedRole = await _roleRepository.Get().FirstOrDefaultAsync(s => s.Name.Contains(request.Name));
             if (isExistedRole != null) 
             {
                 if (!isExistedRole.IsDeleted)
@@ -69,7 +69,7 @@ namespace IdentityCore.Business
 
             var roleEntities = new RoleEntity()
             {
-                RoleName = request.RoleName,
+                Name = request.Name,
                 Description = request.Description,
                 IsLock = request.IsLock,
             };
@@ -87,7 +87,7 @@ namespace IdentityCore.Business
                 throw new FriendlyException(StatusCodes.Status400BadRequest, "Not found role");
             }
 
-            var isExistedRoleName = await _roleRepository.Get().FirstOrDefaultAsync(s => s.RoleName == request.RoleName);
+            var isExistedRoleName = await _roleRepository.Get().FirstOrDefaultAsync(s => s.Name == request.Name);
             if(isExistedRoleName != null)
             {
                 throw new FriendlyException(StatusCodes.Status400BadRequest, "Name is already existed");

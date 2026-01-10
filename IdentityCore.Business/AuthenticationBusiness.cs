@@ -165,6 +165,8 @@ namespace IdentityCore.Business
                 throw new FriendlyException(StatusCodes.Status401Unauthorized, "User has been locked");
             }
 
+            await _distributedCache.SetStringAsync($"{KeyCache.User}-{userDto.GUID}", JsonConvert.SerializeObject(userDto));
+
             return new AuthenticationToken()
             {
                 RefreshToken = userDto.RefreshToken,
@@ -302,8 +304,7 @@ namespace IdentityCore.Business
                 new Claim("email",user.Email!),
                 new Claim("phone",$"{user.PhoneCode} {user.Phone}"),
                 new Claim("userId",user.GUID !),
-                new Claim("permissions",JsonConvert.SerializeObject(user.GroupPermissions)),
-                new Claim("rolePermission",JsonConvert.SerializeObject(user.GroupRoles)),
+                new Claim("permissions",JsonConvert.SerializeObject(user.Permissions)),
                 new Claim("roles",JsonConvert.SerializeObject(user.Roles)),
                 new Claim("services",JsonConvert.SerializeObject(user.Services)),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
