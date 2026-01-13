@@ -109,7 +109,7 @@ namespace IdentityCore.Business
             return _mapper.Map<ServiceDTO>(serviceEntity);
         }
 
-        public async Task<bool> DeleteServicesAsync(string guid)
+        public async Task<bool> DeleteServicesAsync(Guid guid)
         {
             var isExistedService = await _serviceRepository.Get().FirstOrDefaultAsync(s => s.GUID == guid);
             if (isExistedService == null)

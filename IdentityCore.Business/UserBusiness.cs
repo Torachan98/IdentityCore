@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using System.Linq;
 using AutoMapper;
 using IdentityCore.Business.Interfaces;
@@ -59,7 +60,7 @@ namespace IdentityCore.Business
             _rolePermissionRepository = rolePermissionRepository;
         }
 
-        public async Task<UserDTO> GetSingleUserWithPermissionAndRoleAsync(string userName,List<string> appKeys, string guid = "",string refreshToken = "")
+        public async Task<UserDTO> GetSingleUserWithPermissionAndRoleAsync(string userName, List<string> appKeys, Guid? guid = null, string refreshToken = "")
         {
             var userQuery = _userRepository.Get();
 
@@ -67,7 +68,7 @@ namespace IdentityCore.Business
             {
                 userQuery = userQuery.Where(s => (s.Email == userName || s.UserName == userName) && !s.IsDeleted);
             }
-            else if(!string.IsNullOrEmpty(guid))
+            else if(guid.HasValue)
             {
                 userQuery = userQuery.Where(s => s.GUID == guid && s.IsLogin && !s.IsDeleted);
             }
@@ -168,13 +169,8 @@ namespace IdentityCore.Business
             return new PaginationItems<UserDTO>(pageSize, pageNum, totalCount, _mapper.Map<List<UserDTO>>(userEntities));
         }
 
-        public async Task<UserDTO> GetUserById(string guid)
+        public async Task<UserDTO> GetUserById(Guid guid)
         {
-            if (string.IsNullOrEmpty(guid))
-            {
-                throw new FriendlyException(StatusCodes.Status204NoContent, "User not existed");
-            }
-
             var result = await _userRepository.Get(s => s.GUID == guid).FirstOrDefaultAsync();
             if(result == null)
             {
@@ -199,7 +195,7 @@ namespace IdentityCore.Business
             userDto.Step = (int)Step.WaitingConfirmed;
             userDto.OTPCode = _emailBusiness.GenerateOTP(GlobalConst.OTP.SizeCode);
             userDto.OTPLifeTime = DateTime.UtcNow.AddMinutes(GlobalConst.OTP.LifeTimeMinute);
-            userDto.Password = EnscryptHelper.ConvertSHA256(userDto.Password);
+            userDto.Password = EnscryptHelper.ConvertSHA256(userDto.Password ?? "");
 
             var userEntity = _mapper.Map<UserEntity>(userDto);
 
@@ -208,7 +204,7 @@ namespace IdentityCore.Business
             return _mapper.Map<UserDTO>(userCreated);
         }
 
-        public async Task<bool> DeleteUserAsync(string guid)
+        public async Task<bool> DeleteUserAsync(Guid guid)
         {
             var userEntity = await _userRepository.Get(s => s.GUID == guid && !s.IsDeleted).FirstOrDefaultAsync();
 

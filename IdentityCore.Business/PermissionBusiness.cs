@@ -97,7 +97,7 @@ namespace IdentityCore.Business
             return _mapper.Map<PermissionDTO>(permissonEntity);
         }
 
-        public async Task<bool> DeletePermissionsAsync(string guid)
+        public async Task<bool> DeletePermissionsAsync(Guid guid)
         {
             var permissionEntity = await _permissionRepository.Get(s => s.GUID == guid).FirstOrDefaultAsync();    
             if (permissionEntity == null)

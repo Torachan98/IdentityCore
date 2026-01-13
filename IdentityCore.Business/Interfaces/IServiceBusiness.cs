@@ -8,6 +8,6 @@ namespace IdentityCore.Business.Interfaces
         Task<PaginationItems<ServiceDTO>> GetServices(ServiceFetchRequest request);
         Task<ServiceDTO> CreateServicesAsync(CreateOrUpdateServiceRequest request);
         Task<ServiceDTO> UpdateServicesAsync(CreateOrUpdateServiceRequest request);
-        Task<bool> DeleteServicesAsync(string guid);
+        Task<bool> DeleteServicesAsync(Guid guid);
     }
 }

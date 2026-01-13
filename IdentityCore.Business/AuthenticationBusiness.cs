@@ -153,7 +153,7 @@ namespace IdentityCore.Business
         public async Task<AuthenticationToken> RenewTokenAsync(string refreshToken)
         {
             var appKeys = _httpContextAccessor.HttpContext!.Items["AppKeys"] as List<string>;
-            var userDto = await _userBusiness.GetSingleUserWithPermissionAndRoleAsync("", appKeys ?? new List<string>(), "",refreshToken);
+            var userDto = await _userBusiness.GetSingleUserWithPermissionAndRoleAsync("", appKeys ?? new List<string>(), null,refreshToken);
 
             if (userDto == null)
             {
@@ -303,7 +303,7 @@ namespace IdentityCore.Business
                 new Claim("lastName",user.LastName!),
                 new Claim("email",user.Email!),
                 new Claim("phone",$"{user.PhoneCode} {user.Phone}"),
-                new Claim("userId",user.GUID !),
+                new Claim("userId",user.GUID.ToString()),
                 new Claim("permissions",JsonConvert.SerializeObject(user.Permissions)),
                 new Claim("roles",JsonConvert.SerializeObject(user.Roles)),
                 new Claim("services",JsonConvert.SerializeObject(user.Services)),

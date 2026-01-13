@@ -28,6 +28,20 @@ namespace IdentityCore.Controllers
             return Ok(await _roleService.GetAllAsync(request));
         }
 
+        [HttpGet("{id}", Name = "GetRoleById")]
+        [Authorize]
+        [Permission(Permission.FETCH, Role.Administrator)]
+        [ProducesResponseType(typeof(ApiResponse<RoleDTO>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetRoleById([FromRoute] string id)
+        {
+            if (!Guid.TryParse(id, out var guid))
+            {
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "Id does not allow to empty");
+            }
+
+            return Ok(await _roleService.GetByIdAsync(guid));
+        }
+
         [HttpPost]
         [Authorize]
         [Permission(Permission.CREATE, Role.Administrator)]
@@ -49,7 +63,7 @@ namespace IdentityCore.Controllers
         [HttpDelete]
         [Authorize]
         [Permission(Permission.DELETE, Role.Administrator)]
-        public async Task<IActionResult> DeleteRole([FromQuery] string guid)
+        public async Task<IActionResult> DeleteRole([FromQuery] Guid guid)
         {
             return Ok(await _roleService.DeleteAsync(guid));
         }

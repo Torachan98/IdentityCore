@@ -11,7 +11,7 @@ namespace IdentityCore.EFs.Requests
 
     public class UserInfoResponse
     {
-        public string UserId { get; set; } = string.Empty;
+        public Guid UserId { get; set; } = Guid.Empty;
         public string Email { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
         public List<RoleEnum> Roles { get; set; }

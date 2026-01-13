@@ -8,6 +8,6 @@ namespace IdentityCore.Business.Interfaces
         Task<PaginationItems<PermissionDTO>> GetPermissionsAsync(PermissionFetchRequest request);
         Task<PermissionDTO> CreatePermissionsAsync(CreateOrUpdatePermissionRequest request);
         Task<PermissionDTO> UpdatePermissionsAsync(CreateOrUpdatePermissionRequest request);
-        Task<bool> DeletePermissionsAsync(string guid);
+        Task<bool> DeletePermissionsAsync(Guid guid);
     }
 }

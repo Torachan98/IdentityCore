@@ -20,7 +20,7 @@ namespace IdentityCore.EFs.DTOs
         public string? Phone { get; set; } 
         public string? PhoneCode { get; set; } 
         public string? Region { get; set; } 
-        public string? GUID { get; set; } 
+        public Guid GUID { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime DateModified { get; set; }
 
@@ -73,7 +73,7 @@ namespace IdentityCore.EFs.DTOs
     public class CreateOrUpdateUserRequest
     {
         [AllowNotValidate]
-        public string? GUID { get; set; }
+        public Guid? GUID { get; set; }
         public string? Password { get; set; }
         public string? Email { get; set; }
 

@@ -1,5 +1,6 @@
 ﻿using IdentityCore.EFs.Enums;
 using IdentityCore.EFs.Requests;
+using System;
 using System.Runtime.Serialization;
 
 namespace IdentityCore.EFs.DTOs
@@ -32,7 +33,7 @@ namespace IdentityCore.EFs.DTOs
 
     public class CreateOrUpdateRoleRequest
     {
-        public string? GUID { get; set; }
+        public Guid? GUID { get; set; }
         public required string Name { get; set; }
         public string? Description { get; set; }
         public bool IsLock { get; set; }

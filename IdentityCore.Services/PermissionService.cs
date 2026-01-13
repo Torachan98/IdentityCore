@@ -19,7 +19,7 @@ namespace IdentityCore.Services
             return await _permissionBusiness.GetPermissionsAsync(request);
         }
 
-        public Task<PermissionDTO> GetByIdAsync(string guid)
+        public Task<PermissionDTO> GetByIdAsync(Guid guid)
         {
             throw new NotImplementedException();
         }
@@ -36,7 +36,7 @@ namespace IdentityCore.Services
 
         public async Task<PermissionDTO> UpdateAsync(CreateOrUpdatePermissionRequest request)
         {
-            if (!string.IsNullOrEmpty(request.GUID))
+            if (!request.GUID.HasValue)
             {
                 throw new FriendlyException(StatusCodes.Status400BadRequest, "Id permission do not allow empty");
             }
@@ -49,13 +49,8 @@ namespace IdentityCore.Services
             return await _permissionBusiness.UpdatePermissionsAsync(request);
         }
 
-        public async Task<bool> DeleteAsync(string guid)
+        public async Task<bool> DeleteAsync(Guid guid)
         {
-            if (!string.IsNullOrEmpty(guid))
-            {
-                throw new FriendlyException(StatusCodes.Status400BadRequest, "Id do not allow empty");
-            }
-
             return await _permissionBusiness.DeletePermissionsAsync(guid);
         }
     }

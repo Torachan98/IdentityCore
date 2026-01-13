@@ -39,9 +39,16 @@ namespace IdentityCore.Services
                 throw new RpcException(new Status(StatusCode.Unauthenticated, "Invalid JWT"));
             }
 
-            var userId = principal.Claims.ToList().Find(s => s.Type == "userId").Value;
+            var userIdSession = principal.Claims.ToList().Find(s => s.Type == "userId");
 
-            var user = await _users.Get(s => s.GUID == userId)
+            var userId = userIdSession != null ? userIdSession.Value : "";
+
+            if (!Guid.TryParse(userId, out var guid))
+            {
+                throw new RpcException(new Status(StatusCode.NotFound, "User not found"));
+            }
+
+            var user = await _users.Get(s => s.GUID == guid)
                                     .Include(r => r.UserRoles)
                                     .Include(s => s.UserServices)
                                     .FirstOrDefaultAsync();
@@ -51,7 +58,16 @@ namespace IdentityCore.Services
                 throw new RpcException(new Status(StatusCode.NotFound, "User not found"));
             }
             var roleIds = user.UserRoles.Select(r => r.RoleId).ToList();
-            var roleName = await _role.Get(s => roleIds.Contains(s.RoleId)).Select(s => s.Name).ToListAsync();
+
+            var role = await _role.Get(s => roleIds.Contains(s.RoleId))
+                                        .Select(s => new RoleEnum()
+                                        {
+                                            Name = s.Name,
+                                            Description = s.Description,
+                                            Value = s.Value,
+                                        })
+                                        .ToListAsync();
+
             var userDto = _mapper.Map<UserDTO>(user);
 
             if(userDto is null)
@@ -61,9 +77,9 @@ namespace IdentityCore.Services
 
             return new UserInfoResponse
             {
-                UserId = userDto.GUID,
-                Email = userDto.Email,
-                Roles = JsonSerializer.Serialize(roleName),
+                UserId = userDto.GUID.ToString(),
+                Email = userDto.Email ?? "",
+                Roles = JsonSerializer.Serialize(role),
                 Status = userDto.IsActive ?? false
             };
         }

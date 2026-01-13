@@ -47,7 +47,7 @@ namespace IdentityCore.Controllers
         [HttpDelete]
         [Authorize]
         [Permission(Permission.DELETE, Role.Administrator)]
-        public async Task<IActionResult> DeleteService([FromQuery] string guid)
+        public async Task<IActionResult> DeleteService([FromQuery] Guid guid)
         {
             return Ok(await _serviceService.DeleteAsync(guid));
         }

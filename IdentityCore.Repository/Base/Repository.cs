@@ -52,7 +52,7 @@ namespace IdentityCore.Repository.Base
         {
             entity.DateCreated = DateTime.UtcNow;
             entity.DateModified = DateTime.UtcNow;
-            entity.GUID = Guid.NewGuid().ToString().ToUpper();
+            entity.GUID = Guid.NewGuid();
             entity.IsDeleted = false;
 
             entity = _unitOfWork.identityContext.Add(entity).Entity;

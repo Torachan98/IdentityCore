@@ -28,7 +28,7 @@ namespace IdentityCore.Services
             return await _userBusiness.GetUsersAsync(request);
         }
 
-        public async Task<UserDTO> GetByIdAsync(string guid)
+        public async Task<UserDTO> GetByIdAsync(Guid guid)
         {
             return await _userBusiness.GetUserById(guid);
         }
@@ -49,7 +49,7 @@ namespace IdentityCore.Services
 
         public async Task<UserDTO> UpdateAsync(CreateOrUpdateUserRequest request)
         {
-            if (string.IsNullOrEmpty(request.GUID))
+            if (!request.GUID.HasValue)
             {
                 throw new FriendlyException(StatusCodes.Status400BadRequest, "Id user do not allow empty");
             }
@@ -59,13 +59,8 @@ namespace IdentityCore.Services
             return await _userBusiness.UpdateUserAsync(userDto);
         }
 
-        public async Task<bool> DeleteAsync(string guid)
+        public async Task<bool> DeleteAsync(Guid guid)
         {
-            if (string.IsNullOrEmpty(guid))
-            {
-                return false;
-            }
-
             return await _userBusiness.DeleteUserAsync(guid);
         }
 

@@ -21,7 +21,7 @@ namespace IdentityCore.Services
             return await _serviceBusiness.GetServices(request);
         }
 
-        public async Task<ServiceDTO> GetByIdAsync(string guid)
+        public async Task<ServiceDTO> GetByIdAsync(Guid guid)
         {
             throw new NotImplementedException();
         }
@@ -43,7 +43,7 @@ namespace IdentityCore.Services
 
         public async Task<ServiceDTO> UpdateAsync(CreateOrUpdateServiceRequest request)
         {
-            if (string.IsNullOrEmpty(request.GUID))
+            if (!request.GUID.HasValue)
             {
                 throw new FriendlyException(StatusCodes.Status400BadRequest, "Id service do not allow empty");
             }
@@ -51,13 +51,8 @@ namespace IdentityCore.Services
             return await _serviceBusiness.UpdateServicesAsync(request);
         }
 
-        public async Task<bool> DeleteAsync(string guid)
+        public async Task<bool> DeleteAsync(Guid guid)
         {
-            if (!string.IsNullOrEmpty(guid))
-            {
-                throw new FriendlyException(StatusCodes.Status400BadRequest, "Id do not allow empty");
-            }
-
             return await _serviceBusiness.DeleteServicesAsync(guid);
         }
     }

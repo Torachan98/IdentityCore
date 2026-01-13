@@ -35,7 +35,12 @@ namespace IdentityCore.Controllers
         [ProducesResponseType(typeof(ApiResponse<UserDTO>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetUserById([FromRoute] string id)
         {
-            return Ok(await _userService.GetByIdAsync(id));
+            if(!Guid.TryParse(id, out var guid))
+            {
+                throw new FriendlyException(StatusCodes.Status400BadRequest,"Id does not allow to empty");
+            }
+
+            return Ok(await _userService.GetByIdAsync(guid));
         }
 
         [HttpPost]
@@ -60,7 +65,7 @@ namespace IdentityCore.Controllers
         [Authorize]
         [Permission(Permission.DELETE, Role.Administrator)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-        public async Task<IActionResult> DeleteUser([FromQuery] string guid)
+        public async Task<IActionResult> DeleteUser([FromQuery] Guid guid)
         {
             return Ok(await _userService.DeleteAsync(guid));
         }

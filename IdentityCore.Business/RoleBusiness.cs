@@ -48,9 +48,23 @@ namespace IdentityCore.Business
 
             roleQuery = roleQuery.Skip((pageNum - 1) * pageSize).Take(pageSize);
 
-            var roleEntities = await roleQuery.ToListAsync();
-
+            var roleEntities = await roleQuery
+                                        .Include(s => s.RolePermissions)
+                                        .ThenInclude(p => p.Permissions)
+                                        .ToListAsync();
+            
             return new PaginationItems<RoleDTO>(pageSize, pageNum, totalCount, _mapper.Map<List<RoleDTO>>(roleEntities));
+        }
+
+        public async Task<RoleDTO> GetRoleByIdAsync(Guid guid)
+        {
+            var result = await _roleRepository
+                                    .Get(s => s.GUID == guid)
+                                    .Include(s => s.RolePermissions)
+                                    .ThenInclude(p => p.Permissions)
+                                    .FirstOrDefaultAsync();
+
+            return _mapper.Map<RoleDTO>(result);
         }
 
         public async Task<RoleDTO> CreateRolesAsync(CreateOrUpdateRoleRequest request)
@@ -98,7 +112,7 @@ namespace IdentityCore.Business
             return _mapper.Map<RoleDTO>(isExistedRoleName);
         }
 
-        public async Task<bool> DeleteRolesAsync(string guid)
+        public async Task<bool> DeleteRolesAsync(Guid guid)
         {
             var isExistedRole = await _roleRepository.Get().FirstOrDefaultAsync(s => s.GUID == guid);
             if (isExistedRole == null) 
