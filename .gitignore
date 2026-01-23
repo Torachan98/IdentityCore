@@ -1,14 +1,2 @@
-IdentityCore.AutoMapper/bin/
-IdentityCore.AutoMapper/obj/
-IdentityCore.Business/bin/
-IdentityCore.Business/obj/
-IdentityCore.EFs/bin/
-IdentityCore.EFs/obj/
-IdentityCore.Repository/bin/
-IdentityCore.Repository/obj/
-IdentityCore.Services/bin/
-IdentityCore.Services/obj/
-IdentityCore/bin/
-IdentityCore/obj/
+Frontend/node_modules/
 .vs/
-Uploads/

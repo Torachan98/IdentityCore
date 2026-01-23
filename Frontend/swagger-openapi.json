@@ -1,0 +1,1953 @@
+{
+    "openapi": "3.0.0",
+    "x-origin": [
+        {
+            "url": "https://localhost:5000/swagger/v1/swagger.json",
+            "format": "swagger",
+            "version": "2.0",
+            "converter": {
+                "url": "https://github.com/mermade/oas-kit",
+                "version": "7.0.8"
+            }
+        }
+    ],
+    "info": {
+        "title": "Identity API",
+        "description": "An ASP.NET Core Web API for managing identity items",
+        "termsOfService": "https://example.com/terms",
+        "contact": {
+            "name": "Contact",
+            "url": "https://example.com/contact"
+        },
+        "license": {
+            "name": "License",
+            "url": "https://example.com/license"
+        },
+        "version": "v1"
+    },
+    "paths": {
+        "/api/auth/registration": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/CreateOrUpdateUserRequest"
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserDTOApiResponse"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserDTOApiResponse"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserDTOApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/confirm-otp": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json-patch+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OTPRequest"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OTPRequest"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OTPRequest"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OTPRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/auth/forgot-password": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json-patch+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ForgotPasswordRequest"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ForgotPasswordRequest"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ForgotPasswordRequest"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ForgotPasswordRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/auth/signin": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json-patch+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SignInRequest"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SignInRequest"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SignInRequest"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SignInRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthenticationTokenObjectResponseApiResponse"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthenticationTokenObjectResponseApiResponse"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthenticationTokenObjectResponseApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/renew-token": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StringApiResponse"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StringApiResponse"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StringApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/reset-email": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "emailAddress",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/auth/confirm-reset-email": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "emailAddress",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "otpCode",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/auth/reset-password": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/auth/signout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/File": {
+            "post": {
+                "tags": [
+                    "File"
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "FileType": {
+                                        "type": "integer",
+                                        "format": "int32"
+                                    },
+                                    "File": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/Permission": {
+            "get": {
+                "tags": [
+                    "Permission"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "Keyword",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "PageSize",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "PageNum",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PermissionDTOPaginationItemsApiResponse"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PermissionDTOPaginationItemsApiResponse"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PermissionDTOPaginationItemsApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Permission"
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/CreateOrUpdatePermissionRequest"
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PermissionDTOApiResponse"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PermissionDTOApiResponse"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PermissionDTOApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Permission"
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/CreateOrUpdatePermissionRequest"
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PermissionDTOApiResponse"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PermissionDTOApiResponse"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PermissionDTOApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Permission"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "guid",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/Role": {
+            "get": {
+                "tags": [
+                    "Role"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "IsLock",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "Keyword",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "PageSize",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "PageNum",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RoleDTOPaginationItemsApiResponse"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RoleDTOPaginationItemsApiResponse"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RoleDTOPaginationItemsApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Role"
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/CreateOrUpdateRoleRequest"
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RoleDTOApiResponse"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RoleDTOApiResponse"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RoleDTOApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Role"
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/CreateOrUpdateRoleRequest"
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RoleDTOApiResponse"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RoleDTOApiResponse"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RoleDTOApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Role"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "guid",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/Role/{id}": {
+            "get": {
+                "tags": [
+                    "Role"
+                ],
+                "operationId": "GetRoleById",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RoleDTOApiResponse"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RoleDTOApiResponse"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RoleDTOApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/Service": {
+            "get": {
+                "tags": [
+                    "Service"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "Keyword",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "PageSize",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "PageNum",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServiceDTOPaginationItemsApiResponse"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServiceDTOPaginationItemsApiResponse"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServiceDTOPaginationItemsApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Service"
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/CreateOrUpdateServiceRequest"
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServiceDTOApiResponse"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServiceDTOApiResponse"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServiceDTOApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Service"
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/CreateOrUpdateServiceRequest"
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServiceDTOApiResponse"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServiceDTOApiResponse"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ServiceDTOApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Service"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "guid",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/User": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "Regions",
+                        "explode": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "Keyword",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "PageSize",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "PageNum",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserDTOPaginationItemsApiResponse"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserDTOPaginationItemsApiResponse"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserDTOPaginationItemsApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/CreateOrUpdateUserRequest"
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserDTOApiResponse"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserDTOApiResponse"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserDTOApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "User"
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/CreateOrUpdateUserRequest"
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserDTOApiResponse"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserDTOApiResponse"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserDTOApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "User"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "guid",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BooleanApiResponse"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BooleanApiResponse"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BooleanApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/User/{id}": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "operationId": "GetUserById",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserDTOApiResponse"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserDTOApiResponse"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserDTOApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/WeatherForecast": {
+            "get": {
+                "tags": [
+                    "WeatherForecast"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/WeatherForecast"
+                                    }
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/WeatherForecast"
+                                    }
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/WeatherForecast"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "security": [
+        {
+            "Bearer": []
+        }
+    ],
+    "components": {
+        "requestBodies": {
+            "CreateOrUpdateUserRequest": {
+                "content": {
+                    "application/json-patch+json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/CreateOrUpdateUserRequest"
+                        }
+                    },
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/CreateOrUpdateUserRequest"
+                        }
+                    },
+                    "text/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/CreateOrUpdateUserRequest"
+                        }
+                    },
+                    "application/*+json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/CreateOrUpdateUserRequest"
+                        }
+                    }
+                }
+            },
+            "CreateOrUpdatePermissionRequest": {
+                "content": {
+                    "application/json-patch+json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/CreateOrUpdatePermissionRequest"
+                        }
+                    },
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/CreateOrUpdatePermissionRequest"
+                        }
+                    },
+                    "text/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/CreateOrUpdatePermissionRequest"
+                        }
+                    },
+                    "application/*+json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/CreateOrUpdatePermissionRequest"
+                        }
+                    }
+                }
+            },
+            "CreateOrUpdateRoleRequest": {
+                "content": {
+                    "application/json-patch+json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/CreateOrUpdateRoleRequest"
+                        }
+                    },
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/CreateOrUpdateRoleRequest"
+                        }
+                    },
+                    "text/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/CreateOrUpdateRoleRequest"
+                        }
+                    },
+                    "application/*+json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/CreateOrUpdateRoleRequest"
+                        }
+                    }
+                }
+            },
+            "CreateOrUpdateServiceRequest": {
+                "content": {
+                    "application/json-patch+json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/CreateOrUpdateServiceRequest"
+                        }
+                    },
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/CreateOrUpdateServiceRequest"
+                        }
+                    },
+                    "text/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/CreateOrUpdateServiceRequest"
+                        }
+                    },
+                    "application/*+json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/CreateOrUpdateServiceRequest"
+                        }
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "Bearer": {
+                "type": "apiKey",
+                "name": "Authorization",
+                "in": "header",
+                "description": "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\n"
+            }
+        },
+        "schemas": {
+            "AssigningService": {
+                "type": "object",
+                "properties": {
+                    "guid": {
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "key": {
+                        "type": "string"
+                    },
+                    "dateActive": {
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "dateExpired": {
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "AuthenticationToken": {
+                "type": "object",
+                "properties": {
+                    "accessToken": {
+                        "type": "string"
+                    },
+                    "refreshToken": {
+                        "type": "string"
+                    },
+                    "step": {
+                        "format": "int32",
+                        "type": "integer"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "AuthenticationTokenObjectResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "item": {
+                        "$ref": "#/components/schemas/AuthenticationToken"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "AuthenticationTokenObjectResponseApiResponse": {
+                "type": "object",
+                "properties": {
+                    "requestId": {
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "isSuccess": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/AuthenticationTokenObjectResponse"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "BooleanApiResponse": {
+                "type": "object",
+                "properties": {
+                    "requestId": {
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "isSuccess": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "boolean"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "CreateOrUpdatePermissionRequest": {
+                "required": [
+                    "name"
+                ],
+                "type": "object",
+                "properties": {
+                    "guid": {
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "value": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "CreateOrUpdateRoleRequest": {
+                "required": [
+                    "name"
+                ],
+                "type": "object",
+                "properties": {
+                    "guid": {
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "isLock": {
+                        "type": "boolean"
+                    },
+                    "permissions": {
+                        "type": "array",
+                        "items": {
+                            "format": "uuid",
+                            "type": "string"
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "CreateOrUpdateServiceRequest": {
+                "type": "object",
+                "properties": {
+                    "guid": {
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "signatureKey": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "CreateOrUpdateUserRequest": {
+                "type": "object",
+                "properties": {
+                    "guid": {
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "avatarUrl": {
+                        "type": "string"
+                    },
+                    "userName": {
+                        "type": "string"
+                    },
+                    "firstName": {
+                        "type": "string"
+                    },
+                    "middleName": {
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "type": "string"
+                    },
+                    "phone": {
+                        "type": "string"
+                    },
+                    "phoneCode": {
+                        "type": "string"
+                    },
+                    "region": {
+                        "type": "string"
+                    },
+                    "isRequiredChangePassword": {
+                        "type": "boolean"
+                    },
+                    "isPasswordExpired": {
+                        "type": "boolean"
+                    },
+                    "expirationDate": {
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "locked": {
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "attemptLogin": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "isResentEmail": {
+                        "type": "boolean"
+                    },
+                    "permissions": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "services": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AssigningService"
+                        }
+                    },
+                    "roles": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/RoleResponse"
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "ForgotPasswordRequest": {
+                "required": [
+                    "email",
+                    "password"
+                ],
+                "type": "object",
+                "properties": {
+                    "password": {
+                        "minLength": 1,
+                        "type": "string"
+                    },
+                    "email": {
+                        "minLength": 1,
+                        "type": "string"
+                    },
+                    "otpCode": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "OTPRequest": {
+                "type": "object",
+                "properties": {
+                    "otpCode": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "PermissionDTO": {
+                "type": "object",
+                "properties": {
+                    "guid": {
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "role": {
+                        "$ref": "#/components/schemas/RoleDTO"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "PermissionDTOApiResponse": {
+                "type": "object",
+                "properties": {
+                    "requestId": {
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "isSuccess": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/PermissionDTO"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "PermissionDTOPaginationItems": {
+                "type": "object",
+                "properties": {
+                    "pageSize": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "pageNum": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "totalCount": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "totalPage": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PermissionDTO"
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "PermissionDTOPaginationItemsApiResponse": {
+                "type": "object",
+                "properties": {
+                    "requestId": {
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "isSuccess": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/PermissionDTOPaginationItems"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "Role": {
+                "format": "int32",
+                "enum": [
+                    0,
+                    1,
+                    999
+                ],
+                "type": "integer"
+            },
+            "RoleDTO": {
+                "type": "object",
+                "properties": {
+                    "guid": {
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "role": {
+                        "$ref": "#/components/schemas/Role"
+                    },
+                    "isLock": {
+                        "type": "boolean"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "permissions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PermissionDTO"
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "RoleDTOApiResponse": {
+                "type": "object",
+                "properties": {
+                    "requestId": {
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "isSuccess": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/RoleDTO"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "RoleDTOPaginationItems": {
+                "type": "object",
+                "properties": {
+                    "pageSize": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "pageNum": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "totalCount": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "totalPage": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/RoleDTO"
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "RoleDTOPaginationItemsApiResponse": {
+                "type": "object",
+                "properties": {
+                    "requestId": {
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "isSuccess": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/RoleDTOPaginationItems"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "RoleResponse": {
+                "type": "object",
+                "properties": {
+                    "guid": {
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "role": {
+                        "type": "string"
+                    },
+                    "value": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "permissions": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "ServiceDTO": {
+                "type": "object",
+                "properties": {
+                    "guid": {
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "signatureKey": {
+                        "type": "string"
+                    },
+                    "userServices": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/UserServiceDTO"
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "ServiceDTOApiResponse": {
+                "type": "object",
+                "properties": {
+                    "requestId": {
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "isSuccess": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/ServiceDTO"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "ServiceDTOPaginationItems": {
+                "type": "object",
+                "properties": {
+                    "pageSize": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "pageNum": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "totalCount": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "totalPage": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ServiceDTO"
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "ServiceDTOPaginationItemsApiResponse": {
+                "type": "object",
+                "properties": {
+                    "requestId": {
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "isSuccess": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/ServiceDTOPaginationItems"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "SignInRequest": {
+                "type": "object",
+                "properties": {
+                    "userName": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    },
+                    "appKeys": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "StringApiResponse": {
+                "type": "object",
+                "properties": {
+                    "requestId": {
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "isSuccess": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "UserDTO": {
+                "type": "object",
+                "properties": {
+                    "userId": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "avatarUrl": {
+                        "type": "string"
+                    },
+                    "userName": {
+                        "type": "string"
+                    },
+                    "fullName": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    },
+                    "phone": {
+                        "type": "string"
+                    },
+                    "phoneCode": {
+                        "type": "string"
+                    },
+                    "region": {
+                        "type": "string"
+                    },
+                    "guid": {
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "dateCreated": {
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "dateModified": {
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "firstName": {
+                        "type": "string"
+                    },
+                    "middleName": {
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "type": "string"
+                    },
+                    "isRequiredChangePassword": {
+                        "type": "boolean"
+                    },
+                    "isPasswordExpired": {
+                        "type": "boolean"
+                    },
+                    "isDeleted": {
+                        "type": "boolean"
+                    },
+                    "isLogin": {
+                        "type": "boolean"
+                    },
+                    "isActive": {
+                        "type": "boolean"
+                    },
+                    "otpCode": {
+                        "type": "string"
+                    },
+                    "attemptLogin": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "locked": {
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "lastLogin": {
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "expirationDate": {
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "otpLifeTime": {
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "refreshToken": {
+                        "type": "string"
+                    },
+                    "step": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "permissions": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "services": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AssigningService"
+                        }
+                    },
+                    "roles": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/RoleResponse"
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "UserDTOApiResponse": {
+                "type": "object",
+                "properties": {
+                    "requestId": {
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "isSuccess": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/UserDTO"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "UserDTOPaginationItems": {
+                "type": "object",
+                "properties": {
+                    "pageSize": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "pageNum": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "totalCount": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "totalPage": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/UserDTO"
+                        }
+                    }
+                },
+                "additionalProperties": false
+            },
+            "UserDTOPaginationItemsApiResponse": {
+                "type": "object",
+                "properties": {
+                    "requestId": {
+                        "format": "uuid",
+                        "type": "string"
+                    },
+                    "isSuccess": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/UserDTOPaginationItems"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "UserServiceDTO": {
+                "type": "object",
+                "properties": {
+                    "userId": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "serviceId": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "dateActive": {
+                        "format": "date-time",
+                        "type": "string"
+                    },
+                    "dateExpired": {
+                        "format": "date-time",
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "WeatherForecast": {
+                "type": "object",
+                "properties": {
+                    "date": {
+                        "format": "date",
+                        "type": "string"
+                    },
+                    "temperatureC": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "temperatureF": {
+                        "format": "int32",
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "summary": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            }
+        }
+    }
+}
