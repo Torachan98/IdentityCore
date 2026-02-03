@@ -94,6 +94,63 @@
                 }
             }
         },
+        "/api/auth/re-sent-otp": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json-patch+json": {
+                            "schema": {
+                                "format": "uuid",
+                                "type": "string"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "format": "uuid",
+                                "type": "string"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "format": "uuid",
+                                "type": "string"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "format": "uuid",
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BooleanApiResponse"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BooleanApiResponse"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BooleanApiResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/auth/forgot-password": {
             "post": {
                 "tags": [
@@ -280,7 +337,24 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BooleanApiResponse"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BooleanApiResponse"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BooleanApiResponse"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1327,7 +1401,10 @@
                         "format": "int32",
                         "type": "integer"
                     },
-                    "isResentEmail": {
+                    "fcmToken": {
+                        "type": "string"
+                    },
+                    "isLock": {
                         "type": "boolean"
                     },
                     "permissions": {
@@ -1811,6 +1888,9 @@
                         "type": "string"
                     },
                     "refreshToken": {
+                        "type": "string"
+                    },
+                    "fcmToken": {
                         "type": "string"
                     },
                     "step": {

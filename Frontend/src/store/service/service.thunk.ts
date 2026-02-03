@@ -4,7 +4,7 @@ import {
   ServiceDTOApiResponse,
   ServiceDTOPaginationItemsApiResponse,
   ServiceService,
-} from "../../api/generated";
+} from "@/api/generated";
 import { FetchParams } from "../base.types";
 
 export const fetchServices = createAsyncThunk<

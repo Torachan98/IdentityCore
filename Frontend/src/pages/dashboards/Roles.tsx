@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import Button from "../../components/atoms/Button";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import Button from "@/components/atoms/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import DataTable from "../../components/organisms/Table/DataTable";
-import { fetchRoles } from "../../store/role/role.thunk";
+import DataTable from "@/components/organisms/Table/DataTable";
+import { fetchRoles } from "@/store/role/role.thunk";
 import { useNavigate } from "react-router-dom";
-import { STATUS_ACTION_TYPE } from "../../store/base.types";
+import { STATUS_ACTION_TYPE } from "@/store/base.types";
 
 export default function Roles() {
   const dispatch = useAppDispatch();

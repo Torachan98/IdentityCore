@@ -32,6 +32,7 @@ export type UserDTO = {
     expirationDate?: string;
     otpLifeTime?: string;
     refreshToken?: string;
+    fcmToken?: string;
     step?: number;
     permissions?: Array<string>;
     services?: Array<AssigningService>;

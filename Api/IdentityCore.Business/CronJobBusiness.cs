@@ -1,4 +1,5 @@
-﻿using IdentityCore.Business.Interfaces;
+﻿using AutoMapper;
+using IdentityCore.Business.Interfaces;
 using IdentityCore.EFs;
 using IdentityCore.EFs.DTOs;
 using IdentityCore.EFs.Enums;
@@ -14,12 +15,22 @@ namespace IdentityCore.Business
     {
         private readonly IDistributedCache _distributedCache;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
+
+        private readonly IEmailBusiness _emailBusiness;
+
         private readonly IUserRepository _userRepository;
 
-        public CronJobBusiness(IDistributedCache distributedCache, IUnitOfWork unitOfWork, IUserRepository userRepository) 
+        public CronJobBusiness(IDistributedCache distributedCache, 
+            IUnitOfWork unitOfWork,
+            IMapper mapper,
+            IEmailBusiness emailBusiness,
+            IUserRepository userRepository) 
         {
+            _mapper = mapper;
             _distributedCache = distributedCache;
             _unitOfWork = unitOfWork;
+            _emailBusiness = emailBusiness;
             _userRepository = userRepository;
         }
 
@@ -54,6 +65,23 @@ namespace IdentityCore.Business
             }
 
             await _unitOfWork.CommitAsync();
+        }
+
+        public async Task UnLockUsersAsync()
+        {
+            var userEntities = await _userRepository.Get(s => !s.IsDeleted).Where(s => s.Locked!.Value < DateTime.UtcNow).ToListAsync();
+            foreach (var user in userEntities)
+            {
+                user.Locked = null;
+                _userRepository.Update(user);
+            }
+
+            await _unitOfWork.CommitAsync();
+
+            foreach (var user in userEntities)
+            {
+                await _emailBusiness.SendMailAsync(_mapper.Map<UserDTO>(user), TemplateEmailType.Unlocked);
+            }            
         }
     }
 }

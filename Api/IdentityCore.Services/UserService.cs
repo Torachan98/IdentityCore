@@ -67,7 +67,7 @@ namespace IdentityCore.Services
             }
 
             var userDto = _mapper.Map<UserDTO>(request);
-            var userUpdated = await _userBusiness.UpdateUserAsync(userDto);
+            var userUpdated = await _userBusiness.UpdateUserAsync(userDto, isLock: request.IsLock);
 
             if(request.Roles.Count > 0)
             {

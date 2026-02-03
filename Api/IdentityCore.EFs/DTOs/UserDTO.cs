@@ -58,6 +58,9 @@ namespace IdentityCore.EFs.DTOs
         [IgnoreDataMember]
         public string? RefreshToken { get; set; }
 
+        [IgnoreDataMember]
+        public string? FcmToken { get; set; }
+
         public int? Step { get; set; }
 
         public List<string> Permissions { get; set; } = new List<string>();
@@ -95,8 +98,9 @@ namespace IdentityCore.EFs.DTOs
         [AllowNotValidate]
         public DateTimeOffset? Locked { get; set; }
         public int? AttemptLogin { get; set; }
+        public string? FcmToken { get; set; }
 
-        public bool IsResentEmail { get; set; }
+        public bool IsLock { get; set; }
         public List<string> Permissions { get; set; } = new List<string>();
         public List<AssigningService> Services { get; set; } = new List<AssigningService>();
         public List<RoleResponse> Roles { get; set; } = new List<RoleResponse>();

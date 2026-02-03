@@ -21,7 +21,8 @@ export type CreateOrUpdateUserRequest = {
     expirationDate?: string;
     locked?: string;
     attemptLogin?: number;
-    isResentEmail?: boolean;
+    fcmToken?: string;
+    isLock?: boolean;
     permissions?: Array<string>;
     services?: Array<AssigningService>;
     roles?: Array<RoleResponse>;

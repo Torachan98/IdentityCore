@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { fetchServices } from "../../store/service/service.thunk";
-import DataTable from "../../components/organisms/Table/DataTable";
-import Button from "../../components/atoms/Button";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { fetchServices } from "@/store/service/service.thunk";
+import DataTable from "@/components/organisms/Table/DataTable";
+import Button from "@/components/atoms/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export default function Services() {

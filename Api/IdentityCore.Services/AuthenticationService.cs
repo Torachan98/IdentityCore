@@ -16,21 +16,26 @@ namespace IdentityCore.Services
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
+
         private readonly IAuthenticationBusiness _authenticationBusiness;
         private readonly IUserBusiness _userBusiness;
         private readonly IEmailBusiness _emailBusiness;
+
+        private readonly IFCMService _fcmService;
 
         public AuthenticationService(IHttpContextAccessor httpContextAccessor,
             IMapper mapper,
             IAuthenticationBusiness authenticationBusiness, 
             IUserBusiness userBusiness,
-            IEmailBusiness emailBusiness)
+            IEmailBusiness emailBusiness,
+            IFCMService fcmService)
         {
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _authenticationBusiness = authenticationBusiness;
             _userBusiness = userBusiness;
             _emailBusiness = emailBusiness;
+            _fcmService = fcmService;
         }
 
         public async Task<ObjectResponse<AuthenticationToken>> SignIn(SignInRequest signInRequest)
@@ -42,6 +47,18 @@ namespace IdentityCore.Services
             }
 
             var result = await _authenticationBusiness.SignInAsync(signInRequest);
+
+            var anotherUser = await _userBusiness.GetAllAsync(s => !s.IsDeleted && s.IsLogin);
+
+            var userCurrent = anotherUser.FirstOrDefault(s => s.UserName == signInRequest.UserName || s.Email == signInRequest.UserName);
+
+            foreach (var usr in anotherUser.Where(s => s.UserName != signInRequest.UserName || s.Email != signInRequest.UserName)) 
+            {
+                if (!string.IsNullOrEmpty(usr.FcmToken))
+                {
+                    await _fcmService.SendAsync(usr.FcmToken, "Login", $"User {userCurrent!.UserName} has online");
+                }
+            }
 
             return result;
         }
@@ -56,7 +73,21 @@ namespace IdentityCore.Services
                 return false;
             }
 
-            return await _authenticationBusiness.SignOutAsync(userDto, accessToken);
+            var isSignout = await _authenticationBusiness.SignOutAsync(userDto, accessToken);
+
+            if (isSignout) 
+            {
+                var anotherUser = await _userBusiness.GetAllAsync(s => !s.IsDeleted && s.IsLogin && s.GUID != userDto.GUID);
+                foreach (var usr in anotherUser)
+                {
+                    if (!string.IsNullOrEmpty(usr.FcmToken))
+                    {
+                        await _fcmService.SendAsync(usr.FcmToken, "Logout", $"User {userDto!.UserName} has offline");
+                    }
+                }
+            }
+
+            return isSignout;
         }
 
         public async Task<AuthenticationToken> RenewToken(string refreshToken)
@@ -113,16 +144,14 @@ namespace IdentityCore.Services
             return "Confirmed";
         }
 
-        public async Task ReSentOTP()
+        public async Task ReSentOTP(Guid guid)
         {
-            var userDto = _httpContextAccessor.HttpContext!.Items["User"] as UserDTO;
-            if (userDto == null)
+            var userEntity = await _userBusiness.GetUserById(guid);
+
+            if (userEntity == null)
             {
                 throw new FriendlyException(StatusCodes.Status404NotFound, "User not found");
             }
-
-
-            var userEntity = await _userBusiness.GetUserById(userDto.GUID);
 
             userEntity.OTPCode = _emailBusiness.GenerateOTP(GlobalConst.OTP.SizeCode);
             userEntity.OTPLifeTime = DateTime.UtcNow.AddMinutes(GlobalConst.OTP.LifeTimeMinute);

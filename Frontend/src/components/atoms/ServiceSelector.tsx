@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import Button from "./Button";
-import { isInvalidDateRange } from "../../helpers";
+import { isInvalidDateRange } from "@/helpers";
 
 export type ServiceOption = {
   id: string;

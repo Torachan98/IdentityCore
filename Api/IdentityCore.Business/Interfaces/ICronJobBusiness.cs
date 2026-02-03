@@ -4,5 +4,6 @@
     {
         Task CleanBlackListAsync();
         Task ResetOTPAsync();
+        Task UnLockUsersAsync();
     }
 }

@@ -85,47 +85,16 @@ builder.Services.AddStackExchangeRedisCache(action => {
     action.Configuration = connection;
 });
 
-#region AutoMapper Profile
-builder.Services.AddAutoMapper(typeof(MappingProfile));
-#endregion
 
-#region CronJobs
-builder.Services.AddTransient<ICronJobService, CronJobService>();
-builder.Services.AddTransient<ICronJobBusiness, CronJobBusiness>();
-#endregion
+builder.Services
 
-#region Service
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IPermissionService, PermissionService>();
-builder.Services.AddScoped<IRoleService,RoleService>();
-builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
-builder.Services.AddScoped<IServiceService, ServiceService>();
-builder.Services.AddScoped<IFileService, FileService>();
-#endregion
+    .AddApplications()
 
-#region Business
-builder.Services.AddScoped<IUserBusiness, UserBusiness>();
-builder.Services.AddScoped<IRoleBusiness, RoleBusiness>();
-builder.Services.AddScoped<IPermissionBusiness, PermissionBusiness>();
-builder.Services.AddScoped<IEmailBusiness, EmailBusiness>();
-builder.Services.AddScoped<IAuthenticationBusiness, AuthenticationBusiness>();
-builder.Services.AddScoped<IServiceBusiness, ServiceBusiness>();
-#endregion
+    .AddServices("CronJob", "FCM")
 
-#region Repo
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
-builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
-builder.Services.AddScoped<IUserServiceRepository, UserServiceRepository>();
-builder.Services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
-builder.Services.AddScoped<IUserPermissionRepository, UserPermissionRepository>();
-builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
-#endregion
+    .AddBusinesses("CronJob", "FCM")
 
-#region UnitOfWork
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-#endregion
+    .AddRepositoties();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -249,8 +218,8 @@ app.UseHangfireDashboard(HangfireConfig.DashboardUrl, new DashboardOptions
 app.UseRouting();
 app.UseCors("IdentityCore_Policy");
 
-app.UseAuthorization();
 app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 app.MapGrpcService<IdentityGrpcService>();
 app.MapHangfireDashboard();

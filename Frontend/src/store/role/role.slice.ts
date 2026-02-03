@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RoleState } from "./role.type";
 import { fetchRoleById, fetchRoles, updateRole } from "./role.thunk";
-import { RoleDTO } from "../../api/generated";
+import { RoleDTO } from "@/api/generated";
 
 const initialState: RoleState = {
   roles: null,

@@ -30,20 +30,7 @@ namespace IdentityCore.AutoMapper
                 .ForMember(s => s.IsRequiredChangePassword, opt => opt.MapFrom(src => src.ChangedPasswordFirstTime))
                 .ReverseMap();
 
-            CreateMap<UserDTO, CreateOrUpdateUserRequest > ()
-                //.ForMember(s => s.Email, opt => opt.MapFrom(src => src.Email))
-                //.ForMember(s => s.AvatarUrl, opt => opt.MapFrom(src => src.AvatarUrl))
-                //.ForMember(s => s.GUID, opt => opt.MapFrom(src => src.GUID))
-                //.ForMember(s => s.UserName, opt => opt.MapFrom(src => src.UserName))
-                //.ForMember(s => s.FirstName, opt => opt.MapFrom(src => src.FirstName))
-                //.ForMember(s => s.MiddleName, opt => opt.MapFrom(src => src.MiddleName))
-                //.ForMember(s => s.LastName, opt => opt.MapFrom(src => src.LastName))
-                //.ForMember(s => s.Phone, opt => opt.MapFrom(src => src.Phone))
-                //.ForMember(s => s.PhoneCode, opt => opt.MapFrom(src => src.PhoneCode))
-                //.ForMember(s => s.Region, opt => opt.MapFrom(src => src.Region))
-                //.ForMember(s => s.ExpirationDate, otp => otp.MapFrom(src => src.ExpirationDate))
-                .ForMember(s => s.IsResentEmail, opt => opt.Ignore())
-                .ReverseMap();
+            CreateMap<UserDTO, CreateOrUpdateUserRequest> ().ReverseMap();
         }
     }
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import Select from "../../atoms/Select";
+import Select from "@/components/atoms/Select";
 import Pagination from "./Pagination";
 
 export type Column<T> = {

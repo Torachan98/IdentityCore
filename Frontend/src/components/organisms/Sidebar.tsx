@@ -1,10 +1,13 @@
-import { SidebarItem } from "../molecules/SidebarItem";
-import { Icon } from "../atoms/Icon";
+import { SidebarItem } from "@/components/molecules/SidebarItem";
+import { Icon } from "@/components/atoms/Icon";
 import { replace, useNavigate } from "react-router-dom";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useAppDispatch } from "../../store/hooks";
-import { UserGreeting } from "../molecules/UserGreeting";
+import { useAppDispatch } from "@/store/hooks";
+import { UserGreeting } from "@/components/molecules/UserGreeting";
+import { signOut } from "@/store/auth/auth.thunk";
+import { BooleanApiResponse } from "@/api/generated";
+import { toast } from "react-toastify";
 
 type Props = {
   firstName: string;
@@ -136,8 +139,14 @@ export function Sidebar({ firstName, lastName, collapsed, onToggle }: Props) {
           collapsed={collapsed}
           active={false}
           onClick={async () => {
-            // await dispatch(signOut());
-            navigate("/", { replace: true });
+            await dispatch(signOut()).then((s) => {
+              const res = s.payload as BooleanApiResponse;
+              if (res.isSuccess && res.data) {
+                navigate("/login", { replace: true });
+              } else {
+                toast.error(res.message);
+              }
+            });
           }}
         />
       </nav>

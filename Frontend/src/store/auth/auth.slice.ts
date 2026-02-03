@@ -1,10 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { renewToken, signIn } from "./auth.thunk";
+import { renewToken, resentOtp, signIn, signOut } from "./auth.thunk";
 import { AuthInformation, AuthState } from "./auth.types";
 import { jwtDecode } from "jwt-decode";
 
 const initialState: AuthState = {
-  loading: false,
+  loading: true,
   token: "",
   error: null,
   step: 0,
@@ -59,23 +59,50 @@ const authSlice = createSlice({
           state.userToken = jwtDecode<AuthInformation>(
             action.payload.data ?? "",
           );
+        } else {
+          state.token = "";
+          state.userToken = null;
         }
 
-        state.error = action.payload.message ?? "";
+        //state.error = action.payload.message ?? "";
       })
 
       .addCase(renewToken.rejected, (state, action) => {
         state.loading = false;
         state.error = "Cannot POST /api/auth/renew-token";
+      })
+
+      .addCase(resentOtp.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+
+      .addCase(resentOtp.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = action.payload.message ?? "";
+      })
+
+      .addCase(resentOtp.rejected, (state) => {
+        state.loading = false;
+        state.error = "Cannot POST /api/auth/re-sent-otp";
+      })
+
+      .addCase(signOut.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+
+      .addCase(signOut.fulfilled, (state, action) => {
+        state.loading = false;
+        if (action.payload.isSuccess) {
+          state = { ...initialState };
+        }
+      })
+
+      .addCase(signOut.rejected, (state) => {
+        state.loading = false;
+        state.error = "Cannot POST /api/auth/signout";
       });
-
-    // .addCase()
-    // .addCase()
-    // .addCase()
-
-    // .addCase()
-    // .addCase()
-    // .addCase()
   },
 });
 

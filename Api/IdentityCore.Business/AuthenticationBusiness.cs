@@ -28,6 +28,7 @@ namespace IdentityCore.Business
 
         private readonly IUserBusiness _userBusiness;
         private readonly IEmailBusiness _emailBusiness;
+        
         private readonly IUserRepository _userRepository;
         private readonly IServiceRepository _serviceRepository;
         private readonly IUserServiceRepository _userServiceRepository;

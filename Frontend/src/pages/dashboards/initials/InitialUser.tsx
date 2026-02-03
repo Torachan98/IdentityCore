@@ -1,24 +1,24 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Button from "../../../components/atoms/Button";
-import { createUser, fetchUsers } from "../../../store/user/user.thunk";
-import DatePicker from "../../../components/atoms/DatePicker";
-import { setUser } from "../../../store/user/user.slice";
+import Button from "@/components/atoms/Button";
+import { createUser, fetchUsers } from "@/store/user/user.thunk";
+import DatePicker from "@/components/atoms/DatePicker";
+import { setUser } from "@/store/user/user.slice";
 import ServiceSelector, {
   SelectedService,
-} from "../../../components/atoms/ServiceSelector";
-import { MultiSelect } from "../../../components/atoms/MultipleSelect";
+} from "@/components/atoms/ServiceSelector";
+import { MultiSelect } from "@/components/atoms/MultipleSelect";
 import {
   PermissionDTO,
   RoleDTO,
   RoleResponse,
   ServiceDTO,
   UserDTO,
-} from "../../../api/generated";
-import DateTimePicker from "../../../components/atoms/DateTimePicker";
+} from "@/api/generated";
+import DateTimePicker from "@/components/atoms/DateTimePicker";
 import Switch from "react-switch";
-import { InputLabel } from "../../../components/atoms/InputLabel";
-import Select from "../../../components/atoms/Select";
-import { useAppDispatch } from "../../../store/hooks";
+import { InputLabel } from "@/components/atoms/InputLabel";
+import Select from "@/components/atoms/Select";
+import { useAppDispatch } from "@/store/hooks";
 import { useState } from "react";
 
 type Props = {

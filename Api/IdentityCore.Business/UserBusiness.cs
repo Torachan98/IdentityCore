@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Linq;
+using System.Linq.Expressions;
 using AutoMapper;
 using IdentityCore.Business.Interfaces;
 using IdentityCore.EFs;
@@ -64,6 +65,12 @@ namespace IdentityCore.Business
             _serviceRepository = serviceRepository;
             _userServiceRepository = userServiceRepository;
             _rolePermissionRepository = rolePermissionRepository;
+        }
+
+        public async Task<List<UserDTO>> GetAllAsync(Expression<Func<UserEntity, bool>> predicate = null)
+        {
+            var userEntities = await _userRepository.Get(predicate).ToListAsync();
+            return _mapper.Map<List<UserDTO>>(userEntities);    
         }
 
         public async Task<UserDTO> GetSingleUserWithPermissionAndRoleAsync(string userName, List<string> appKeys, Guid? guid = null, string refreshToken = "")
@@ -274,7 +281,7 @@ namespace IdentityCore.Business
             throw new NotImplementedException();
         }
 
-        public async Task<UserDTO> UpdateUserAsync(UserDTO userDto, bool isRelatedToken = false)
+        public async Task<UserDTO> UpdateUserAsync(UserDTO userDto, bool isRelatedToken = false,bool isLock = false)
         {
             var userEntity = await _userRepository
                                         .Get(s => (s.GUID == userDto.GUID || s.Email == userDto.Email) && !s.IsDeleted)
@@ -375,29 +382,35 @@ namespace IdentityCore.Business
 
             /* [Caution] Props must have change after update */
             userEntity.Locked = userDto.Locked;
+            userEntity.FcmToken = userDto.FcmToken;
 
             _userRepository.Update(userEntity);
             await _unitOfWork.CommitAsync();
 
-            if (userEntity.Locked != null)
+            if (isLock)
             {
-                var sendMailLock = await _distributedCache.GetStringAsync($"{KeyCache.Flags}:SentMail_Lock:{userEntity.GUID}");
-
-                if (string.IsNullOrEmpty(sendMailLock))
+                if (userEntity.Locked != null)
                 {
-                    var payload = new { IsSent = true };
-                    await _distributedCache.SetStringAsync(
-                               $"{KeyCache.Flags}:SentMail_Lock:{userEntity.GUID}",
-                               JsonConvert.SerializeObject(payload),
-                               new DistributedCacheEntryOptions
-                               {
-                                   AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30)
-                               }
-                           );
+                    var sendMailLock = await _distributedCache.GetStringAsync($"{KeyCache.Flags}:SentMail_Lock:{userEntity.GUID}");
 
-                    await _emailBusiness.SendMailAsync(_mapper.Map<UserDTO>(userEntity), TemplateEmailType.Locked);
+                    if (string.IsNullOrEmpty(sendMailLock))
+                    {
+                        var payload = new { IsSent = true };
+                        await _distributedCache.SetStringAsync(
+                                   $"{KeyCache.Flags}:SentMail_Lock:{userEntity.GUID}",
+                                   JsonConvert.SerializeObject(payload),
+                                   new DistributedCacheEntryOptions
+                                   {
+                                       AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30)
+                                   }
+                               );
+
+                        await _emailBusiness.SendMailAsync(_mapper.Map<UserDTO>(userEntity), TemplateEmailType.Locked);
+                    }
                 }
             }
+
+            
 
             return _mapper.Map<UserDTO>(userEntity);
         }

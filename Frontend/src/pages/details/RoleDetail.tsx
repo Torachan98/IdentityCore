@@ -1,15 +1,15 @@
 import { useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { fetchRoleById, updateRole } from "../../store/role/role.thunk";
-import { InputLabel } from "../../components/atoms/InputLabel";
-import { ParagraphLabel } from "../../components/atoms/ParagraphLabel";
-import { fetchPermissions } from "../../store/permission/permission.thunk";
-import { MultiSelect } from "../../components/atoms/MultipleSelect";
-import { setRole } from "../../store/role/role.slice";
-import { PermissionDTO } from "../../api/generated";
-import { PAGE_TYPE, STATUS_ACTION_TYPE } from "../../store/base.types";
-import Button from "../../components/atoms/Button";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { fetchRoleById, updateRole } from "@/store/role/role.thunk";
+import { InputLabel } from "@/components/atoms/InputLabel";
+import { ParagraphLabel } from "@/components/atoms/ParagraphLabel";
+import { fetchPermissions } from "@/store/permission/permission.thunk";
+import { MultiSelect } from "@/components/atoms/MultipleSelect";
+import { setRole } from "@/store/role/role.slice";
+import { PermissionDTO } from "@/api/generated";
+import { PAGE_TYPE, STATUS_ACTION_TYPE } from "@/store/base.types";
+import Button from "@/components/atoms/Button";
 
 type WithGuid = {
   guid?: string;

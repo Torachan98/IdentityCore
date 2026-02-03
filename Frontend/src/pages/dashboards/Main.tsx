@@ -1,7 +1,8 @@
 import { Outlet } from "react-router-dom";
-import { Sidebar } from "../../components/organisms/Sidebar";
+import { Sidebar } from "@/components/organisms/Sidebar";
 import { useState } from "react";
-import { useAppSelector } from "../../store/hooks";
+import { useAppSelector } from "@/store/hooks";
+import { NotificationPermissionFloat } from "@/components/organisms/NotificationPermissionFloat";
 
 export default function Main() {
   const [collapsed, setCollapsed] = useState(false);
@@ -18,6 +19,8 @@ export default function Main() {
       <main className="flex-1 overflow-y-auto p-6">
         <Outlet />
       </main>
+
+      <NotificationPermissionFloat />
     </div>
   );
 }

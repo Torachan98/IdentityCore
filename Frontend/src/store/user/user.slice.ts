@@ -7,7 +7,7 @@ import {
   fetchUsers,
   updateUser,
 } from "./user.thunk";
-import { UserDTO } from "../../api/generated";
+import { UserDTO } from "@/api/generated";
 
 const initialState: UserState = {
   loading: false,

@@ -5,8 +5,8 @@ import {
   RoleDTOApiResponse,
   RoleDTOPaginationItemsApiResponse,
   RoleService,
-} from "../../api/generated";
-import { FetchParams } from "../base.types";
+} from "@/api/generated";
+import { FetchParams } from "@./base.types";
 
 export const fetchRoles = createAsyncThunk<
   RoleDTOPaginationItemsApiResponse,

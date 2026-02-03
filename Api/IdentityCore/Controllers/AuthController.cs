@@ -1,13 +1,10 @@
-﻿using IdentityCore.Attributes;
-using IdentityCore.EFs;
+﻿using IdentityCore.EFs;
 using IdentityCore.EFs.DTOs;
-using IdentityCore.EFs.Enums;
 using IdentityCore.EFs.Requests;
 using IdentityCore.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 
 namespace IdentityCore.Controllers
 {
@@ -63,17 +60,17 @@ namespace IdentityCore.Controllers
                 throw new FriendlyException(StatusCodes.Status400BadRequest, "OTP has expired or not existed");
             }
 
-
             return Ok(result);
         }
 
         [HttpPost]
         [Route(ReSentOTPRoute)]
         [Attributes.Authorize]
-        public async Task<IActionResult> ReSentOTP()
+        [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> ReSentOTP([FromBody] Guid Guid)
         {
-            await _authenticationService.ReSentOTP();
-            return Ok();
+            await _authenticationService.ReSentOTP(Guid);
+            return Ok(true);
         }
 
         [HttpPost]
@@ -180,7 +177,9 @@ namespace IdentityCore.Controllers
 
         [HttpPost]
         [Route(SignOutRoute)]
+        [DisableCors]
         [Attributes.Authorize]
+        [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
         public async Task<IActionResult> Signout()
         {
             return Ok(await _authenticationService.SignOut());

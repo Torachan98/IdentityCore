@@ -1,22 +1,19 @@
 import { useEffect, useState } from "react";
-import Modal from "../../components/molecules/Modal";
-import Button from "../../components/atoms/Button";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import {
-  deleteUser,
-  fetchUsers,
-  updateUser,
-} from "../../store/user/user.thunk";
+import Modal from "@/components/molecules/Modal";
+import Button from "@/components/atoms/Button";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { deleteUser, fetchUsers, updateUser } from "@/store/user/user.thunk";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import DataTable from "../../components/organisms/Table/DataTable";
+import DataTable from "@/components/organisms/Table/DataTable";
 import { useNavigate } from "react-router-dom";
-import { PAGE_TYPE, STATUS_ACTION_TYPE } from "../../store/base.types";
-import { setUser } from "../../store/user/user.slice";
-import { Step } from "../../store/user/user.types";
-import { fetchRoles } from "../../store/role/role.thunk";
-import { fetchPermissions } from "../../store/permission/permission.thunk";
-import { fetchServices } from "../../store/service/service.thunk";
+import { PAGE_TYPE, STATUS_ACTION_TYPE } from "@/store/base.types";
+import { setUser } from "@/store/user/user.slice";
+import { Step } from "@/store/user/user.types";
+import { fetchRoles } from "@/store/role/role.thunk";
+import { fetchPermissions } from "@/store/permission/permission.thunk";
+import { fetchServices } from "@/store/service/service.thunk";
 import InitialUser from "./initials/InitialUser";
+import { UserDTO } from "@/api/generated";
 
 export default function Users() {
   const dispatch = useAppDispatch();
@@ -221,6 +218,7 @@ export default function Users() {
                       locked: new Date(
                         new Date().setDate(new Date().getDate() + 3),
                       ).toUTCString(),
+                      isLock: true,
                     }),
                   );
                   await dispatch(

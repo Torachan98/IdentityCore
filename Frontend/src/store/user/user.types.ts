@@ -1,4 +1,4 @@
-import { UserDTO } from "../../api/generated";
+import { UserDTO } from "@/api/generated";
 
 export enum Step {
   Init = -1,

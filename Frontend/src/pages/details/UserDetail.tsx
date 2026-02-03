@@ -1,31 +1,32 @@
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useEffect, useState } from "react";
-import { fetchUserById, updateUser } from "../../store/user/user.thunk";
-import Button from "../../components/atoms/Button";
+import { fetchUserById, updateUser } from "@/store/user/user.thunk";
+import Button from "@/components/atoms/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   AssigningService,
   FileService,
   RoleResponse,
   UserDTO,
-} from "../../api/generated";
-import { setUser } from "../../store/user/user.slice";
+} from "@/api/generated";
+import { setUser } from "@/store/user/user.slice";
 import Switch from "react-switch";
-import { Step } from "../../store/user/user.types";
-import { InputLabel } from "../../components/atoms/InputLabel";
-import { MultiSelect } from "../../components/atoms/MultipleSelect";
-import { fetchRoles } from "../../store/role/role.thunk";
-import { fetchPermissions } from "../../store/permission/permission.thunk";
-import { PAGE_TYPE, STATUS_ACTION_TYPE } from "../../store/base.types";
-import DateTimePicker from "../../components/atoms/DateTimePicker";
-import { fetchServices } from "../../store/service/service.thunk";
-import DatePicker from "../../components/atoms/DatePicker";
+import { Step } from "@/store/user/user.types";
+import { InputLabel } from "@/components/atoms/InputLabel";
+import { MultiSelect } from "@/components/atoms/MultipleSelect";
+import { fetchRoles } from "@/store/role/role.thunk";
+import { fetchPermissions } from "@/store/permission/permission.thunk";
+import { PAGE_TYPE, STATUS_ACTION_TYPE } from "@/store/base.types";
+import DateTimePicker from "@/components/atoms/DateTimePicker";
+import { fetchServices } from "@/store/service/service.thunk";
+import DatePicker from "@/components/atoms/DatePicker";
 import ServiceMultiSelect, {
   SelectedService,
   ServiceOption,
-} from "../../components/atoms/ServiceSelector";
-import ServiceSelector from "../../components/atoms/ServiceSelector";
+} from "@/components/atoms/ServiceSelector";
+import ServiceSelector from "@/components/atoms/ServiceSelector";
+import { resentOtp } from "@/store/auth/auth.thunk";
 
 export default function UserDetail() {
   const dispatch = useAppDispatch();
@@ -362,8 +363,8 @@ export default function UserDetail() {
                             <Button
                               className="px-2"
                               disabled={minutes > 0}
-                              onClick={() => {
-                                alert("Sent");
+                              onClick={async () => {
+                                await dispatch(resentOtp(user.guid ?? ""));
                                 setMinutes(50);
                               }}
                             >

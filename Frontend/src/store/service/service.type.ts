@@ -1,4 +1,4 @@
-import { ServiceDTO } from "../../api/generated";
+import { ServiceDTO } from "@/api/generated";
 import { BaseState } from "../base.types";
 
 export interface ServiceState extends BaseState {

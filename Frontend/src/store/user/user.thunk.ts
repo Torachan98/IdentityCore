@@ -7,7 +7,7 @@ import {
   UserDTOPaginationItems,
   UserDTOPaginationItemsApiResponse,
   UserService,
-} from "../../api/generated";
+} from "@/api/generated";
 import { FetchParams } from "../base.types";
 import { UploadAvatar } from "./user.types";
 

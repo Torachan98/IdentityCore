@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { renewToken } from "../../store/auth/auth.thunk";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { renewToken } from "@/store/auth/auth.thunk";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 
 export default function BootstrapOverlay({
   children,

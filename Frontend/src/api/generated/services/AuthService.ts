@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { AuthenticationTokenObjectResponseApiResponse } from '../models/AuthenticationTokenObjectResponseApiResponse';
+import type { BooleanApiResponse } from '../models/BooleanApiResponse';
 import type { CreateOrUpdateUserRequest } from '../models/CreateOrUpdateUserRequest';
 import type { ForgotPasswordRequest } from '../models/ForgotPasswordRequest';
 import type { OTPRequest } from '../models/OTPRequest';
@@ -41,6 +42,22 @@ export class AuthService {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/auth/confirm-otp',
+            body: requestBody,
+            mediaType: 'application/json-patch+json',
+        });
+    }
+    /**
+     * @returns BooleanApiResponse OK
+     * @throws ApiError
+     */
+    public static postApiAuthReSentOtp({
+        requestBody,
+    }: {
+        requestBody?: string,
+    }): CancelablePromise<BooleanApiResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/auth/re-sent-otp',
             body: requestBody,
             mediaType: 'application/json-patch+json',
         });
@@ -135,10 +152,10 @@ export class AuthService {
         });
     }
     /**
-     * @returns any OK
+     * @returns BooleanApiResponse OK
      * @throws ApiError
      */
-    public static postApiAuthSignout(): CancelablePromise<any> {
+    public static postApiAuthSignout(): CancelablePromise<BooleanApiResponse> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/auth/signout',

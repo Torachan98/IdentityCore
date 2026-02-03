@@ -39,7 +39,8 @@ namespace IdentityCore.EFs.Entities
         public DateTimeOffset? ExpirationDate { get; set; }
         public DateTimeOffset? OTPLifeTime { get; set; }
         public string? OTPCode { get; set; } 
-        public string? RefreshToken { get; set; } 
+        public string? RefreshToken { get; set; }
+        public string? FcmToken { get; set; }
 
         public virtual ICollection<UserServiceEntity> UserServices { get; set; }
         public virtual ICollection<UserPermissionEntity> UserPermissions { get; set; }

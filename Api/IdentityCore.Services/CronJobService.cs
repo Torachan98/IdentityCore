@@ -11,6 +11,7 @@ namespace IdentityCore.Services
 
         private const string Cronjob_CleanupTokenInBlackList = "CleanupTokenInBlackList";
         private const string Cronjob_ResetOtpCode = "ResetOtpCode";
+        private const string Cronjob_UnLockUsers = "UnLockUsers";
 
         public CronJobService(ICronJobBusiness cronJobBusiness) 
         { 
@@ -47,6 +48,17 @@ namespace IdentityCore.Services
                         {
                             RecurringJob.AddOrUpdate<ICronJobBusiness>($"{cronJob.Name}_{Guid.NewGuid()}",
                                 x => _cronJobBusiness.ResetOTPAsync(), cronExpression, options);
+                        }
+
+                        break;
+                    }
+
+                    case Cronjob_UnLockUsers:
+                    {
+                        foreach (var cronExpression in cronJob.CronExpressions!)
+                        {
+                            RecurringJob.AddOrUpdate<ICronJobBusiness>($"{cronJob.Name}_{Guid.NewGuid()}",
+                                x => _cronJobBusiness.UnLockUsersAsync(), cronExpression, options);
                         }
 
                         break;

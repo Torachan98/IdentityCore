@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import Select from "../../components/atoms/Select";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { fetchPermissions } from "../../store/permission/permission.thunk";
+import Select from "@/components/atoms/Select";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { fetchPermissions } from "@/store/permission/permission.thunk";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Button from "../../components/atoms/Button";
-import DataTable from "../../components/organisms/Table/DataTable";
+import Button from "@/components/atoms/Button";
+import DataTable from "@/components/organisms/Table/DataTable";
 
 export default function Permissions() {
   const dispatch = useAppDispatch();

@@ -1,4 +1,4 @@
-import { Avatar } from "../atoms/Avatar";
+import { Avatar } from "@/components/atoms/Avatar";
 
 type Props = {
   firstName: string;

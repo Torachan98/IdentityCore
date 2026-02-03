@@ -1,11 +1,9 @@
-﻿using Hangfire.MemoryStorage.Dto;
-using IdentityCore.Attributes;
+﻿using IdentityCore.Attributes;
 using IdentityCore.EFs.DTOs;
 using IdentityCore.EFs.Enums;
 using IdentityCore.EFs.Requests;
 using IdentityCore.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace IdentityCore.Controllers
 {
