@@ -1,5 +1,4 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useEffect } from "react";
 import { useAppSelector } from "@/store/hooks";
 
 export default function PermissionGuard() {

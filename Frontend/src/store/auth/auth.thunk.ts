@@ -6,7 +6,7 @@ import {
   SignInRequest,
   StringApiResponse,
 } from "@/api/generated";
-import { Response } from "@/auth.types";
+import { Response } from "./auth.types";
 
 export const signIn = createAsyncThunk<
   AuthenticationTokenObjectResponseApiResponse,

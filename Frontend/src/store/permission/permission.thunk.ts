@@ -5,7 +5,7 @@ import {
   PermissionDTOPaginationItemsApiResponse,
   PermissionService,
 } from "@/api/generated";
-import { FetchParams } from "@./base.types";
+import { FetchParams } from "../base.types";
 
 export const fetchPermissions = createAsyncThunk<
   PermissionDTOPaginationItemsApiResponse,
