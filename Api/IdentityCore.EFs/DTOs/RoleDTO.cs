@@ -11,7 +11,7 @@ namespace IdentityCore.EFs.DTOs
         public string Name { get; set; } = string.Empty;
         public Role Role { get; set; }
         public bool IsLock { get; set; }
-
+        public int Value { get; set; }
         public string? Description { get; set; }
         public List<PermissionDTO> Permissions { get; set; } = new List<PermissionDTO>();
     }
@@ -38,6 +38,7 @@ namespace IdentityCore.EFs.DTOs
         public Guid? GUID { get; set; }
         public required string Name { get; set; }
         public string? Description { get; set; }
+        public int Value { get; set; }
         public bool IsLock { get; set; }
 
         public List<Guid> Permissions { get; set; } = new List<Guid>();

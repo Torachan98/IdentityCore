@@ -27,7 +27,7 @@ namespace IdentityCore.Services
 
         public async Task<RoleDTO> CreateAsync(CreateOrUpdateRoleRequest request)
         {
-            if (!string.IsNullOrEmpty(request.Name))
+            if (string.IsNullOrEmpty(request.Name))
             {
                 throw new FriendlyException(StatusCodes.Status400BadRequest, "Name role do not allow empty");
             }

@@ -4,7 +4,6 @@ using IdentityCore.Business.Interfaces;
 using IdentityCore.EFs.DTOs;
 using IdentityCore.EFs.Entities;
 using IdentityCore.EFs.Requests;
-using IdentityCore.Repository;
 using IdentityCore.Repository.Interfaces;
 using IdentityCore.Repository.UnitOfWork;
 using Microsoft.AspNetCore.Http;
@@ -111,6 +110,7 @@ namespace IdentityCore.Business
                 Name = request.Name,
                 Description = request.Description,
                 IsLock = request.IsLock,
+                Value = request.Value 
             };
 
             var result = _roleRepository.Add(roleEntities);
@@ -136,6 +136,7 @@ namespace IdentityCore.Business
                                         .Get(s => request.Permissions.Any(r => s.GUID == r))
                                         .ToListAsync();
 
+            roleItem.Name = request.Name;
             roleItem.Description = request.Description;
             roleItem.DateModified = DateTime.UtcNow;
 

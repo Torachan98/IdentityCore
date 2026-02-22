@@ -24,7 +24,7 @@ namespace IdentityCore.Services.Helpers
                 }
 
                 var value = property.GetValue(obj);
-                if (value == null || (value is string str && string.IsNullOrWhiteSpace(str)))
+                if (value == null || (value is string str && string.IsNullOrEmpty(str)))
                 {
                     errors.Add($"{property.Name} is required.");
                 }

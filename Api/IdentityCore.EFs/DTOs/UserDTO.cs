@@ -98,6 +98,8 @@ namespace IdentityCore.EFs.DTOs
         [AllowNotValidate]
         public DateTimeOffset? Locked { get; set; }
         public int? AttemptLogin { get; set; }
+
+        [AllowNotValidate]
         public string? FcmToken { get; set; }
 
         public bool IsLock { get; set; }

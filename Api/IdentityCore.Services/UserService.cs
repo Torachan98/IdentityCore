@@ -69,36 +69,36 @@ namespace IdentityCore.Services
             var userDto = _mapper.Map<UserDTO>(request);
             var userUpdated = await _userBusiness.UpdateUserAsync(userDto, isLock: request.IsLock);
 
-            if(request.Roles.Count > 0)
+            //if(request.Roles.Count > 0)
+            //{
+            var roleIds = request.Roles
+                .Where(r => r.GUID.HasValue)
+                .Select(s => s.GUID)
+                .OfType<Guid>().
+                ToList();
+
+            var roleDtos = await _roleBusiness.AssignUserRolesAsync(roleIds, userUpdated.UserId);
+
+            userUpdated.Roles = roleDtos.Select(s => new RoleResponse()
             {
-                var roleIds = request.Roles
-                    .Where(r => r.GUID.HasValue)
-                    .Select(s => s.GUID)
-                    .OfType<Guid>().
-                    ToList();
+                GUID = s.GUID,
+                Role = s.Name,
+                Value = (int)s.Role,
+                Permissions = new List<string>()
+            }).ToList();
+            //}
 
-                var roleDtos = await _roleBusiness.AssignUserRolesAsync(roleIds, userUpdated.UserId);
+            //if (request.Permissions.Count > 0) 
+            //{
+            var permissionDtos = await _permissionBusiness.AssignUserPermissionsAsync(request.Permissions.Select(s => Guid.Parse(s)).ToList(), userUpdated.UserId);
+            userUpdated.Permissions = permissionDtos.Select(s => s.Guid.ToString().ToUpper()).ToList();
+            //}
 
-                userUpdated.Roles = roleDtos.Select(s => new RoleResponse()
-                {
-                    GUID = s.GUID,
-                    Role = s.Name,
-                    Value = (int)s.Role,
-                    Permissions = new List<string>()
-                }).ToList();
-            }
-
-            if (request.Permissions.Count > 0) 
-            {
-                var permissionDtos = await _permissionBusiness.AssignUserPermissionsAsync(request.Permissions.Select(s => Guid.Parse(s)).ToList(), userUpdated.UserId);
-                userUpdated.Permissions = permissionDtos.Select(s => s.Guid.ToString().ToUpper()).ToList();
-            }
-
-            if (request.Services.Count > 0) 
-            {
-                var assigningServices = await _serviceBusiness.AssigningUserServiceAsync(request.Services, userUpdated.UserId);
-                userUpdated.Services = assigningServices ?? new List<AssigningService>();
-            }
+            //if (request.Services.Count > 0) 
+            //{
+            var assigningServices = await _serviceBusiness.AssigningUserServiceAsync(request.Services, userUpdated.UserId);
+            userUpdated.Services = assigningServices ?? new List<AssigningService>();
+            //}
 
             return userUpdated;
         }
