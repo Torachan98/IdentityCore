@@ -16,14 +16,14 @@ namespace IdentityCore.Business.Interfaces
         /// <param name="guid"></param>
         /// <param name="refreshToken"></param>
         /// <returns></returns>
-        Task<UserDTO> GetSingleUserWithPermissionAndRoleAsync(string userName, List<string> appKeys, Guid? guid = null, string refreshToken = "");
+        Task<UserDTO?> GetSingleUserWithPermissionAndRoleAsync(string userName, List<string> appKeys, Guid? guid = null, string refreshToken = "", string device_id = "");
         Task<UserDTO> GetUserById(Guid guid);
         Task<UserDTO> GetUserByEmail(string email);
         Task<List<UserDTO>> GetAllAsync(Expression<Func<UserEntity, bool>> predicate = null);
         Task<PaginationItems<UserDTO>> GetUsersAsync(UserFetchRequest userFetchRequest);
         Task<UserDTO> CreateUserAsync(CreateOrUpdateUserRequest createUserRequest);
         Task<UserDTO> ForgotPasswordAsync(ForgotPasswordRequest forgotPasswordRequest);
-        Task<UserDTO> UpdateUserAsync(UserDTO userDTO, bool isRelatedToken = false, bool isLock =  false);
+        Task<UserDTO> UpdateUserAsync(UserDTO userDTO, bool isLock =  false);
         Task<bool> DeleteUserAsync(Guid guid);
     }
 }

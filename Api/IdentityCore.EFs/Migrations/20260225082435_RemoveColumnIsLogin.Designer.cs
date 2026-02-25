@@ -4,6 +4,7 @@ using IdentityCore.EFs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IdentityCore.EFs.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    partial class IdentityContextModelSnapshot : ModelSnapshot
+    [Migration("20260225082435_RemoveColumnIsLogin")]
+    partial class RemoveColumnIsLogin
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -196,66 +199,6 @@ namespace IdentityCore.EFs.Migrations
                     b.HasKey("ServiceId");
 
                     b.ToTable("Services");
-                });
-
-            modelBuilder.Entity("IdentityCore.EFs.Entities.SessionEntity", b =>
-                {
-                    b.Property<int>("SessionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SessionId"));
-
-                    b.Property<DateTimeOffset>("DateCreated")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetimeoffset")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<DateTimeOffset>("DateModified")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetimeoffset")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<string>("DeviceID")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("ExpiredDate")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("GUID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<bool>("IsLock")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("MACAddress")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OSSystem")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RefreshToken")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("SessionId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Sessions");
                 });
 
             modelBuilder.Entity("IdentityCore.EFs.Entities.UserEntity", b =>
@@ -520,17 +463,6 @@ namespace IdentityCore.EFs.Migrations
                     b.Navigation("Roles");
                 });
 
-            modelBuilder.Entity("IdentityCore.EFs.Entities.SessionEntity", b =>
-                {
-                    b.HasOne("IdentityCore.EFs.Entities.UserEntity", "Users")
-                        .WithMany("Sessions")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Users");
-                });
-
             modelBuilder.Entity("IdentityCore.EFs.Entities.UserPermissionEntity", b =>
                 {
                     b.HasOne("IdentityCore.EFs.Entities.PermissionEntity", "Permissions")
@@ -609,8 +541,6 @@ namespace IdentityCore.EFs.Migrations
 
             modelBuilder.Entity("IdentityCore.EFs.Entities.UserEntity", b =>
                 {
-                    b.Navigation("Sessions");
-
                     b.Navigation("UserPermissions");
 
                     b.Navigation("UserRoles");

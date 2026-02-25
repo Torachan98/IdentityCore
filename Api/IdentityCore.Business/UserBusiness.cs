@@ -37,6 +37,7 @@ namespace IdentityCore.Business
         private readonly IServiceRepository _serviceRepository;
         private readonly IUserServiceRepository _userServiceRepository;
         private readonly IRolePermissionRepository _rolePermissionRepository;
+        private readonly ISessionRepository _sessionRepository;
 
         public UserBusiness(IUnitOfWork unitOfWork, 
             IMapper mapper,
@@ -49,7 +50,8 @@ namespace IdentityCore.Business
             IRoleRepository roleRepository,
             IServiceRepository serviceRepository,
             IUserServiceRepository userServiceRepository,
-            IRolePermissionRepository rolePermissionRepository)
+            IRolePermissionRepository rolePermissionRepository,
+            ISessionRepository sessionRepository)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -65,6 +67,7 @@ namespace IdentityCore.Business
             _serviceRepository = serviceRepository;
             _userServiceRepository = userServiceRepository;
             _rolePermissionRepository = rolePermissionRepository;
+            _sessionRepository = sessionRepository;
         }
 
         public async Task<List<UserDTO>> GetAllAsync(Expression<Func<UserEntity, bool>> predicate = null)
@@ -73,28 +76,42 @@ namespace IdentityCore.Business
             return _mapper.Map<List<UserDTO>>(userEntities);    
         }
 
-        public async Task<UserDTO> GetSingleUserWithPermissionAndRoleAsync(string userName, List<string> appKeys, Guid? guid = null, string refreshToken = "")
+        public async Task<UserDTO?> GetSingleUserWithPermissionAndRoleAsync(string userName, List<string> appKeys, Guid? guid = null, string refreshToken = "", string device_id = "")
         {
             var userQuery = _userRepository.Get();
+            var sessionQuery = _sessionRepository.Get();
 
-            if(!string.IsNullOrEmpty(userName))
+            if (!string.IsNullOrEmpty(userName))
             {
                 userQuery = userQuery.Where(s => (s.Email == userName || s.UserName == userName) && !s.IsDeleted);
             }
             else if(guid.HasValue)
             {
-                userQuery = userQuery.Where(s => s.GUID == guid && s.IsLogin && !s.IsDeleted);
-            }
-            else
-            {
-                userQuery = userQuery.Where(s => s.RefreshToken == refreshToken && s.IsLogin &&!s.IsDeleted);
+                userQuery = userQuery.Where(s => s.GUID == guid && !s.IsDeleted);
             }
 
             userQuery = userQuery.Include(s => s.UserPermissions)
                                 .Include(s => s.UserRoles)
                                 .Include(s => s.UserServices);
+            
 
             var userEntity = await userQuery.FirstOrDefaultAsync();
+
+            if(userEntity == null)
+            {
+                return null;
+            }
+
+            if (!string.IsNullOrEmpty(refreshToken) && !string.IsNullOrEmpty(device_id))
+            {
+                var existedSession = await _sessionRepository
+                                            .Get(s => s.UserId == userEntity.UserId && s.RefreshToken == refreshToken && s.DeviceID == device_id && !s.IsLock && !s.IsDeleted)
+                                            .FirstOrDefaultAsync();
+                if (existedSession == null)
+                {
+                    return null;
+                }
+            }
 
             var userDto = _mapper.Map<UserDTO>(userEntity);
 
@@ -292,7 +309,7 @@ namespace IdentityCore.Business
             throw new NotImplementedException();
         }
 
-        public async Task<UserDTO> UpdateUserAsync(UserDTO userDto, bool isRelatedToken = false,bool isLock = false)
+        public async Task<UserDTO> UpdateUserAsync(UserDTO userDto ,bool isLock = false)
         {
             var userEntity = await _userRepository
                                         .Get(s => (s.GUID == userDto.GUID || s.Email == userDto.Email) && !s.IsDeleted)
@@ -360,16 +377,6 @@ namespace IdentityCore.Business
                 userEntity.IsRequiredChangePassword = userDto.IsRequiredChangePassword.Value;
             }
 
-            if (userDto.IsLogin.HasValue) 
-            {
-                userEntity.IsLogin = (bool)userDto.IsLogin;
-
-                if ((bool)userDto.IsLogin)
-                {
-                    userEntity.LastLogin = DateTime.UtcNow;
-                }
-            }
-
             if (userDto.IsActive.HasValue)
             {
                 userEntity.IsActive = (bool)userDto.IsActive;
@@ -386,14 +393,10 @@ namespace IdentityCore.Business
                 userEntity.Step = (int)userDto.Step;
             }
 
-            if (isRelatedToken)
-            {
-                userEntity.RefreshToken = userDto.RefreshToken;
-            }
-
             /* [Caution] Props must have change after update */
             userEntity.Locked = userDto.Locked;
             userEntity.FcmToken = userDto.FcmToken;
+            userEntity.LastLogin = DateTime.UtcNow;
 
             _userRepository.Update(userEntity);
             await _unitOfWork.CommitAsync();

@@ -35,9 +35,7 @@ namespace IdentityCore.EFs.DTOs
         public bool IsPasswordExpired { get; set; }
 
         [IgnoreDataMember]
-        public bool IsDeleted { get; set; }   
-        
-        public bool? IsLogin { get; set; }
+        public bool IsDeleted { get; set; }  
 
         public bool? IsActive { get; set; }
 
@@ -54,9 +52,6 @@ namespace IdentityCore.EFs.DTOs
 
         [IgnoreDataMember]
         public DateTimeOffset? OTPLifeTime { get; set; }
-
-        [IgnoreDataMember]
-        public string? RefreshToken { get; set; }
 
         [IgnoreDataMember]
         public string? FcmToken { get; set; }
@@ -123,9 +118,5 @@ namespace IdentityCore.EFs.DTOs
 
         [AllowNotValidate]
         public string? RefreshToken { get; set; }
-
-        [IgnoreDataMember]
-        [AllowNotValidate]
-        public bool? IsLogin { get; set; }
     }
 }

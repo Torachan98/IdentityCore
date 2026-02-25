@@ -28,9 +28,6 @@ namespace IdentityCore.EFs.Entities
         public bool IsPasswordExpired { get; set; }    
         
         [DefaultValue(false)]
-        public bool IsLogin { get; set; }  
-        
-        [DefaultValue(false)]
         public bool IsActive { get; set; }
 
         public int AttemptLogin { get; set; }
@@ -38,12 +35,12 @@ namespace IdentityCore.EFs.Entities
         public DateTimeOffset? LastLogin { get; set; }
         public DateTimeOffset? ExpirationDate { get; set; }
         public DateTimeOffset? OTPLifeTime { get; set; }
-        public string? OTPCode { get; set; } 
-        public string? RefreshToken { get; set; }
+        public string? OTPCode { get; set; }
         public string? FcmToken { get; set; }
 
         public virtual ICollection<UserServiceEntity> UserServices { get; set; }
         public virtual ICollection<UserPermissionEntity> UserPermissions { get; set; }
         public virtual ICollection<UserRoleEntity> UserRoles { get; set; }
+        public virtual ICollection<SessionEntity> Sessions { get; set; }
     }
 }

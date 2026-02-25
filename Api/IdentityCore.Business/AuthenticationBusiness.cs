@@ -16,6 +16,8 @@ using Microsoft.Extensions.Caching.Distributed;
 using IdentityCore.EFs.Enums;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using AutoMapper.Configuration.Annotations;
+using IdentityCore.EFs.Entities;
 
 namespace IdentityCore.Business
 {
@@ -28,6 +30,7 @@ namespace IdentityCore.Business
 
         private readonly IUserBusiness _userBusiness;
         private readonly IEmailBusiness _emailBusiness;
+        private readonly ISessionBusiness _sessionBusiness;
         
         private readonly IUserRepository _userRepository;
         private readonly IServiceRepository _serviceRepository;
@@ -39,7 +42,8 @@ namespace IdentityCore.Business
             IDistributedCache distributedCache,
             IHttpContextAccessor httpContextAccessor,
             IUserBusiness userBusiness,
-            IEmailBusiness emailBusiness, 
+            IEmailBusiness emailBusiness,
+            ISessionBusiness sessionBusiness,
             IUserRepository userRepository,
             IServiceRepository serviceRepository,
             IUserServiceRepository userServiceRepository,
@@ -51,6 +55,7 @@ namespace IdentityCore.Business
             _httpContextAccessor = httpContextAccessor;
             _userBusiness = userBusiness;
             _emailBusiness = emailBusiness;
+            _sessionBusiness = sessionBusiness;
             _userRepository = userRepository;
             _serviceRepository = serviceRepository;
             _userServiceRepository = userServiceRepository;
@@ -61,10 +66,16 @@ namespace IdentityCore.Business
         {
             var user = await _userBusiness.GetSingleUserWithPermissionAndRoleAsync(signInRequest.UserName!,signInRequest.AppKeys);
             var passwordEnscrypt = EnscryptHelper.ConvertSHA256(signInRequest.Password!);
+            var deviceID = _httpContextAccessor.HttpContext!.Request.Headers["X-Device-ID"].ToString();
 
-            if(user == null)
+            if (user == null)
             {
                 throw new FriendlyException(StatusCodes.Status400BadRequest, "User or password is not corrected");
+            }            
+
+            if (string.IsNullOrEmpty(deviceID))
+            {
+                throw new FriendlyException(StatusCodes.Status401Unauthorized, "Cannot recognize which device are signing in");
             }
 
             if (!Equals(user.Password, passwordEnscrypt))
@@ -108,22 +119,24 @@ namespace IdentityCore.Business
                 };
             }
 
-            if (user.IsLogin != null && user.IsLogin.Value)
-            {
-                throw new FriendlyException(StatusCodes.Status400BadRequest, "User already login");
-            }
+            var refreshToken = GenerateRefreshToken();
 
             var result = new AuthenticationToken()
             {
-                RefreshToken = GenerateRefreshToken(),
+                RefreshToken = refreshToken,
                 AccessToken = GenerateToken(user),
                 Step = user.Step ?? (int)Step.Verified
             };
 
-            user.IsLogin = true;
-            user.RefreshToken = result.RefreshToken;
+            await _sessionBusiness.CreateSession(new SessionEntity()
+            {
+                RefreshToken = refreshToken,
+                ExpiredDate = DateTimeOffset.UtcNow.AddDays(7),
+                UserId = user.UserId,
+                DeviceID = deviceID,
+            });
 
-            await _userBusiness.UpdateUserAsync(user, isRelatedToken: true);
+            await _userBusiness.UpdateUserAsync(user);
             await _distributedCache.SetStringAsync($"{KeyCache.Token}:{user.GUID}", JsonConvert.SerializeObject(user));
 
             return new ObjectResponse<AuthenticationToken>()
@@ -134,10 +147,15 @@ namespace IdentityCore.Business
 
         public async Task<bool> SignOutAsync(UserDTO user, string accessToken)
         {
-            user.IsLogin = false;
-            user.RefreshToken = null;
+            var deviceID = _httpContextAccessor.HttpContext!.Request.Headers["X-Device-ID"].ToString();
+            if (string.IsNullOrEmpty(deviceID))
+            {
+                throw new FriendlyException(StatusCodes.Status401Unauthorized, "Cannot recognize which device are signing in");
+            }
 
-            var userDto = await _userBusiness.UpdateUserAsync(user, isRelatedToken: true);
+            await _sessionBusiness.UpdateSession(user, new SessionEntity() { DeviceID = deviceID, IsDeleted = true });
+
+            var userDto = await _userBusiness.UpdateUserAsync(user);
             if(userDto == null)
             {
                 return false;
@@ -154,7 +172,8 @@ namespace IdentityCore.Business
         public async Task<AuthenticationToken> RenewTokenAsync(string refreshToken)
         {
             var appKeys = _httpContextAccessor.HttpContext!.Items["AppKeys"] as List<string>;
-            var userDto = await _userBusiness.GetSingleUserWithPermissionAndRoleAsync("", appKeys ?? new List<string>(), null,refreshToken);
+            var deviceId = _httpContextAccessor.HttpContext!.Request.Headers["X-Device-ID"].ToString(); ;
+            var userDto = await _userBusiness.GetSingleUserWithPermissionAndRoleAsync("", appKeys ?? new List<string>(), null, refreshToken, deviceId);
 
             if (userDto == null)
             {
@@ -170,7 +189,7 @@ namespace IdentityCore.Business
 
             return new AuthenticationToken()
             {
-                RefreshToken = userDto.RefreshToken,
+                RefreshToken = refreshToken,
                 AccessToken = GenerateToken(userDto)
             };
         }

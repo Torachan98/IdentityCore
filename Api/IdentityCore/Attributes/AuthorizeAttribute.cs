@@ -1,6 +1,7 @@
 ﻿using IdentityCore.EFs.DTOs;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
+using IdentityCore.EFs.Entities;
 
 namespace IdentityCore.Attributes
 {
@@ -10,8 +11,9 @@ namespace IdentityCore.Attributes
         public void OnAuthorization(AuthorizationFilterContext context)
         {
             var account = context.HttpContext.Items["User"] as UserDTO;
+            //var session = context.HttpContext.Items["User"] as SessionEntity;
 
-            if (account == null || (account.IsLogin.HasValue && !account.IsLogin.Value))
+            if (account == null)
             {
                 context.Result = new UnauthorizedResult();
             }

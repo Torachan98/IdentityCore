@@ -49,7 +49,7 @@ namespace IdentityCore.Services
 
             var result = await _authenticationBusiness.SignInAsync(signInRequest);
 
-            var anotherUser = await _userBusiness.GetAllAsync(s => !s.IsDeleted && s.IsLogin);
+            var anotherUser = await _userBusiness.GetAllAsync(s => !s.IsDeleted);
 
             var userCurrent = anotherUser.FirstOrDefault(s => s.UserName == signInRequest.UserName || s.Email == signInRequest.UserName);
 
@@ -78,7 +78,7 @@ namespace IdentityCore.Services
 
             if (isSignout) 
             {
-                var anotherUser = await _userBusiness.GetAllAsync(s => !s.IsDeleted && s.IsLogin && s.GUID != userDto.GUID);
+                var anotherUser = await _userBusiness.GetAllAsync(s => !s.IsDeleted && s.GUID != userDto.GUID);
                 foreach (var usr in anotherUser)
                 {
                     if (!string.IsNullOrEmpty(usr.FcmToken))
