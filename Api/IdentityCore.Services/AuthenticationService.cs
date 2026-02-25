@@ -4,6 +4,7 @@ using IdentityCore.Business;
 using IdentityCore.Business.Interfaces;
 using IdentityCore.EFs;
 using IdentityCore.EFs.DTOs;
+using IdentityCore.EFs.Helpers;
 using IdentityCore.EFs.Requests;
 using IdentityCore.Services.Helpers;
 using IdentityCore.Services.Interfaces;
@@ -144,9 +145,15 @@ namespace IdentityCore.Services
             return "Confirmed";
         }
 
-        public async Task ReSentOTP(Guid guid)
+        public async Task ReSentOTP(string email)
         {
-            var userEntity = await _userBusiness.GetUserById(guid);
+            var isValid = Utility.IsValidEmail(email);
+            if (!isValid)
+            {
+                throw new FriendlyException(StatusCodes.Status404NotFound, "Please input an email");
+            }
+
+            var userEntity = await _userBusiness.GetUserByEmail(email);
 
             if (userEntity == null)
             {

@@ -46,6 +46,7 @@ namespace IdentityCore.Controllers
         [Route(ConfirmOTPRoute)]
         [DisableCors]
         [AllowAnonymous]
+        [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
         public async Task<IActionResult> ConfirmOTP([FromBody] OTPRequest otpRequest)
         {
             if (string.IsNullOrEmpty(otpRequest.OTPCode))
@@ -65,11 +66,12 @@ namespace IdentityCore.Controllers
 
         [HttpPost]
         [Route(ReSentOTPRoute)]
-        [Attributes.Authorize]
+        [DisableCors]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> ReSentOTP([FromBody] Guid Guid)
+        public async Task<IActionResult> ReSentOTP([FromBody] string email)
         {
-            await _authenticationService.ReSentOTP(Guid);
+            await _authenticationService.ReSentOTP(email);
             return Ok(true);
         }
 

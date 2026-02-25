@@ -35,7 +35,7 @@ namespace IdentityCore.Services
                     {
                         foreach (var cronExpression in cronJob.CronExpressions!)
                         {
-                            RecurringJob.AddOrUpdate<ICronJobBusiness>($"{cronJob.Name}_{Guid.NewGuid()}",
+                            RecurringJob.AddOrUpdate<ICronJobBusiness>($"{cronJob.Name}",
                                 x => _cronJobBusiness.CleanBlackListAsync(), cronExpression, options);
                         }
 
@@ -46,7 +46,7 @@ namespace IdentityCore.Services
                     {
                         foreach (var cronExpression in cronJob.CronExpressions!)
                         {
-                            RecurringJob.AddOrUpdate<ICronJobBusiness>($"{cronJob.Name}_{Guid.NewGuid()}",
+                            RecurringJob.AddOrUpdate<ICronJobBusiness>($"{cronJob.Name}",
                                 x => _cronJobBusiness.ResetOTPAsync(), cronExpression, options);
                         }
 
@@ -57,7 +57,7 @@ namespace IdentityCore.Services
                     {
                         foreach (var cronExpression in cronJob.CronExpressions!)
                         {
-                            RecurringJob.AddOrUpdate<ICronJobBusiness>($"{cronJob.Name}_{Guid.NewGuid()}",
+                            RecurringJob.AddOrUpdate<ICronJobBusiness>($"{cronJob.Name}",
                                 x => _cronJobBusiness.UnLockUsersAsync(), cronExpression, options);
                         }
 

@@ -91,9 +91,7 @@ namespace IdentityCore
         {
             var httpContext = context.GetHttpContext();
             return HangsfireHelper.IsCanAccessHangfireDashboard(httpContext);
-        }
-
-        
+        }        
     }
 
     public static class HangsfireHelper

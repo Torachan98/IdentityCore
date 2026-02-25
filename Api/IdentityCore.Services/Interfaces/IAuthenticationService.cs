@@ -8,7 +8,7 @@ namespace IdentityCore.Services.Interfaces
     {
         Task<ObjectResponse<AuthenticationToken>> SignIn(SignInRequest signInRequest);
         Task<bool> SignOut();
-        Task ReSentOTP(Guid guid);
+        Task ReSentOTP(string email);
         Task<AuthenticationToken> RenewToken(string refreshToken);
         Task<string> ResetEmail(string email);
         Task<string> ResetEmailConfirm(string email, string otpCode);

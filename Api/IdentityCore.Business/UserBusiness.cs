@@ -239,6 +239,17 @@ namespace IdentityCore.Business
 
         }
 
+        public async Task<UserDTO> GetUserByEmail(string email)
+        {
+            var userEntity = await _userRepository.Get(s => s.Email.Contains(email)).FirstOrDefaultAsync();
+            if (userEntity == null) 
+            {
+                throw new FriendlyException(StatusCodes.Status404NotFound, "User not found");
+            }
+
+            return _mapper.Map<UserDTO>(userEntity);
+        }
+
         public async Task<UserDTO> CreateUserAsync(CreateOrUpdateUserRequest createUserRequest)
         {
             var isExistedUser = await _userRepository.Get(s => s.Email == createUserRequest.Email
