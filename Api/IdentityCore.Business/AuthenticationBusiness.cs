@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using AutoMapper.Configuration.Annotations;
 using IdentityCore.EFs.Entities;
+using IdentityCore.Repository;
 
 namespace IdentityCore.Business
 {
@@ -119,22 +120,43 @@ namespace IdentityCore.Business
                 };
             }
 
-            var refreshToken = GenerateRefreshToken();
+            var listSessions = await _sessionBusiness.GetSessionsByUserAsync(user.UserId);
+            var queryItemSessions = listSessions.Where(s => s.DeviceID == deviceID && !s.IsDeleted && s.ExpiredDate >= DateTime.UtcNow);
+            var existedSession = queryItemSessions.FirstOrDefault();
+            var refreshToken = string.Empty;
+
+            if (existedSession == null) 
+            {
+                var countDevicesSignIn = listSessions.Where(s => s.UserId == user.UserId && !s.IsDeleted && s.ExpiredDate >= DateTime.UtcNow).Count();
+                if (countDevicesSignIn >= 5)
+                {
+                    throw new FriendlyException(StatusCodes.Status400BadRequest, "Only allow 5 devices can sign in at the same time");
+                }
+            }
+
+            if(existedSession == null)
+            {
+                refreshToken = GenerateRefreshToken();
+
+                await _sessionBusiness.CreateSession(new SessionEntity()
+                {
+                    RefreshToken = refreshToken,
+                    ExpiredDate = DateTimeOffset.UtcNow.AddDays(7),
+                    UserId = user.UserId,
+                    DeviceID = deviceID,
+                });
+            }
+            else
+            {
+                refreshToken = existedSession.RefreshToken;
+            }
 
             var result = new AuthenticationToken()
             {
                 RefreshToken = refreshToken,
                 AccessToken = GenerateToken(user),
                 Step = user.Step ?? (int)Step.Verified
-            };
-
-            await _sessionBusiness.CreateSession(new SessionEntity()
-            {
-                RefreshToken = refreshToken,
-                ExpiredDate = DateTimeOffset.UtcNow.AddDays(7),
-                UserId = user.UserId,
-                DeviceID = deviceID,
-            });
+            };            
 
             await _userBusiness.UpdateUserAsync(user);
             await _distributedCache.SetStringAsync($"{KeyCache.Token}:{user.GUID}", JsonConvert.SerializeObject(user));

@@ -1,16 +1,9 @@
 ﻿using IdentityCore.Business.Interfaces;
 using IdentityCore.EFs.DTOs;
 using IdentityCore.EFs.Entities;
-using IdentityCore.EFs.Requests;
-using IdentityCore.Repository;
 using IdentityCore.Repository.Interfaces;
 using IdentityCore.Repository.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IdentityCore.Business
 {
@@ -20,11 +13,16 @@ namespace IdentityCore.Business
         private readonly ISessionRepository _sessionRepository;
         private readonly IUserRepository _userRepository;
 
-        public SessionBusiness(IUnitOfWork unitOfWork,ISessionRepository sessionRepository, IUserRepository userRepository) 
+        public SessionBusiness(IUnitOfWork unitOfWork, ISessionRepository sessionRepository, IUserRepository userRepository)
         {
             _unitOfWork = unitOfWork;
             _sessionRepository = sessionRepository;
             _userRepository = userRepository;
+        }
+
+        public async Task<List<SessionEntity>> GetSessionsByUserAsync(int UserId)
+        {
+            return await _sessionRepository.Get(s => s.UserId == UserId).ToListAsync();
         }
 
         public async Task<SessionEntity> CreateSession(SessionEntity sessionEntity)
@@ -36,8 +34,10 @@ namespace IdentityCore.Business
 
             var sessionExisted = await _sessionRepository.Get(s => 
                                         s.RefreshToken == sessionEntity.RefreshToken && 
+                                        s.DeviceID == sessionEntity.DeviceID &&
                                         s.UserId == sessionEntity.UserId && 
-                                        !s.IsDeleted).FirstOrDefaultAsync();
+                                        !s.IsDeleted)
+                                .FirstOrDefaultAsync();
 
             if (sessionExisted != null)
             {

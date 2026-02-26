@@ -93,7 +93,6 @@ namespace IdentityCore.Business
             userQuery = userQuery.Include(s => s.UserPermissions)
                                 .Include(s => s.UserRoles)
                                 .Include(s => s.UserServices);
-            
 
             var userEntity = await userQuery.FirstOrDefaultAsync();
 
@@ -105,7 +104,9 @@ namespace IdentityCore.Business
             if (!string.IsNullOrEmpty(refreshToken) && !string.IsNullOrEmpty(device_id))
             {
                 var existedSession = await _sessionRepository
-                                            .Get(s => s.UserId == userEntity.UserId && s.RefreshToken == refreshToken && s.DeviceID == device_id && !s.IsLock && !s.IsDeleted)
+                                            .Get(s => s.UserId == userEntity.UserId && s.RefreshToken == refreshToken && 
+                                            s.DeviceID == device_id && 
+                                            s.ExpiredDate >= DateTime.UtcNow && !s.IsLock && !s.IsDeleted)
                                             .FirstOrDefaultAsync();
                 if (existedSession == null)
                 {

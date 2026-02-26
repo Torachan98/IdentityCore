@@ -4,6 +4,7 @@ using IdentityCore.EFs.Requests;
 using IdentityCore.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IdentityCore.Controllers
@@ -22,6 +23,8 @@ namespace IdentityCore.Controllers
         private const string ResetEmaiConfirmlUserRoute = UrlRoot + "/confirm-reset-email";
         private const string RenewTokenRoute = UrlRoot + "/renew-token";
         private const string SignOutRoute = UrlRoot + "/signout";
+
+        private const string KeyCookie = "refresh-token";
 
         private readonly IUserService _userService;
         private readonly IAuthenticationService _authenticationService;
@@ -100,7 +103,7 @@ namespace IdentityCore.Controllers
 
             if(result.Item != null && result.Item.RefreshToken != null)
             {
-                Response.Cookies.Append("refreshToken", result.Item.RefreshToken,
+                Response.Cookies.Append(KeyCookie, result.Item.RefreshToken,
                     new CookieOptions
                     {
                         HttpOnly = true,
@@ -121,7 +124,7 @@ namespace IdentityCore.Controllers
         [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
         public async Task<IActionResult> RenewToken()
         {
-            var refreshToken = Request.Cookies["refreshToken"];
+            var refreshToken = Request.Cookies[KeyCookie];
 
             if (string.IsNullOrEmpty(refreshToken))
             {
@@ -136,7 +139,7 @@ namespace IdentityCore.Controllers
             }
 
             Response.Cookies.Append(
-                "refreshToken",
+                KeyCookie,
                 result.RefreshToken,
                 new CookieOptions
                 {
@@ -184,7 +187,13 @@ namespace IdentityCore.Controllers
         [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
         public async Task<IActionResult> Signout()
         {
-            return Ok(await _authenticationService.SignOut());
+            var result = await _authenticationService.SignOut();
+            if (result)
+            {
+                Response.Cookies.Delete(KeyCookie);
+            }
+            
+            return Ok(result);
         }
     }
 }
