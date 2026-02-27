@@ -101,17 +101,6 @@ namespace IdentityCore.Services
             return await _authenticationBusiness.ConfirmOTPAsync(otpCode);
         }
 
-        public async Task<string> ResetEmail(string email)
-        {
-            if (!string.IsNullOrEmpty(email))
-            {
-                throw new FriendlyException(StatusCodes.Status400BadRequest, "Email is not empty");
-            }
-
-            await _authenticationBusiness.ResetEmailAsync(email);
-            return "OTP has been sent into email";
-        }
-
         public async Task<string> ResetEmailConfirm(string email, string otpCode)
         {
             await _authenticationBusiness.ResetEmailConfirmAsync(email, otpCode);

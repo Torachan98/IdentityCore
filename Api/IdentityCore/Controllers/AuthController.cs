@@ -155,17 +155,10 @@ namespace IdentityCore.Controllers
         }
 
         [HttpPost]
-        [Route(ResetEmailUserRoute)]
-        [DisableCors]
-        public async Task<IActionResult> ResetEmail([FromQuery] string emailAddress)
-        {
-            return Ok(await _authenticationService.ResetEmail(emailAddress));
-        }
-
-        [HttpPost]
         [Route(ResetEmaiConfirmlUserRoute)]
         [DisableCors]
         [AllowAnonymous]
+        [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
         public async Task<IActionResult> ResetEmailConfirm([FromQuery] string emailAddress,string otpCode)
         {
             return Ok(await _authenticationService.ResetEmailConfirm(emailAddress, otpCode));

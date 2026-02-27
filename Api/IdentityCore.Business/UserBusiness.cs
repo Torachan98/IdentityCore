@@ -94,24 +94,25 @@ namespace IdentityCore.Business
                                 .Include(s => s.UserRoles)
                                 .Include(s => s.UserServices);
 
-            var userEntity = await userQuery.FirstOrDefaultAsync();
-
-            if(userEntity == null)
-            {
-                return null;
-            }
-
             if (!string.IsNullOrEmpty(refreshToken) && !string.IsNullOrEmpty(device_id))
             {
                 var existedSession = await _sessionRepository
-                                            .Get(s => s.UserId == userEntity.UserId && s.RefreshToken == refreshToken && 
-                                            s.DeviceID == device_id && 
+                                            .Get(s => s.RefreshToken == refreshToken && s.DeviceID == device_id && 
                                             s.ExpiredDate >= DateTime.UtcNow && !s.IsLock && !s.IsDeleted)
                                             .FirstOrDefaultAsync();
                 if (existedSession == null)
                 {
                     return null;
                 }
+
+                userQuery = userQuery.Where(s => s.UserId == existedSession.UserId);
+            }
+
+            var userEntity = await userQuery.FirstOrDefaultAsync();
+
+            if (userEntity == null)
+            {
+                return null;
             }
 
             var userDto = _mapper.Map<UserDTO>(userEntity);
