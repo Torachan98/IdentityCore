@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using Google.Apis.Drive.v3.Data;
-using IdentityCore.Business;
 using IdentityCore.Business.Interfaces;
 using IdentityCore.EFs;
 using IdentityCore.EFs.DTOs;
@@ -100,6 +98,18 @@ namespace IdentityCore.Services
         {
             return await _authenticationBusiness.ConfirmOTPAsync(otpCode);
         }
+
+        public async Task<string> ResetEmail(string email)
+        {
+            if (!string.IsNullOrEmpty(email))
+            {
+                throw new FriendlyException(StatusCodes.Status400BadRequest, "Email is not empty");
+            }
+
+            await _authenticationBusiness.ResetEmailAsync(email);
+            return "OTP has been sent into email";
+        }
+
 
         public async Task<string> ResetEmailConfirm(string email, string otpCode)
         {

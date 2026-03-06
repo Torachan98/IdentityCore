@@ -2,7 +2,10 @@
 {
     public enum Step
     {
-        WaitingConfirmed = 0,
-        Verified = 1
+        WAITING_CONFIRM = 0,
+        NORMAL = 1,
+        FORGOT_PASSWORD_EMAIL = 2,
+        OTP = 3,
+        FORGOT_PASSWORD_UPDATE_NEW_PASSWORD = 4,
     }
 }

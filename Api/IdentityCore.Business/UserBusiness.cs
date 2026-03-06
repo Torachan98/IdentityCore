@@ -280,7 +280,7 @@ namespace IdentityCore.Business
 
             var userDto = _mapper.Map<UserDTO>(createUserRequest);
 
-            userDto.Step = (int)Step.WaitingConfirmed;
+            userDto.Step = (int)Step.WAITING_CONFIRM;
             userDto.OTPCode = _emailBusiness.GenerateOTP(GlobalConst.OTP.SizeCode);
             userDto.OTPLifeTime = DateTime.UtcNow.AddMinutes(GlobalConst.OTP.LifeTimeMinute);
             userDto.Password = EnscryptHelper.ConvertSHA256(userDto.Password ?? "");

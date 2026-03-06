@@ -79,20 +79,6 @@ namespace IdentityCore.Controllers
         }
 
         [HttpPost]
-        [Route(ForgotPasswordRoute)]
-        [DisableCors]
-        [Attributes.Authorize]
-        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest forgotPasswordRequest)
-        {
-            if (forgotPasswordRequest == null) {
-                return NotFound();
-            }
-
-            var result = await _userService.ForgotPasswordAsync(forgotPasswordRequest);
-            return Ok(result);
-        }
-
-        [HttpPost]
         [Route(SignInRoute)]
         [DisableCors]
         [AllowAnonymous]
@@ -155,6 +141,14 @@ namespace IdentityCore.Controllers
         }
 
         [HttpPost]
+        [Route(ResetEmailUserRoute)]
+        [DisableCors]
+        public async Task<IActionResult> ResetEmail([FromQuery] string emailAddress)
+        {
+            return Ok(await _authenticationService.ResetEmail(emailAddress));
+        }
+
+        [HttpPost]
         [Route(ResetEmaiConfirmlUserRoute)]
         [DisableCors]
         [AllowAnonymous]
@@ -165,12 +159,29 @@ namespace IdentityCore.Controllers
         }
 
         [HttpPost]
+        [Route(ForgotPasswordRoute)]
+        [DisableCors]
+        [Attributes.Authorize]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest forgotPasswordRequest)
+        {
+            if (forgotPasswordRequest == null)
+            {
+                return NotFound();
+            }
+
+            var result = await _userService.ForgotPasswordAsync(forgotPasswordRequest);
+            return Ok(result);
+        }
+
+        [HttpPost]
         [Route(ResetPasswordUserRoute)]
         [DisableCors]
         [AllowAnonymous]
-        public async Task<IActionResult> ResetPassword()
+        [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> ResetPassword([FromBody] string email)
         {
-            return Ok();
+            var result = await _authenticationService.ResetPassword(email);
+            return Ok(result);
         } 
 
         [HttpPost]

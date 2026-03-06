@@ -110,7 +110,7 @@ namespace IdentityCore.Business
                 {
                     Item = new AuthenticationToken()
                     {
-                        Step = user.Step ?? (int)Step.WaitingConfirmed,
+                        Step = user.Step ?? (int)Step.WAITING_CONFIRM,
                         AccessToken = null,
                         RefreshToken = null
                     },
@@ -153,7 +153,7 @@ namespace IdentityCore.Business
             {
                 RefreshToken = refreshToken,
                 AccessToken = GenerateToken(user),
-                Step = user.Step ?? (int)Step.Verified
+                Step = user.Step ?? (int)Step.NORMAL
             };            
 
             await _userBusiness.UpdateUserAsync(user);
@@ -233,7 +233,7 @@ namespace IdentityCore.Business
                 await _userBusiness.UpdateUserAsync(new UserDTO()
                 {
                     GUID = userEntity.GUID,
-                    Step = (int)Step.Verified,
+                    Step = (int)Step.NORMAL,
                     IsActive = true
                 });
 
@@ -249,6 +249,23 @@ namespace IdentityCore.Business
             await _userBusiness.UpdateUserAsync(userDto);
 
             return false;
+        }
+
+        public async Task ResetEmailAsync(string email)
+        {
+            var userEntity = await _userRepository.Get().FirstOrDefaultAsync(s => s.Email == email && s.IsActive && !s.IsDeleted);
+            if (userEntity == null)
+            {
+                throw new FriendlyException(StatusCodes.Status404NotFound, "User not valid");
+            }
+
+            userEntity.OTPCode = _emailBusiness.GenerateOTP(5);
+            userEntity.OTPLifeTime = DateTime.UtcNow.AddMinutes(15);
+            _userRepository.Add(userEntity);
+
+            var userDto = _mapper.Map<UserDTO>(userEntity);
+            await _emailBusiness.SendMailAsync(userDto, TemplateEmailType.OTP);
+            await _unitOfWork.CommitAsync();
         }
 
         public async Task ResetEmailConfirmAsync(string email, string otpCode)

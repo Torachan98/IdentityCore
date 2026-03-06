@@ -33,7 +33,7 @@ namespace IdentityCore.EFs
                     Phone = "0908768106",
                     PhoneCode = "+84",
                     Region = "VN",
-                    Step = (int)Step.WaitingConfirmed,
+                    Step = (int)Step.WAITING_CONFIRM,
                 }
             };
 

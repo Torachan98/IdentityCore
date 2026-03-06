@@ -10,6 +10,7 @@ namespace IdentityCore.Business.Interfaces
         Task<bool> SignOutAsync(UserDTO userDto,string accessToken);
         Task<AuthenticationToken> RenewTokenAsync(string refreshToken);
         Task<bool> ConfirmOTPAsync(string otpCode);
+        Task ResetEmailAsync(string email);
         Task ResetEmailConfirmAsync(string email, string otpCode);
         Task ResetPasswordAsync(string email);
         Task ResetPasswordConfirmAsync(string password, string otpCode);
